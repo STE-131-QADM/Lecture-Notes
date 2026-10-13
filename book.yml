@@ -43,6 +43,10 @@ dependencies:
 #     some_param: 42
 
 toc:
-  - file: content/intro.md
+  - file: content/Course introduction.md
   - file: content/example.py
   - file: content/Part 1.py
+
+bibliography:
+  - library.bib
+cite_style: apa
