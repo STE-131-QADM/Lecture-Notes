@@ -35,6 +35,9 @@ launch_buttons:
 dependencies:
   mode: env
 
+precompute:
+  enabled: true
+
 # Anywidget defaults. Keyed by widget class name; merged with literal
 # kwargs parsed from each notebook cell. Fill in when your widgets need
 # initial state for their JS to render on first paint.

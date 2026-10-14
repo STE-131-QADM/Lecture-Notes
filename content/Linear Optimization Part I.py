@@ -1,4 +1,5 @@
 # /// script
+# requires-python = ">=3.14"
 # dependencies = [
 #     "highspy==1.15.1",
 #     "marimo>=0.25.1",
@@ -36,21 +37,27 @@ def _():
 
 
 @app.cell(hide_code=True)
-def _(mo, np):
-    a = mo.ui.slider(steps=np.linspace(0,10,11), show_value=True, value=3)
+def _(mo):
+    a = mo.ui.slider(0, 10, step=1, show_value=True, value=3)
     mo.md(f"Choose a value for $a$: {a}")
     return (a,)
 
 
 @app.cell(hide_code=True)
-def _(mo, np):
-    b = mo.ui.slider(steps=np.linspace(0,10,11), value=5, show_value=True)
-    mo.md(f"Choose a value for $b$: {b}")
-    return (b,)
+def _(a, b, mo):
+    mo.md(rf"""
+    This slider modifies the objective function coefficient so that:
+
+    \[
+        f_0(x)=ax_1+bx_2= {a.value} x_1+ {b} x_2
+    \]
+    """)
+    return
 
 
 @app.cell
 def _(np):
+    b = 5
     F = np.array(
         [
             [1, 1/4],
@@ -59,7 +66,7 @@ def _(np):
         ]
     )
     c = np.array([3, 3, 4])
-    return F, c
+    return F, b, c
 
 
 @app.cell(hide_code=True)
@@ -91,25 +98,25 @@ def _(cm, colors, np, plt):
         if not domain is None:
             X, Y = np.meshgrid(domain,domain)
             Z = obj(X,Y)
-    
+
             objective_contour = ax.contour(
                 X, Y, 
                 Z,
                 levels=10,
                 cmap="PiYG"
             )
-    
+
             # Continuous color mapping for the colorbar
             norm = colors.Normalize(
                 vmin=Z.min(),
                 vmax=Z.max()
             )
-    
+
             sm = cm.ScalarMappable(
                 norm=norm,
                 cmap="PiYG"
             )
-    
+
             fig.colorbar(sm, ax=ax, label="Objective contours")
 
         if not opt is None:
@@ -124,7 +131,7 @@ def _(cm, colors, np, plt):
 
 @app.cell(hide_code=True)
 def _(F, a, b, c, plot_linear_problem):
-    plot_linear_problem(F,c,lambda x,y: a.value*x+b.value*y)
+    plot_linear_problem(F,c,lambda x,y: a.value*x+b*y)
     return
 
 
@@ -139,7 +146,7 @@ def _(F, a, b, c, pyo):
 
     # Define objective
     model.obj = pyo.Objective(
-        expr=model.x_1*a.value + model.x_2*b.value,
+        expr=model.x_1*a.value + model.x_2*b,
         sense=pyo.maximize
     )
 
@@ -176,14 +183,9 @@ def _(mo, model, pyo):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(F, a, b, c, model, plot_linear_problem, pyo):
-    plot_linear_problem(F,c,lambda x,y: a.value*x+b.value*y, opt=(pyo.value(model.x_1), pyo.value(model.x_2)))
-    return
-
-
-@app.cell
-def _():
+    plot_linear_problem(F,c,lambda x,y: a.value*x+b*y, opt=(pyo.value(model.x_1), pyo.value(model.x_2)))
     return
 
 
