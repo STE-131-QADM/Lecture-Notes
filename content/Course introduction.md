@@ -6,9 +6,9 @@ This website serves as lecture notes throughout the course and provides compleme
 
 As the title of the course suggests, this course is about analysing data and processes and using this analysis as a basis for making decisions. The course consists of three broad themes:
 
-1. Linear and mixed-integer optimization
-2. Queue and inventory models
-3. Forecasting and embedding statistical inference into decision-making
+1. **Numerical optimization:** linear and mixed-integer optimization
+2. **Operations modeling:** queue and inventory models
+3. **Statistical inference:** forecasting and embedding statistical inference into decision-making
 
 The first part will take a significant amount of time. In the second part, we will use optimization techniques to derive key properties of queue and inventory models using tools from mathematical optimization. The last part will also build on the tools acquired earlier in the course. We will use statistical methods indirectly to estimate and interpret model parameters, but also directly by using forecasting results to parameterize optimization problems.
 
