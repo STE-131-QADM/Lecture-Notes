@@ -14,7 +14,7 @@ The first part will take a significant amount of time. In the second part, we wi
 
 ## Decision-making as a field of study
 
-Decision-making can be studied from many different perspectives. In this course, as the name suggests, we are primarily interested in analysing decision-making quantitatively. In practice, constructing a quantitative model of decision-making requires us to somehow rank the different actions available in a given situation.
+Decision-making can be studied from many different perspectives. In quantitative applications of decision-making we are required to somehow rank the different actions available in a given situation.
 
 A function that assigns a value to a given action may have different names depending on the context, such as a *utility function* or an *objective function*. Its values can have a straightforward interpretation. For example, a profit function could measure the amount of money obtained from a particular combination of inputs in euros; an objective could measure the time required for a particular logistics network to operate in minutes; or it could measure the amount of land conserved in square metres.
 
@@ -26,14 +26,13 @@ $$
     \max_{x\in\text{dom}f_0} f_0(x).
 $$
 
-Usually, however, the problem is complicated by the fact that we are not completely free to choose $x$: some constraints apply. For example, companies need to take their budget constraints into account. The problem therefore typically takes the form
+Usually, the problem is also complicated by the fact that we are not completely free to choose $x$: some constraints apply. For example, companies need to take their budget constraints into account. The problem therefore typically takes the form
 
 $$
     \begin{align*}
         \max_{x\in\text{dom}f_0}&\ f_0(x) \\
         \text{subject to}& \\
-        & f(x)\leq b \\
-        & h(x)=c.
+        & f(x)\leq b.
     \end{align*}
 $$
 
