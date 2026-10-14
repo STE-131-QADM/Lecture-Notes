@@ -32,7 +32,8 @@ $$
     \begin{align*}
         \max_{x\in\text{dom}f_0}&\ f_0(x) \\
         \text{subject to}& \\
-        & f(x)\leq b.
+        & f(x)\leq b\\
+        & h(x)=c.
     \end{align*}
 $$
 

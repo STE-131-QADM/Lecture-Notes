@@ -44,6 +44,7 @@ dependencies:
 
 toc:
   - file: content/Course introduction.md
+  - file: content/Linear Optimization Part I.py
 
 bibliography:
   - library.bib
