@@ -9,6 +9,8 @@ authors = [
 requires-python = ">=3.14"
 dependencies = [
     "highspy>=1.15.1",
+    "marimo>=0.25.1",
+    "marimo-book>=0.1.48",
     "matplotlib>=3.11.2",
     "numpy>=2.5.4",
     "pyomo>=6.10.1",
