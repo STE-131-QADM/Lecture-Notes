@@ -1,0 +1,22 @@
+[project]
+name = "lecture-notes"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "SanteriVtj", email = "santeri.vaataja@gmail.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "highspy>=1.15.1",
+    "matplotlib>=3.11.2",
+    "numpy>=2.5.4",
+    "pyomo>=6.10.1",
+]
+
+[project.scripts]
+lecture-notes = "lecture_notes:main"
+
+[build-system]
+requires = ["uv_build>=0.13.0,<0.14.0"]
+build-backend = "uv_build"
