@@ -33,7 +33,7 @@ launch_buttons:
 #             reproducible; notebooks are portable anywhere uv is
 #             installed. Override per-invocation with `build --sandbox`.
 dependencies:
-  mode: sandbox
+  mode: env
 
 precompute:
   enabled: true
