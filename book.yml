@@ -10,10 +10,14 @@ authors:
 # branch: main
 
 # Material for MkDocs palette. Any hex color works; uncomment to customise.
+theme:
+  palette:
+    primary: "#0d8209"
+    accent:  "#FF9800"
+
 # theme:
 #   palette:
 #     primary: "#1976D2"
-#     accent:  "#FF9800"
 
 # Per-chapter launch buttons. molab / download apply to .py only; github
 # applies to both .md and .py. Set any of these to false to hide them.

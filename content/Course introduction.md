@@ -1,5 +1,17 @@
 # Welcome to STE-131 Management Science – Quantitative Analysis for Decision Making!
 
+<style>
+.md-typeset a[href^="http://"],
+.md-typeset a[href^="https://"] {
+    color: #1976D2 !important;
+}
+
+.md-typeset a[href^="http://"]:hover,
+.md-typeset a[href^="https://"]:hover {
+    color: #0D47A1 !important;
+}
+</style>
+
 ## Course topics and materials
 
 This website serves as lecture notes throughout the course and provides complementary material in addition to the course textbook, [*An Introduction to Management Science: Quantitative Approaches to Decision Making* by Anderson et al.](https://helka.helsinki.fi/permalink/358UOH_INST/1r0ctnh/alma9934145505206253)
@@ -23,21 +35,21 @@ However, the value need not always have a direct measurement scale. In some case
 Regardless of the exact form and properties of this function, our goal is usually to find inputs that either maximize or minimize it, although there are also approaches to decision-making that are not formulated directly as optimization problems.[^1] This often leads to problems of the form
 
 $$
-    \max_{x\in\text{dom}f_0} f_0(x).
+    \max_{x\in\text{dom}f} f(x).
 $$
 
 Usually, the problem is also complicated by the fact that we are not completely free to choose $x$: some constraints apply. For example, companies need to take their budget constraints into account. The problem therefore typically takes the form
 
 $$
     \begin{align*}
-        \max_{x\in\text{dom}f_0}&\ f_0(x) \\
+        \max_{x\in\text{dom}f}&\ f(x) \\
         \text{subject to}& \\
-        & f(x)\leq b\\
+        & g(x)\leq b\\
         & h(x)=c.
     \end{align*}
 $$
 
-Here, the functions $f$ and $h$ encode problem-specific constraints. This formulation also allows us to analyse the problem mathematically when we make additional assumptions about the functional forms and regularity properties of $f_0$, $f$, and $h$.
+Here, the functions $f$ and $h$ encode problem-specific constraints. This formulation also allows us to analyse the problem mathematically when we make additional assumptions about the functional forms and regularity properties of $f$, $g$, and $h$.
 
 Optimization is therefore of central importance when analysing the actions available in a decision-making process. It also introduces many interesting questions that can be asked after an optimal action has been identified. For example, we are often interested in how much the result would change if there were a small change in a constraint or in some other specification of the problem. Such questions can be analysed rigorously within the mathematical optimization framework. The same general formulation can be applied in countless different situations.
 
