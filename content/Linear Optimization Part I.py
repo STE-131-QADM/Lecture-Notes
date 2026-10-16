@@ -81,6 +81,32 @@ def _(mo):
 
     These properties are called *additivity* and *homogeneity*, respectively. They also have natural interpretations in many applied models.
 
+    ???+ question "Equivalence of the definitions"
+
+        Recall that a function \(f:\mathbb{R}^n\to\mathbb{R}\) is linear if
+
+        $$
+        f(\alpha x+\beta y)
+        =
+        \alpha f(x)+\beta f(y)
+        $$
+
+        for all \(x,y\in\mathbb{R}^n\) and \(\alpha,\beta\in\mathbb{R}\).
+
+        **Show that \(f\) is linear if and only if it is both additive and homogeneous; that is,**
+
+        $$
+        f(x+y)=f(x)+f(y)
+        $$
+
+        **and**
+
+        $$
+        f(\alpha x)=\alpha f(x).
+        $$
+
+        Your proof should establish both directions of the equivalence.
+
     Consider, for example, an electricity producer selling electricity at a given market price during a particular time period. Let \(x\) denote the amount of electricity sold during this period, measured in MWh, and let \(p\) denote the price received for electricity, measured in €/MWh. If we assume that the producer can sell electricity at the same price \(p\) regardless of the amount sold, its revenue is
 
     \[
@@ -133,7 +159,7 @@ def _(mo):
     R(\alpha x)=p(\alpha x)=\alpha px=\alpha R(x).
     \]
 
-    The revenue function is therefore also Homogeneous and we can conclude that it is linear in the amount of electricity sold.
+    The revenue function is therefore also homogeneous and we can conclude that it is linear in the amount of electricity sold.
 
     However, notice that the linearity of \(R(x)=px\) follows from an important modelling assumption: the price \(p\) is treated as constant and independent of the amount sold. Whether this is a reasonable assumption depends on the application. Mathematical optimization does not determine whether an assumption is realistic; rather, it determines the best decision conditional on the mathematical model we have chosen.
 
