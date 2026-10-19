@@ -18,7 +18,19 @@ app = marimo.App(width="medium")
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    # Linear Optimization: Part I
+    # Linear Optimization Part I: Introduction
+
+    <style>
+    .md-typeset a[href^="http://"],
+    .md-typeset a[href^="https://"] {
+        color: #1976D2 !important;
+    }
+
+    .md-typeset a[href^="http://"]:hover,
+    .md-typeset a[href^="https://"]:hover {
+        color: #0D47A1 !important;
+    }
+    </style>
     """)
     return
 
@@ -92,18 +104,6 @@ def _():
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    <style>
-    .md-typeset a[href^="http://"],
-    .md-typeset a[href^="https://"] {
-        color: #1976D2 !important;
-    }
-
-    .md-typeset a[href^="http://"]:hover,
-    .md-typeset a[href^="https://"]:hover {
-        color: #0D47A1 !important;
-    }
-    </style>
-
     This first part of the course introduces the basic ideas of mathematical optimization. In an optimization problem, we choose between a set of possible alternatives in order to maximize or minimize some quantity of interest. This quantity is described by an *objective function*. For example, a firm might seek to maximize profit, whereas a transportation company might seek to minimize operating costs or emissions.
 
     We denote the decision variables by \(x\) and the objective function by \(f\). In general, \(x\) may contain several decision variables, in which case we can think of \(x\) as a vector. An optimization problem can then be expressed informally as
@@ -140,7 +140,7 @@ def _(mo):
 
     These properties are called *additivity* and *homogeneity*, respectively. They also have natural interpretations in many applied models.
 
-    ???- question "Equivalence of the definitions"
+    ???- question "Equivalence of the definitions ☠️☠️"
 
         Recall that a function \(f:\mathbb{R}^n\to\mathbb{R}\) is linear if
 
@@ -174,7 +174,7 @@ def _(mo):
     R(x)=px.
     \]
 
-    ???- question "Check the units"
+    ???- question "Check the units ☠️"
 
         Consider the revenue function
 
@@ -353,7 +353,7 @@ def _(mo):
 
         Negative prices have occurred repeatedly in Finland. See, for example, the [Finnish electricity prices in 2023](https://laskurisi-fi.translate.goog/sahko/tilastot/2023/?_x_tr_sl=fi&_x_tr_tl=en&_x_tr_hl=en-US&_x_tr_pto=wapp).
 
-    ???- question "Optimal solutions under different electricity prices"
+    ???- question "Optimal solutions under different electricity prices ☠️☠️"
 
         Consider the revenue-maximization problem
 
@@ -537,7 +537,7 @@ def _(mo):
 
     Notice that at the optimum, the entire available import capacity from Sweden is used, while the capacity from Estonia is not.
 
-    ???- question "Changes in transmission capacity"
+    ???- question "Changes in transmission capacity ☠️"
 
         Suppose a technical disturbance reduces the maximum available import capacity from Sweden from 3,100 MWh to 2,600 MWh.
 

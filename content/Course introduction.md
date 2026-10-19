@@ -74,5 +74,16 @@ Some parts of these lecture notes use formatting and features that are supported
 !!! warning "Not displayed correctly in Molab"
     Boxes like this one, which are used for exercises and notes, will not render correctly in Molab.
 
+These notes also includes multiple different kind of special boxes with slightly different purposes.
+
+???+ question "Small exercises"
+    These are meant to be small exercises on which you can practice your understanding of the topic. These exercises aren't returned and won't yield any points. These exercises are measured in scale of ☠️ to ☠️☠️☠️, more skulls and bones denoting harder exercises. However, the variation within the classes is quite large.
+
+!!! note "Notes"
+    Notes signify some extra facts around the topic.
+
+!!! info "Info"
+    Info boxes overlap with notes for some part, but are meant to indicate that the content in these boxes introduce some more advanced concepts.
+
 
 [^1]: One such approach is the [Free Energy Principle](https://web.archive.org/web/20260610001030/https://www.noumenal.ai/post/wtf-is-the-fep-a-short-explainer-on-the-free-energy-principle).

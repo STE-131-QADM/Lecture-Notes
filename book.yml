@@ -52,6 +52,7 @@ precompute:
 toc:
   - file: content/Course introduction.md
   - file: content/Linear Optimization Part I.py
+  - file: content/Linear Optimization Part II.py
 
 bibliography:
   - library.bib
