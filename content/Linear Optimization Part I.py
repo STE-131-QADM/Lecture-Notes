@@ -19,18 +19,34 @@ app = marimo.App(width="medium")
 def _():
     from pathlib import Path
     from urllib.request import urlretrieve
+    import importlib
     import importlib.util
     import sys
 
-    # Try to load protting function locally
-    try:
-        from utils.plot_lp_2d import plot_lp_2d
+    # Determine whether the local plotting module is available
+    local_paths = [
+        Path("utils/plot_lp_2d.py"),
+        Path("content/utils/plot_lp_2d.py"),
+    ]
 
-    except ModuleNotFoundError as exc:
-        if exc.name not in {"utils", "utils.plot_lp_2d"}:
-            raise
+    local_path = next(
+        (p for p in local_paths if p.is_file()),
+        None,
+    )
 
-        # Molab fallback: download from GitHub
+    if local_path is not None:
+        # Local notebook or marimo-book build
+        # No static import for marimo's dependency scanner to detect
+        parent_dir = local_path.parent.parent.resolve()
+        if str(parent_dir) not in sys.path:
+            sys.path.insert(0, str(parent_dir))
+
+        plot_lp_2d = importlib.import_module(
+            "utils.plot_lp_2d"
+        ).plot_lp_2d
+
+    else:
+        # Molab: download the source file from GitHub
         url = (
             "https://raw.githubusercontent.com/"
             "STE-131-QADM/Lecture-Notes/"
@@ -44,7 +60,6 @@ def _():
             "ste131_plotting",
             module_path,
         )
-
         module = importlib.util.module_from_spec(spec)
         sys.modules[spec.name] = module
         spec.loader.exec_module(module)
