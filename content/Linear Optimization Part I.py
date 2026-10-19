@@ -15,6 +15,44 @@ __generated_with = "0.25.1"
 app = marimo.App(width="medium")
 
 
+@app.cell(hide_code=True)
+def _():
+    from pathlib import Path
+    from urllib.request import urlretrieve
+    import importlib.util
+    import sys
+
+    # Try to load protting function locally
+    try:
+        from utils.plot_lp_2d import plot_lp_2d
+
+    except ModuleNotFoundError as exc:
+        if exc.name not in {"utils", "utils.plot_lp_2d"}:
+            raise
+
+        # Molab fallback: download from GitHub
+        url = (
+            "https://raw.githubusercontent.com/"
+            "STE-131-QADM/Lecture-Notes/"
+            "main/content/utils/plot_lp_2d.py"
+        )
+
+        module_path = Path("/tmp/ste131_plot_lp_2d.py")
+        urlretrieve(url, module_path)
+
+        spec = importlib.util.spec_from_file_location(
+            "ste131_plotting",
+            module_path,
+        )
+
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[spec.name] = module
+        spec.loader.exec_module(module)
+
+        plot_lp_2d = module.plot_lp_2d
+    return (plot_lp_2d,)
+
+
 @app.cell
 def _():
     import marimo as mo
@@ -24,9 +62,8 @@ def _():
     import matplotlib.colors as colors
     import matplotlib.cm as cm
     import highspy
-    from utils.plot_lp_2d import plot_lp_2d
 
-    return mo, plot_lp_2d, plt, pyo
+    return mo, plt, pyo
 
 
 @app.cell(hide_code=True)
