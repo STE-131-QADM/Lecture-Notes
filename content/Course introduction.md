@@ -44,12 +44,11 @@ $$
     \begin{align*}
         \max_{x\in\text{dom}f}&\ f(x) \\
         \text{subject to}& \\
-        & g(x)\leq b\\
-        & h(x)=c.
+        & g(x)\leq b.
     \end{align*}
 $$
 
-Here, the functions $f$ and $h$ encode problem-specific constraints. This formulation also allows us to analyse the problem mathematically when we make additional assumptions about the functional forms and regularity properties of $f$, $g$, and $h$.
+Here, the functions $f$ and $h$ encode problem-specific constraints. This formulation also allows us to analyse the problem mathematically when we make additional assumptions about the functional forms and regularity properties of $f$ and $g$.
 
 Optimization is therefore of central importance when analysing the actions available in a decision-making process. It also introduces many interesting questions that can be asked after an optimal action has been identified. For example, we are often interested in how much the result would change if there were a small change in a constraint or in some other specification of the problem. Such questions can be analysed rigorously within the mathematical optimization framework. The same general formulation can be applied in countless different situations.
 

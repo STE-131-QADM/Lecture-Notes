@@ -97,6 +97,8 @@ def _(mo):
 
     From a computational perspective, the number of decision variables and constraints, as well as the structure of the problem, can significantly affect how difficult it is to find an optimal solution. Nevertheless, these differences do not change the general mathematical formulation.
 
+    ## General Formulation
+
     Recall that in a linear optimization problem, the objective function and the left-hand sides of the constraints are linear in the decision variables. We can express such problems compactly using vectors and matrices.
 
     Let
@@ -125,8 +127,28 @@ def _(mo):
 
     Inequalities of the form \(\geq\) can be reversed by multiplication by \(-1\), and equality constraints can be expressed as pairs of inequalities. Constant terms in the objective function can also be omitted without changing the optimal decisions.
 
+    Consequently, the formulation above is sufficiently general to represent all linear optimization problems, even when their original formulations look quite different.
+
+    ???- question "Problem formulation ☠️"
+        Consider the electricity-import optimization problem introduced in the previous part.
+
+        **Express the problem in the general form**
+
+        $$
+        \begin{aligned}
+            \min_{x\in\mathbb{R}^n}\quad & c^\top x\\
+            \text{subject to}\quad & Ax\leq b.
+        \end{aligned}
+        $$
+
+        In particular, determine the decision-variable vector \(x\), the objective-function coefficient vector \(c\), the constraint matrix \(A\), and the constraint vector \(b\).
+
+        Remember that all the constraints must be expressed using inequalities of the form \(\leq\). Include the nonnegativity constraints in your formulation.
+
+        **Verify that your formulation is equivalent to the original problem.**
+
     ???- question "Check linearity ☠️☠️"
-        Using the definition of linearity introduced in the previous part, investigate the function
+        Using the definition of linearity introduced in the previous part, consider the function
 
         $$
         f(x)=c^\top x,
@@ -136,11 +158,18 @@ def _(mo):
 
         **Show that \(f\) is a linear function.**
 
-    ???- question "Prove min-max ☠️☠️☠️"
-        Prove the above claim about the relationship between minimization and maximization
+    ???- question "Relationship between minimization and maximization ☠️☠️☠️"
+        Consider a real-valued function \(f\) defined on a nonempty feasible set \(\mathcal F\), and assume that \(f\) attains its maximum on $\mathcal F$.
+
+        **Prove that**
+
         $$
-            \max_x f(x)=-\left(\min_x -f(x)\right).
+        \max_{x\in\mathcal F} f(x)
+        =
+        -\min_{x\in\mathcal F}\bigl(-f(x)\bigr).
         $$
+
+        Does this relationship require \(f\) to be a linear function?
 
     !!! info "Representation of linear functionals in $\mathbb{R}^n$"
         It turns out that *every* linear function \(f:\mathbb{R}^n\to\mathbb{R}\) can be represented as
@@ -157,7 +186,7 @@ def _(mo):
         x=\sum_{i=1}^n x_i e_i,
         $$
 
-        where \(e_i\) are the standard basis vectors of \(\mathbb{R}^n\). By linearity,
+        where \(e_i\) are the standard basis vectors of \(\mathbb{R}^n\) *i.e.* vectors where the $i^{\text{th}}$ element is one and every other element is zero. By linearity,
 
         $$
         f(x)=\sum_{i=1}^n x_i f(e_i).
@@ -166,6 +195,16 @@ def _(mo):
         Thus, defining \(c_i=f(e_i)\) gives the desired representation.
 
         This elementary result from linear algebra is also a finite-dimensional special case of the more general [Riesz representation theorem](https://en.wikipedia.org/wiki/Riesz_representation_theorem) from functional analysis.
+
+    ## Feasible Set and Convexity
+
+    The feasible set of a linear problem is always of the form
+
+    $$
+        \mathcal{F}=\{x\in\mathbb{R}^n\mid Ax\leq b\}
+    $$
+
+    by the previous section. It turns out that the feasible set satisfies a mathematical property that consequently turns out to be one of the most important properties in mathematical optimization.
     """)
     return
 
