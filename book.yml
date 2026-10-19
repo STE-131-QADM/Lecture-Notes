@@ -6,8 +6,8 @@ authors:
 # Uncomment + fill in to enable repo-aware launch buttons (molab / GitHub /
 # Download) on every .py page. The branch is where molab will resolve
 # against; if you're working on a feature branch, change it here.
-# repo: https://github.com/your-org/your-repo
-# branch: main
+repo: https://github.com/STE-131-QADM/Lecture-Notes
+branch: main
 
 # Material for MkDocs palette. Any hex color works; uncomment to customise.
 theme:
