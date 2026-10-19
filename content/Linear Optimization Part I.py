@@ -24,8 +24,9 @@ def _():
     import matplotlib.colors as colors
     import matplotlib.cm as cm
     import highspy
+    from utils.plot_lp_2d import plot_lp_2d
 
-    return cm, colors, mo, np, plt, pyo
+    return mo, plot_lp_2d, plt, pyo
 
 
 @app.cell(hide_code=True)
@@ -81,7 +82,7 @@ def _(mo):
 
     These properties are called *additivity* and *homogeneity*, respectively. They also have natural interpretations in many applied models.
 
-    ???+ question "Equivalence of the definitions"
+    ???- question "Equivalence of the definitions"
 
         Recall that a function \(f:\mathbb{R}^n\to\mathbb{R}\) is linear if
 
@@ -107,13 +108,15 @@ def _(mo):
 
         Your proof should establish both directions of the equivalence.
 
+        Note that this means that we could have given the defintion of linearity just as well by saying that "A function $f$ if linear if it is additive and homogenous."
+
     Consider, for example, an electricity producer selling electricity at a given market price during a particular time period. Let \(x\) denote the amount of electricity sold during this period, measured in MWh, and let \(p\) denote the price received for electricity, measured in €/MWh. If we assume that the producer can sell electricity at the same price \(p\) regardless of the amount sold, its revenue is
 
     \[
     R(x)=px.
     \]
 
-    ???+ question "Check the units"
+    ???- question "Check the units"
 
         Consider the revenue function
 
@@ -284,8 +287,6 @@ def _(mo):
     x_g^*=\bar{x}_g.
     \]
 
-    If \(p=0\), every \(x_g\in\mathcal F_g\) produces the same revenue and is therefore optimal.
-
     !!! note "Negative electricity prices"
 
         Electricity prices are not necessarily always positive. Negative prices can occasionally arise from errors in market bids, but they can also occur as a consequence of the normal operation of the electricity market.
@@ -294,7 +295,7 @@ def _(mo):
 
         Negative prices have occurred repeatedly in Finland. See, for example, the [Finnish electricity prices in 2023](https://laskurisi-fi.translate.goog/sahko/tilastot/2023/?_x_tr_sl=fi&_x_tr_tl=en&_x_tr_hl=en-US&_x_tr_pto=wapp).
 
-    ???+ question "Optimal solutions under different electricity prices"
+    ???- question "Optimal solutions under different electricity prices"
 
         Consider the revenue-maximization problem
 
@@ -323,173 +324,243 @@ def _(mo):
 
         changes as \(x_g\) increases.
 
-    ## Example on two variables
+    ## Example: An optimization problem with two decision variables
 
-    We are very rarely considering optimization problems where there is only one variable we can act on. Having multiple decision variables makes the problems we can consider much more interesting, and it introduces the notion of trade-offs to the problems.
-    """)
-    return
+    We rarely consider optimization problems in which there is only one variable we can control. Introducing multiple decision variables allows us to represent more interesting management problems, particularly situations in which we must make trade-offs between different alternatives.
 
+    Let us continue with our discussion of electricity markets and consider a specific situation in the Finnish electricity system.
 
-@app.cell(hide_code=True)
-def _(mo):
-    a = mo.ui.slider(0, 10, step=1, show_value=True, value=3)
-    mo.md(f"Choose a value for $a$: {a}")
-    return (a,)
+    ### Electricity adequacy in Finland during winter 2026–2027
 
+    On 24 September 2026, the Finnish transmission system operator Fingrid published its assessment of electricity adequacy for the coming winter. According to Fingrid, on an extremely cold and windless winter day, electricity consumption in Finland could reach approximately **15,200 MW**, while domestic electricity production could supply approximately **12,000 MW**.
 
-@app.cell(hide_code=True)
-def _(a, b, mo):
-    mo.md(rf"""
-    This slider modifies the objective function coefficient so that:
+    This leaves a difference of
 
     \[
-        f_0(x)=ax_1+bx_2= {a.value} x_1+ {b} x_2
+    15\,200-12\,000=3\,200\text{ MW}
     \]
+
+    that would need to be covered by electricity imported from neighbouring countries, assuming that domestic production and consumption remain at these levels.
+
+    Fingrid estimates in [electricity adequacy outlook for winter 2026–2027](https://www.fingrid.fi/en/news/news/2026/electricity-is-expected-to-be-sufficient-this-winter-provided-that-domestic-production-and-transmission-lines-operate-reliably/), that this electricity can be imported from Sweden and Estonia, provided that the transmission connections operate normally.
+
+    ### Formulating the optimization problem
+
+    Let us consider a simplified situation in which we must decide how much electricity to import from Sweden and Estonia to cover the difference between domestic production and consumption. We consider a one-hour period during which electricity production and consumption are assumed to remain constant. Thus, a power level of 3,200 MW corresponds to 3,200 MWh of electricity during this hour.
+
+    We define two decision variables:
+
+    \[
+    \begin{aligned}
+    x_S &= \text{electricity imported from Sweden [MWh]},\\
+    x_E &= \text{electricity imported from Estonia [MWh]}.
+    \end{aligned}
+    \]
+
+    We assume that electricity imports from each country have constant prices that are known when making our decision. For this example, let us assume the following prices:
+
+    | Country | Import price |
+    |---|---:|
+    | Sweden | 40 €/MWh |
+    | Estonia | 60 €/MWh |
+
+    These prices are illustrative and do not represent actual electricity market prices for a particular hour. The objective is to minimize the total cost of importing electricity. The objective function is therefore
+
+    \[
+    C(x_S,x_E)=40x_S+60x_E.
+    \]
+
+    Unlike our earlier example, the objective function now depends on two decision variables. However, we cannot choose the import quantities arbitrarily. They must satisfy certain constraints.
+
+    ### Electricity supply requirement
+
+    First, the total electricity imported must be sufficient to cover the estimated difference between Finnish electricity consumption and domestic production. This gives the constraint
+
+    \[
+    x_S+x_E\geq3\,200.
+    \]
+
+    Notice that the direction of the inequality differs from the capacity constraint in the previous example. Here, the constraint establishes a *lower bound* rather than an upper bound.
+
+    ### Transmission capacity constraints
+
+    Electricity transmission connections have limited capacities. Therefore, electricity imports from each country cannot exceed the available transmission capacity. According to Fingrid, the total maximum import capacity from Sweden is approximately 3,100 MW, while the corresponding capacity from Estonia is approximately 1,000 MW.
+
+    For our one-hour period, these capacities translate into the following maximum import quantities:
+
+    | Country | Maximum available imports |
+    |---|---:|
+    | Sweden | 3,100 MWh |
+    | Estonia | 1,000 MWh |
+
+    The corresponding constraints are
+
+    \[
+    x_S\leq3\,100
+    \]
+
+    and
+
+    \[
+    x_E\leq1\,000.
+    \]
+
+    Finally, since we are considering imports rather than exports, both decision variables must be nonnegative:
+
+    \[
+    x_S,x_E\geq0.
+    \]
+
+    ### The complete optimization problem
+
+    Combining the objective function and constraints, we obtain
+
+    \[
+    \begin{aligned}
+    \min_{x_S,x_E}\quad
+    &40x_S+60x_E\\
+    \text{subject to}\quad
+    &x_S+x_E\geq3\,200,\\
+    &x_S\leq3\,100,\\
+    &x_E\leq1\,000,\\
+    &x_S,x_E\geq0.
+    \end{aligned}
+    \]
+
+    We now have a linear optimization problem with two decision variables. Although this is a simplified description of electricity imports rather than a model of actual Nordic electricity-market clearing, it illustrates a fundamental management problem: how should a required quantity of a resource be obtained from different suppliers when their costs and available quantities differ? In a more realistic models there could be much more choices, the problem could span over a time period, or it could contain some uncertainties. Complicating the model can easily take the numer of decision variables to hundreds, thousands, or even higher.
+
+    ### Finding the optimal solution
+
+    Before solving this problem computationally, let us consider what we can conclude from the mathematical formulation. Both import prices are positive. Therefore, importing more electricity than necessary would only increase the total costs. Consequently, at the optimum,
+
+    \[
+    x_S+x_E=3\,200.
+    \]
+
+    We can write
+
+    \[
+    x_E=3\,200-x_S
+    \]
+
+    and substitute this into the objective function:
+
+    \[
+    \begin{aligned}
+    C(x_S)
+    &=40x_S+60(3\,200-x_S)\\
+    &=192\,000-20x_S.
+    \end{aligned}
+    \]
+
+    The objective function is strictly decreasing in \(x_S\). In other words, increasing the imports from Sweden reduces the total cost because Swedish electricity is cheaper than Estonian electricity in our example. Therefore, we should import as much electricity as possible from Sweden.
+
+    Since
+
+    \[
+    x_S\leq3\,100,
+    \]
+
+    the optimal solution is
+
+    \[
+    x_S^*=3\,100,\qquad x_E^*=100.
+    \]
+
+    The corresponding minimum cost is
+
+    \[
+    \begin{aligned}
+    C(x_S^*,x_E^*)
+    &=40(3\,100)+60(100)\\
+    &=130\,000\text{ €}.
+    \end{aligned}
+    \]
+
+    Notice that at the optimum, the entire available import capacity from Sweden is used, while the capacity from Estonia is not.
+
+    ???- question "Changes in transmission capacity"
+
+        Suppose a technical disturbance reduces the maximum available import capacity from Sweden from 3,100 MWh to 2,600 MWh.
+
+        **Determine the new optimal solution and the corresponding minimum cost.**
+
+        How much does the minimum cost increase compared with the original problem?
+
+        What happens if Swedish import capacity is reduced further to 2,100 MWh?
+
+        **Does the optimization problem still have a feasible solution? Justify your answer mathematically.**
+
+    !!! note "Modelling assumptions"
+
+        The electricity demand, domestic production, and transmission-capacity figures are based on Fingrid's published information about the Finnish electricity system. The import prices, however, are illustrative.
+
+        Our model assumes that the entire available transmission capacity can be used to import electricity at the stated prices. In reality, electricity availability and prices in neighbouring countries depend on market conditions, and the actual Nordic electricity market is more complicated.
+
+        Thus, the solution is optimal **within the assumptions of our model**, not necessarily an optimal or achievable outcome in the actual electricity market.
     """)
     return
 
 
 @app.cell
-def _(np):
-    b = 5
-    F = np.array(
-        [
-            [1, 1/4],
-            [1/4, 1],
-            [1, 1]
-        ]
-    )
-    c = np.array([3, 3, 4])
-    return F, b, c
-
-
-@app.cell(hide_code=True)
-def _(cm, colors, np, plt):
-    def plot_linear_problem(A,b,obj,domain=np.linspace(0,5,200), opt=None):
-        fig, ax = plt.subplots()
-
-        x = np.linspace(0, np.min(b / A[:, 0]), 500)
-
-        for row in range(A.shape[0]):
-            ax.plot(
-                [0, b[row]/A[row,0]],
-                [b[row]/A[row,1], 0],
-                label=f"Constraint {row}"
-            )
-
-        y_max = np.min(
-            (b[:, None] - A[:, 0, None] * x) / A[:, 1, None],
-            axis=0
-        )
-
-        ax.fill_between(x, 0, y_max, alpha=0.15, label="Feasible set")
-
-        ax.set_xlim(left=0,right=5)
-        ax.set_ylim(bottom=0, top=5)
-        ax.set_xlabel(r"$x_1$")
-        ax.set_ylabel(r"$x_2$")
-
-        if not domain is None:
-            X, Y = np.meshgrid(domain,domain)
-            Z = obj(X,Y)
-
-            objective_contour = ax.contour(
-                X, Y, 
-                Z,
-                levels=10,
-                cmap="PiYG"
-            )
-
-            # Continuous color mapping for the colorbar
-            norm = colors.Normalize(
-                vmin=Z.min(),
-                vmax=Z.max()
-            )
-
-            sm = cm.ScalarMappable(
-                norm=norm,
-                cmap="PiYG"
-            )
-
-            fig.colorbar(sm, ax=ax, label="Objective contours")
-
-        if not opt is None:
-            ax.scatter(opt[0], opt[1], c="red", marker="*", label="Optimum", zorder=4, s=75)
-
-        ax.legend()
-
-        return fig
-
-    return (plot_linear_problem,)
-
-
-@app.cell(hide_code=True)
-def _(F, a, b, c, plot_linear_problem):
-    plot_linear_problem(F,c,lambda x,y: a.value*x+b*y)
-    return
-
-
-@app.cell
-def _(F, a, b, c, pyo):
-    # Define the model object
+def _(pyo):
     model = pyo.ConcreteModel()
-    model.dual = pyo.Suffix(direction=pyo.Suffix.IMPORT)
 
-    # Define variables
-    model.x_1 = pyo.Var(within=pyo.NonNegativeReals)
-    model.x_2 = pyo.Var(within=pyo.NonNegativeReals)
+    # Decision variables (MWh)
+    model.x_S = pyo.Var(bounds=(0, 3100))
+    model.x_E = pyo.Var(bounds=(0, 1000))
 
-    # Define objective
-    model.obj = pyo.Objective(
-        expr=model.x_1*a.value + model.x_2*b,
-        sense=pyo.maximize
+    # Minimize electricity import costs (€)
+    model.cost = pyo.Objective(
+        expr=40 * model.x_S + 60 * model.x_E,
+        sense=pyo.minimize,
     )
 
-    # Define constraints
-    model.con1 = pyo.Constraint(expr=F[0,0]*model.x_1 + F[0,1]*model.x_2 <= c[0])
-    model.con2 = pyo.Constraint(expr=F[1,0]*model.x_1 + F[1,1]*model.x_2 <= c[1])
-    model.con3 = pyo.Constraint(expr=F[2,0]*model.x_1 + F[2,1]*model.x_2 <= c[2])
+    # Electricity supply requirement (MWh)
+    model.supply = pyo.Constraint(
+        expr=model.x_S + model.x_E >= 3200
+    )
 
-    # Choose solver algorithm
-    opt = pyo.SolverFactory('highs')
-    # Solve the model
-    results = opt.solve(model)
-    # Check the validity of found solution
+    # Solve
+    solver = pyo.SolverFactory("highs")
+    results = solver.solve(model)
     pyo.assert_optimal_termination(results)
     return (model,)
 
 
 @app.cell(hide_code=True)
 def _(mo, model, pyo):
-    mo.md(rf"""
-    The optimal decision is
+    mo.md(f"""
+    **Optimal electricity imports**
 
-    \[
-        x_1 = {pyo.value(model.x_1):.2f}, \qquad
-        x_2 = {pyo.value(model.x_2):.2f}.
-    \]
+    Sweden: {pyo.value(model.x_S):,.0f} MWh
 
-    The resulting objective value is
+    Estonia: {pyo.value(model.x_E):,.0f} MWh
 
-    \[
-        z^* = ax_1+bx_2 = {pyo.value(model.obj):.2f}.
-    \]
-
-
-    <!--The dual parameters for each constraint are
-
-    \[
-        \lambda_1={pyo.value(model.dual[model.con1]):.2f}, \qquad
-        \lambda_2={pyo.value(model.dual[model.con2]):.2f}, \qquad
-        \lambda_3={pyo.value(model.dual[model.con3]):.2f}
-    \]-->
+    Minimum cost: {pyo.value(model.cost):,.0f} €
     """)
     return
 
 
 @app.cell(hide_code=True)
-def _(F, a, b, c, model, plot_linear_problem, pyo):
-    plot_linear_problem(F,c,lambda x,y: a.value*x+b*y, opt=(pyo.value(model.x_1), pyo.value(model.x_2)))
+def _(mo, model, plot_lp_2d):
+    fig_lp, ax_lp = plot_lp_2d(
+        model,
+        xlim=(0, 3500),
+        ylim=(0, 1200),
+        var_labels={
+            "x_S": r"$x_S$",
+            "x_E": r"$x_E$",
+        },
+        title="Electricity LP-solution"
+    )
+
+    mo.mpl.interactive(fig_lp)
+    return
+
+
+@app.cell
+def _():
     return
 
 
