@@ -16,6 +16,14 @@ app = marimo.App(width="medium")
 
 
 @app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    # Linear Optimization: Part I
+    """)
+    return
+
+
+@app.cell(hide_code=True)
 def _():
     from pathlib import Path
     from urllib.request import urlretrieve
@@ -84,8 +92,6 @@ def _():
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    # Linear Optimization: Part I
-
     <style>
     .md-typeset a[href^="http://"],
     .md-typeset a[href^="https://"] {
@@ -384,7 +390,7 @@ def _(mo):
 
     ### Electricity adequacy in Finland during winter 2026–2027
 
-    On 24 September 2026, the Finnish transmission system operator Fingrid published its assessment of electricity adequacy for the coming winter. According to Fingrid, on an extremely cold and windless winter day, electricity consumption in Finland could reach approximately **15,200 MW**, while domestic electricity production could supply approximately **12,000 MW**.
+    On 24 September 2026, the Finnish transmission system operator Fingrid published its assessment of electricity adequacy for the coming winter. According to Fingrid, on an extremely cold and windless winter day, electricity consumption in Finland could reach approximately 15,200 MW, while domestic electricity production could supply approximately 12,000 MW.
 
     This leaves a difference of
 
@@ -590,6 +596,8 @@ def _(mo, model, pyo):
     Estonia: {pyo.value(model.x_E):,.0f} MWh
 
     Minimum cost: {pyo.value(model.cost):,.0f} €
+
+    Below you can see the problem represented graphically.
     """)
     return
 
@@ -611,8 +619,35 @@ def _(mo, model, plot_lp_2d):
     return
 
 
-@app.cell
-def _():
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ### What can we learn from this example?
+
+    The graphical representation helps us understand some fundamental properties of linear optimization problems.
+
+    First, the constraints determine the set of feasible decisions. In our electricity-import example, each constraint restricts the combinations of imports from Sweden and Estonia that are available to us. Together, these constraints define the feasible set, shown in green in the figure.
+
+    Second, the objective function allows us to compare different feasible decisions. The lines along which the objective function takes a constant value are called *level curves*, or *contour lines*. Since our objective function is linear, these curves are straight lines. Moving between parallel contour lines changes the total cost, and our goal is to find the line corresponding to the lowest cost that still intersects the feasible region.
+
+    Notice that the optimal solution is located at a *vertex* (or *corner point*) of the feasible region. This is not a coincidence. An important property of linear optimization is that if a linear optimization problem has an optimal solution and its feasible region has at least one vertex, then at least one optimal solution is attained at a vertex.
+
+    At the optimal solution of our example, two constraints hold with equality:
+
+    \[
+    x_S+x_E=3\,200
+    \]
+
+    and
+
+    \[
+    x_S=3\,100.
+    \]
+
+    These are called *binding constraints*. The capacity constraint for electricity imports from Estonia, on the other hand, is not binding because only 100 MWh of the available 1,000 MWh is used.
+
+    The distinction between binding and nonbinding constraints will become important when we investigate how changes in resource availability affect optimal decisions.
+    """)
     return
 
 

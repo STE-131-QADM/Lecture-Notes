@@ -63,4 +63,16 @@ By the end of this course, you should feel comfortable applying this type of ana
 
 While these tools are powerful, the person constructing the model ultimately bears responsibility for the assumptions used to represent the phenomenon being studied. It is therefore essential not only to understand how the methods work, but also to recognise situations in which their underlying assumptions are not appropriate.
 
+## Running the lecture notes
+
+In the upper-right corner of this page, next to the search button, you will find options to download the notebooks or open them in [Molab](https://molab.marimo.io/notebooks), an online environment for running and editing marimo notebooks.
+
+This introductory chapter does not contain executable code, so there is nothing to run in Molab. However, subsequent chapters, such as Linear Optimization: Part I, contain executable Python code that you can explore and modify. You can experiment with the examples, change model parameters, and observe how these changes affect the results.
+
+Some parts of these lecture notes use formatting and features that are supported by marimo-book but not by standard marimo notebooks. Consequently, certain elements may not render correctly when you open a chapter in Molab. For the complete lecture notes, including all explanations and formatting, I recommend using the marimo-book website. Use Molab when you want to experiment with the code.
+
+!!! warning "Not displayed correctly in Molab"
+    Boxes like this one, which are used for exercises and notes, will not render correctly in Molab.
+
+
 [^1]: One such approach is the [Free Energy Principle](https://web.archive.org/web/20260610001030/https://www.noumenal.ai/post/wtf-is-the-fep-a-short-explainer-on-the-free-energy-principle).
