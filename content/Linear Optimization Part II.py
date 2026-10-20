@@ -86,8 +86,9 @@ def _():
     import matplotlib.colors as colors
     import matplotlib.cm as cm
     import highspy
+    from matplotlib.patches import Circle, Polygon
 
-    return (mo,)
+    return Circle, Polygon, mo, np, plt, pyo
 
 
 @app.cell(hide_code=True)
@@ -108,14 +109,20 @@ def _(mo):
     - \(A\in\mathbb{R}^{m\times n}\) denote the matrix of constraint coefficients,
     - \(b\in\mathbb{R}^m\) denote the vector of right-hand sides of the \(m\) constraints.
 
-    Then, every linear optimization problem can be written, after suitable transformations, in the form
+    Then, every linear optimization problem can be written, after suitable transformations, in the form inequality form.
 
-    \[
-    \begin{aligned}
-    \min_{x\in\mathbb{R}^n}\quad & c^\top x\\
-    \text{subject to}\quad & Ax\leq b.
-    \end{aligned}
-    \]
+    !!! definition "Inequality form of the LP"
+
+        The inequality form of an LP is:
+
+        \[
+        \begin{aligned}
+        \min_{x\in\mathbb{R}^n}\quad & c^\top x\\
+        \text{subject to}\quad & Ax\leq b.
+        \end{aligned}
+        \]
+
+        Every LP can be expressed in this form.
 
     Here, the inequality \(Ax\leq b\) is interpreted componentwise: each row of \(A\) defines a linear inequality constraint.
 
@@ -206,9 +213,371 @@ def _(mo):
 
     by the previous section. It turns out that the feasible set satisfies a mathematical property that consequently turns out to be one of the most important properties in mathematical optimization. The property is called convexity.
 
-    !!! definition "test"
-        test
+    Convex sets can be described by as *sets where every two points inside the set can be connected by straight line so that the line is fully contained inside the set.* Convexity can be understood easiest by picture, as it is very much a geometric concept.
     """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(Circle, Polygon, np, plt):
+    fig, axes = plt.subplots(1, 2, figsize=(11, 5))
+
+    set_color = "#A9D8C1"
+    edge_color = "#247A57"
+    line_color = "#2563EB"
+    invalid_color = "#DC2626"
+
+    ax = axes[0]
+
+    circle = Circle(
+        (1.5, 1.5),
+        radius=1.15,
+        facecolor=set_color,
+        edgecolor=edge_color,
+        linewidth=2,
+        alpha=0.8,
+    )
+    ax.add_patch(circle)
+
+    x = np.array([0.95, 1.9])
+    y = np.array([2.05, 1.1])
+    z = 0.5 * (x + y)
+
+    ax.plot(
+        [x[0], y[0]],
+        [x[1], y[1]],
+        color=line_color,
+        linewidth=2.5,
+        zorder=3,
+    )
+
+    ax.scatter(
+        [x[0], y[0]],
+        [x[1], y[1]],
+        color=line_color,
+        s=50,
+        zorder=5,
+    )
+
+    ax.text(x[0] - 0.2, x[1] + 0.12, r"$x$", fontsize=12)
+    ax.text(y[0] + 0.1, y[1] - 0.12, r"$y$", fontsize=12)
+    ax.set_title("Convex set", fontsize=15)
+
+    ax = axes[1]
+
+    vertices = np.array([
+        [0.3, 0.3],
+        [2.8, 0.3],
+        [2.8, 1.1],
+        [1.1, 1.1],
+        [1.1, 2.8],
+        [0.3, 2.8],
+    ])
+
+    polygon = Polygon(
+        vertices,
+        closed=True,
+        facecolor=set_color,
+        edgecolor=edge_color,
+        linewidth=2,
+        alpha=0.8,
+    )
+    ax.add_patch(polygon)
+
+    x = np.array([0.7, 2.4])
+    y = np.array([2.4, 0.7])
+    z = 0.5 * (x + y)
+
+    ax.plot(
+        [x[0], y[0]],
+        [x[1], y[1]],
+        color=invalid_color,
+        linewidth=2.5,
+        linestyle="--",
+        zorder=3,
+    )
+
+    ax.scatter(
+        [x[0], y[0]],
+        [x[1], y[1]],
+        color=line_color,
+        s=50,
+        zorder=5,
+    )
+
+    ax.text(x[0] - 0.2, x[1] + 0.12, r"$x$", fontsize=12)
+    ax.text(y[0] + 0.1, y[1] - 0.12, r"$y$", fontsize=12)
+
+    ax.set_title("Nonconvex set", fontsize=15)
+
+    for ax in axes:
+        ax.set_xlim(0, 3.1)
+        ax.set_ylim(0, 3.1)
+        ax.set_aspect("equal")
+        ax.set_xticks([])
+        ax.set_yticks([])
+
+        for spine in ax.spines.values():
+            spine.set_visible(False)
+
+    fig.tight_layout(w_pad=3)
+
+    fig
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    However, we also need a mathematical definition for the convexity to be able to determine whether a given set is convex.
+
+    !!! definition "Convex set"
+
+        Let \(X\subseteq\mathbb{R}^n\). The set \(X\) is called *convex* if, for every \(x,y\in X\) and every \(\lambda\in[0,1]\),
+
+        \[
+        \lambda x+(1-\lambda)y\in X.
+        \]
+
+    Now we can show that the feasible set of the inequality form LP satisfies this definition.
+
+    !!! proposition "Convexity of feasible set"
+
+        The feasible set of inequality form LP $\mathcal{F}=\{x\in\mathbb{R}^n\mid Ax\leq b\}$ is a convex set.
+
+    ???- proof "Proof"
+
+        Let \(\lambda\in[0,1]\) and \(x,y\in\mathcal F\) be arbitrary. By the definition of the feasible set,
+
+        \[
+            Ax\leq b
+            \qquad\text{and}\qquad
+            Ay\leq b.
+        \]
+
+        Therefore,
+
+        \[
+            \begin{aligned}
+                A(\lambda x+(1-\lambda)y)
+                &=A(\lambda x)+A((1-\lambda)y)
+                &&\text{(Additivity)}\\
+                &=\lambda Ax+(1-\lambda)Ay
+                &&\text{(Homogeneity)}\\
+                &\leq\lambda b+(1-\lambda)b
+                &&\text{(Since }Ax\leq b,\ Ay\leq b\text{)}\\
+                &=b.
+            \end{aligned}
+        \]
+
+        Thus,
+
+        \[
+            A(\lambda x+(1-\lambda)y)\leq b,
+        \]
+
+        which implies that
+
+        \[
+            \lambda x+(1-\lambda)y\in\mathcal F.
+        \]
+
+        Since this holds for arbitrary \(x,y\in\mathcal F\) and \(\lambda\in[0,1]\), the feasible set \(\mathcal F\) is convex.
+
+    Convexity is a fundamental concept in mathematical optimization. One of the most important properties of convex optimization problems is that every *local optimum* is also a *global optimum*. This means that if we find a locally optimal solution, we can be certain that no other feasible solution has a better objective-function value.
+
+    Convexity therefore provides particularly strong mathematical guarantees about optimality and is one of the main reasons why convex optimization problems are often easier to analyze and solve than general nonconvex optimization problems.
+
+    ## Local and Global Optimizers
+
+    !!! definition "Local and global maximizers"
+        Let \(f:\mathbb{R}^n\to\mathbb{R}\) be a function and let \(\mathcal F\subseteq\mathbb{R}^n\) be a nonempty feasible set. Consider a point \(x^*\in\mathcal F\).
+
+        The point \(x^*\) is a local maximizer of \(f\) over \(\mathcal F\) if there exists \(\varepsilon>0\) such that
+
+        \[
+        f(x^*)\geq f(x)
+        \]
+
+        for all \(x\in\mathcal F\) satisfying \(\|x-x^*\|<\varepsilon\).
+
+        The point \(x^*\) is a global maximizer of \(f\) over \(\mathcal F\) if
+
+        \[
+        f(x^*)\geq f(x)
+        \qquad\text{for all }x\in\mathcal F.
+        \]
+
+        The corresponding definitions of local and global minimizers are obtained by reversing the inequalities.
+
+    The local and global maximizers are also shown in the plot below for one particular function.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(np, plt):
+    # Function with a local and a global maximum
+    t_optima = np.linspace(-4, 4, 2000)
+
+    g_optima = (
+        1.2 * np.exp(-(t_optima + 1.6)**2 / 0.5)
+        + 2.2 * np.exp(-(t_optima - 1.4)**2 / 0.7)
+        - 0.03 * t_optima**2
+    )
+
+    # Identify local maxima from the sampled values
+    maxima_indices_optima = np.where(
+        (g_optima[1:-1] > g_optima[:-2])
+        & (g_optima[1:-1] > g_optima[2:])
+    )[0] + 1
+
+    # Identify the global and lower local maximum
+    global_idx_optima = np.argmax(g_optima)
+
+    local_idx_optima = min(
+        maxima_indices_optima,
+        key=lambda idx: g_optima[idx],
+    )
+
+    # Create the figure
+    fig_optima, ax_optima = plt.subplots(figsize=(9, 5))
+
+    ax_optima.plot(
+        t_optima,
+        g_optima,
+        color="tab:blue",
+        linewidth=2,
+    )
+
+    # Local maximizer
+    ax_optima.scatter(
+        t_optima[local_idx_optima],
+        g_optima[local_idx_optima],
+        color="tab:orange",
+        s=75,
+        zorder=5,
+        label="Local maximizer",
+    )
+
+    ax_optima.annotate(
+        "Local maximizer",
+        xy=(
+            t_optima[local_idx_optima],
+            g_optima[local_idx_optima],
+        ),
+        xytext=(-90, 35),
+        textcoords="offset points",
+        arrowprops=dict(arrowstyle="->"),
+    )
+
+    # Global maximizer
+    ax_optima.scatter(
+        t_optima[global_idx_optima],
+        g_optima[global_idx_optima],
+        color="tab:red",
+        s=75,
+        zorder=5,
+        label="Global maximizer",
+    )
+
+    ax_optima.annotate(
+        "Global maximizer",
+        xy=(
+            t_optima[global_idx_optima],
+            g_optima[global_idx_optima],
+        ),
+        xytext=(25, -40),
+        textcoords="offset points",
+        arrowprops=dict(arrowstyle="->"),
+    )
+
+    # Formatting
+    ax_optima.set_xlabel(r"$t$")
+    ax_optima.set_ylabel(r"$g(t)$")
+    ax_optima.set_title("Local and global maximizers")
+    ax_optima.grid(alpha=0.25)
+
+    fig_optima.tight_layout()
+
+    fig_optima
+
+    return
+
+
+@app.cell
+def _(pyo):
+    def electricity_model():
+        model = pyo.AbstractModel()
+
+        model.N = pyo.Set()
+        model.M = pyo.Set()
+        model.c = pyo.Param(model.N)
+        model.A = pyo.Param(model.M, model.N)
+        model.b = pyo.Param(model.M)
+
+        model.x = pyo.Var(model.N, within=pyo.NonNegativeReals)
+
+        # Define the constraints based on matrix A, variable x and vector b 
+        def con_rule(model, m):
+            return sum(model.A[m,i]*model.x[i] for i in model.N) >= model.b[m]
+        model.con = pyo.Constraint(model.M, rule=con_rule)
+
+        def obj(model):
+            return sum(model.c[i]*model.x[i] for i in model.N)
+        model.obj = pyo.Objective(rule=obj, sense=pyo.minimize)
+
+        return model
+
+    return (electricity_model,)
+
+
+@app.function
+def create_parameters(A, b, c, M, N):
+    return {
+        None: {
+            "N": {None: list(range(N))},
+            "M": {None: list(range(M))},
+            "c": {i: float(c[i]) for i in range(N)},
+            "A": {
+                (m, i): float(A[m, i])
+                for m in range(M)
+                for i in range(N)
+            },
+            "b": {m: float(b[m]) for m in range(M)},
+        }
+    }
+
+
+@app.cell
+def _(np):
+    c = np.array([40., 60.])
+    A = np.array(
+        [
+            [1., 1.],
+            [-1., 0.],
+            [0., -1.]
+        ]
+    )
+    b = np.array([3200., -3100., -1000.])
+    M, N = np.shape(A)
+    return
+
+
+@app.cell
+def _(electricity_model, param, pyo):
+    model = electricity_model()
+
+    instance = model.create_instance(param)
+
+    solver = pyo.SolverFactory("highs")
+    results = solver.solve(instance)
+    return (results,)
+
+
+@app.cell
+def _(results):
+    results
     return
 
 

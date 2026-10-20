@@ -118,15 +118,17 @@ def _(mo):
 
     We will first concentrate on optimization problems in which the objective function and the constraints are linear.
 
-    **Definition** A function \(f:\mathbb{R}^n\rightarrow\mathbb{R}\) is linear if
+    !!! definition "Linearity"
 
-    \[
-    f(\alpha x+\beta y)
-    =
-    \alpha f(x)+\beta f(y)
-    \]
+        A function \(f:\mathbb{R}^n\rightarrow\mathbb{R}\) is linear if
 
-    for all \(x,y\in\mathbb{R}^n\) and all \(\alpha,\beta\in\mathbb{R}\).
+        \[
+        f(\alpha x+\beta y)
+        =
+        \alpha f(x)+\beta f(y)
+        \]
+
+        for all \(x,y\in\mathbb{R}^n\) and all \(\alpha,\beta\in\mathbb{R}\).
 
     Equivalently, a linear function satisfies two important properties:
 
@@ -228,7 +230,7 @@ def _(mo):
 
     The field of mathematical optimization is vast and extends far beyond linear models. Many problems involve nonlinear relationships, discrete decisions, uncertainty, or decisions made over time. During this course, we will encounter some of these more complicated models as well. Linear optimization nevertheless provides an important starting point because it introduces many of the central ideas that recur throughout mathematical optimization.
 
-    ## Constrained problems
+    ## Constrained Problems
 
     An electricity producer may want to sell more electricity, but it cannot simply supply an unlimited amount of electricity to the grid. Depending on the generation technology, production may be constrained by the availability of wind or solar energy, or by the technical capacity of a nuclear, hydroelectric, or thermal power plant.
 
@@ -384,7 +386,7 @@ def _(mo):
 
         changes as \(x_g\) increases.
 
-    ## Example: An optimization problem with two decision variables
+    ## Example: An Optimization Problem with Two Decision Variables
 
     We rarely consider optimization problems in which there is only one variable we can control. Introducing multiple decision variables allows us to represent more interesting management problems, particularly situations in which we must make trade-offs between different alternatives.
 
