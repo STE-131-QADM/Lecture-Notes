@@ -31,7 +31,9 @@ jobs:
         run: uv sync --locked
 
       - name: Build site
-        run: uv run marimo-book build --strict
+        run: |
+          uv run marimo-book build --strict
+          uv run python enable_math_admonitions.py
 
       - name: Add MathJax precompute fix
         run: |

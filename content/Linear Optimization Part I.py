@@ -116,7 +116,9 @@ def _(mo):
 
     ## Linearity
 
-    We will first concentrate on optimization problems in which the objective function and the constraints are linear. A function \(f:\mathbb{R}^n\rightarrow\mathbb{R}\) is linear if
+    We will first concentrate on optimization problems in which the objective function and the constraints are linear.
+
+    **Definition** A function \(f:\mathbb{R}^n\rightarrow\mathbb{R}\) is linear if
 
     \[
     f(\alpha x+\beta y)

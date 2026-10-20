@@ -204,7 +204,10 @@ def _(mo):
         \mathcal{F}=\{x\in\mathbb{R}^n\mid Ax\leq b\}
     $$
 
-    by the previous section. It turns out that the feasible set satisfies a mathematical property that consequently turns out to be one of the most important properties in mathematical optimization.
+    by the previous section. It turns out that the feasible set satisfies a mathematical property that consequently turns out to be one of the most important properties in mathematical optimization. The property is called convexity.
+
+    !!! definition "test"
+        test
     """)
     return
 
