@@ -74,7 +74,7 @@ def _():
         spec.loader.exec_module(module)
 
         plot_lp_2d = module.plot_lp_2d
-    return
+    return (plot_lp_2d,)
 
 
 @app.cell
@@ -578,8 +578,10 @@ def _(np, nu_slider, plt):
 @app.cell
 def _(pyo):
     def electricity_model():
+        # Initiate abstract Pyomo model
         model = pyo.AbstractModel()
 
+        # Initiate problem dimensions, parameters, and variables
         model.N = pyo.Set()
         model.M = pyo.Set()
         model.c = pyo.Param(model.N)
@@ -593,6 +595,7 @@ def _(pyo):
             return sum(model.A[m,i]*model.x[i] for i in model.N) >= model.b[m]
         model.con = pyo.Constraint(model.M, rule=con_rule)
 
+        # Define the objective function
         def obj(model):
             return sum(model.c[i]*model.x[i] for i in model.N)
         model.obj = pyo.Objective(rule=obj, sense=pyo.minimize)
@@ -604,6 +607,7 @@ def _(pyo):
 
 @app.function
 def create_parameters(A, b, c, M, N):
+    # Helper function to format the data for Pyomo
     return {
         None: {
             "N": {None: list(range(N))},
@@ -621,7 +625,11 @@ def create_parameters(A, b, c, M, N):
 
 @app.cell
 def _(np):
+    # Write the problem formulation in the inequality form
     c = np.array([40., 60.])
+    # Note that we need to multiply the greater than or equal
+    # inequalities by -1, since we can only use less than or equal
+    # in the Pyomo formulation
     A = np.array(
         [
             [1., 1.],
@@ -629,17 +637,31 @@ def _(np):
             [0., -1.]
         ]
     )
+    # Set the constraint values
     b = np.array([3200., -3100., -1000.])
+    # Get the problem dimensions M=3 (number of constraints) and N=2
+    # (number of variables)
     M, N = np.shape(A)
     return A, M, N, b, c
 
 
 @app.cell
 def _(A, M, N, b, c, electricity_model, pyo):
+    # Define the model
     model = electricity_model()
 
-    instance = model.create_instance(create_parameters(A,b,c,M,N))
+    # Instantiate a concrete Pyomo model from the abstract definition
+    instance = model.create_instance(
+        create_parameters(
+            A,
+            b,
+            c,
+            M,
+            N
+        )
+    )
 
+    # Solve the model using HiGHS solver
     solver = pyo.SolverFactory("highs")
     results = solver.solve(instance)
     return model, results
@@ -653,12 +675,21 @@ def _(results):
 
 @app.cell
 def _(A, M, N, c, model, np, pyo):
-    instance_infeasible = model.create_instance(create_parameters(A,np.array([3200., -2100., -1000.]),c,M,N))
+    # Reinstantiate the model with different constraints
+    instance_infeasible = model.create_instance(
+        create_parameters(
+            A,
+            np.array([3200., -2100., -1000.]),
+            c,
+            M,
+            N
+        )
+    )
 
     solver_infeasible = pyo.SolverFactory("highs")
     # Solve the model using load_solutions=False not to throw NoFeasibleSolutionError
     results_infeasible = solver_infeasible.solve(instance_infeasible, load_solutions=False)
-    return (results_infeasible,)
+    return instance_infeasible, results_infeasible
 
 
 @app.cell
@@ -668,10 +699,72 @@ def _(results_infeasible):
 
 
 @app.cell(hide_code=True)
+def _(instance_infeasible, mo, plot_lp_2d):
+    fig_if, ax_if = plot_lp_2d(
+        instance_infeasible,
+        xlim=(0, 3500),
+        ylim=(0, 3500),
+        var_labels={
+            "x[0]": r"$x_S$",
+            "x[1]": r"$x_E$",
+        },
+        title="Electricity LP-solution"
+    )
+
+    mo.mpl.interactive(fig_if)
+    return
+
+
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(f"""
-    The model is infeasible because the required import load is not possible due to insufficient transfer capacity.
+    The model is infeasible because the required import load is not possible due to insufficient transfer capacity. In the above plot we can see that the infeasible set is empty.
+
+    Now, let's imagine that we get a new 700 MW transfer cable built between Finland and Estonia. At the same time the electricity price in Sweden rises to par with Estonia, so that both are now at 60 $/MWh. As a consequence we get a non-unique solution for our electricity optimization problem, analogously to the toy example previously. Below you can see the graphical solution to the electricity problem. Even though the optimizer chooses the optimum allocation to be 1500 MWh from Sweden and 1700 from Estonia, we can clearly see that any point on the vertex would give us the same value and thus be a solution to the optimization problem.
+
+    Problems in higher dimensions are of course not as easy to distinguish to have multiple solutions. We will see in the next lecture how we can still find out if the solution we have found is unique.
     """)
+    return
+
+
+@app.cell
+def _(A, M, N, model, np, pyo):
+    # Reinstantiate the model with different constraint and different objective
+    instance_nonunique = model.create_instance(
+        create_parameters(
+            A,
+            np.array([3200., -3100., -1700.]),
+            np.array([60.,60.]),
+            M,
+            N
+        )
+    )
+
+    solver_nonunique = pyo.SolverFactory("highs")
+    results_nonunique = solver_nonunique.solve(instance_nonunique, load_solutions=True)
+    return instance_nonunique, results_nonunique
+
+
+@app.cell
+def _(results_nonunique):
+    results_nonunique
+    return
+
+
+@app.cell(hide_code=True)
+def _(instance_nonunique, mo, plot_lp_2d):
+    fig_nu, ax_nu = plot_lp_2d(
+        instance_nonunique,
+        xlim=(0, 3500),
+        ylim=(0, 3500),
+        var_labels={
+            "x[0]": r"$x_S$",
+            "x[1]": r"$x_E$",
+        },
+        title="Electricity LP-solution"
+    )
+
+    mo.mpl.interactive(fig_nu)
     return
 
 
