@@ -504,6 +504,71 @@ def _(np, plt):
     return
 
 
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## Feasibility and Uniqueness
+
+    We have already seen a problem that doesn't have a solution. In part I, the electricity example doen't have a solution when the transfer of energy from sweden was set to be 2100 MWh. In that case we get that \( 2100\text{ MWh}+1000\text{ MWh}=3100\text{ MWh}\ngeq 3200\text{MWh}\). In this case it was straight forward to see that the problem cannot have a solution.
+
+    In a similar fashion, an optimization problem could have in some cases many solutions that all yield equal objective values. Let's consider a problem of form
+
+    \[
+        \begin{aligned}
+            \max_x& \;x_1+x_2\\
+            \text{s.t.}& \\
+            & 5x_1+5x_2\leq 6 \\
+            & x_1,x_2\geq 0
+        \end{aligned}
+    \]
+
+    You can find the optimum of the problem by using the slider. Let $Z=x_1+x_2$ denote the objective function. You can shift the level of the objective using the slider and see that the optimum for the problem if attained at any point that belongs to a set \(\{x\in\mathbb{R}_+^2\mid x_1+x_2=6/5\}\), where \(\mathbb{R}_+^2\) is the first quadrant of the plane and more generally \(\mathbb{R}_+^n=\{x\in\mathbb{R}^n\mid x_i\geq 0 \text{ for all }0\leq i\leq n\}\).
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    nu_slider = mo.ui.slider(start=0, stop=10/5, step=1/5, value=1/5, show_value=True)
+    mo.md(f"$Z=$ {nu_slider}")
+    return (nu_slider,)
+
+
+@app.cell(hide_code=True)
+def _(np, nu_slider, plt):
+    non_unique_fig, non_unique_ax = plt.subplots()
+
+    nu_domain = np.linspace(0,6/5,100)
+
+    non_unique_ax.plot(
+        [0, 6/5],
+        [6/5, 0]
+    )
+
+    non_unique_ax.fill_between(
+        nu_domain,
+        6/5-nu_domain,
+        alpha=.2
+    )
+
+    non_unique_ax.set_xlim(0,7/5)
+    non_unique_ax.set_ylim(0,7/5)
+
+    non_unique_ax.plot(
+        [0, nu_slider.value],
+        [nu_slider.value, 0],
+        linestyle="dashed",
+        color= "green" if nu_slider.value==6/5 else "red"
+    )
+
+    non_unique_ax.set_title("LP problem with non-unique solution")
+    non_unique_ax.set_xlabel(r"$x_1$")
+    non_unique_ax.set_ylabel(r"$x_2$")
+
+    non_unique_fig
+    return
+
+
 @app.cell
 def _(pyo):
     def electricity_model():
@@ -582,10 +647,24 @@ def _(results):
 
 @app.cell
 def _(A, M, N, c, model, np, pyo):
-    instance_low = model.create_instance(create_parameters(A,np.array([3200., -2100., -1000.]),c,M,N))
+    instance_infeasible = model.create_instance(create_parameters(A,np.array([3200., -2100., -1000.]),c,M,N))
 
-    solver_low = pyo.SolverFactory("highs")
-    results_low = solver_low.solve(instance_low)
+    solver_infeasible = pyo.SolverFactory("highs")
+    results_infeasible = solver_infeasible.solve(instance_infeasible, load_solutions=False,)
+    return (results_infeasible,)
+
+
+@app.cell
+def _(results_infeasible):
+    results_infeasible.solver.termination_condition
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(f"""
+    The model is infeasible because the required import load is not possible due to insufficient transfer capacity.
+    """)
     return
 
 
