@@ -211,9 +211,9 @@ def _(mo):
         \mathcal{F}=\{x\in\mathbb{R}^n\mid Ax\leq b\}
     $$
 
-    by the previous section. It turns out that the feasible set satisfies a mathematical property that consequently turns out to be one of the most important properties in mathematical optimization. The property is called convexity.
+    by the previous sectins argument used for the matrix inequality. It turns out that the feasible set satisfies a mathematical property that consequently turns out to be one of the most important properties in mathematical optimization. The property is called convexity.
 
-    Convex sets can be described by as *sets where every two points inside the set can be connected by straight line so that the line is fully contained inside the set.* Convexity can be understood easiest by picture, as it is very much a geometric concept.
+    Convex sets can be described as *sets where every two points inside the set can be connected by straight line so that the line is fully contained inside the set.* Convexity can be understood easiest by picture, as it is very much a geometric concept.
     """)
     return
 
@@ -386,7 +386,7 @@ def _(mo):
 
     Convexity is a fundamental concept in mathematical optimization. One of the most important properties of convex optimization problems is that every *local optimum* is also a *global optimum*. This means that if we find a locally optimal solution, we can be certain that no other feasible solution has a better objective-function value.
 
-    Convexity therefore provides particularly strong mathematical guarantees about optimality and is one of the main reasons why convex optimization problems are often easier to analyze and solve than general nonconvex optimization problems.
+    Convexity therefore provides particularly strong mathematical guarantees about optimality and is one of the main reasons why convex optimization problems are often easier to analyze and solve than general nonconvex optimization problems. We are not going to work very much with general convex problems, but as shown the linear problems are subset of convex problems and therefore also benefit from the results about globality.
 
     ## Local and Global Optimizers
 
@@ -708,7 +708,7 @@ def _(instance_infeasible, mo, plot_lp_2d):
             "x[0]": r"$x_S$",
             "x[1]": r"$x_E$",
         },
-        title="Electricity LP-solution"
+        title="Electricity LP withouth a solution"
     )
 
     mo.mpl.interactive(fig_if)
@@ -720,7 +720,7 @@ def _(mo):
     mo.md(f"""
     The model is infeasible because the required import load is not possible due to insufficient transfer capacity. In the above plot we can see that the infeasible set is empty.
 
-    Now, let's imagine that we get a new 700 MW transfer cable built between Finland and Estonia. At the same time the electricity price in Sweden rises to par with Estonia, so that both are now at 60 $/MWh. As a consequence we get a non-unique solution for our electricity optimization problem, analogously to the toy example previously. Below you can see the graphical solution to the electricity problem. Even though the optimizer chooses the optimum allocation to be 1500 MWh from Sweden and 1700 from Estonia, we can clearly see that any point on the vertex would give us the same value and thus be a solution to the optimization problem.
+    Now, let's imagine that we get a new 700 MW transfer cable built between Finland and Estonia. At the same time the electricity price in Sweden rises to par with Estonia, so that both are now at 60 $/MWh. As a consequence we get a non-unique solution for our electricity optimization problem, analogously to the toy example previously. Below you can see the graphical solution to the electricity problem. Even though the optimizer chooses the optimum allocation to be 1500 MWh from Sweden and 1700 MWh from Estonia, we can clearly see that any point on the vertex would give us the same value and thus be a solution to the optimization problem.
 
     Problems in higher dimensions are of course not as easy to distinguish to have multiple solutions. We will see in the next lecture how we can still find out if the solution we have found is unique.
     """)
@@ -761,10 +761,15 @@ def _(instance_nonunique, mo, plot_lp_2d):
             "x[0]": r"$x_S$",
             "x[1]": r"$x_E$",
         },
-        title="Electricity LP-solution"
+        title="Electricity LP-solution with new objective and constraints"
     )
 
     mo.mpl.interactive(fig_nu)
+    return
+
+
+@app.cell
+def _():
     return
 
 
