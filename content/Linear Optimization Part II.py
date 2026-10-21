@@ -529,7 +529,13 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def _(mo):
-    nu_slider = mo.ui.slider(start=0, stop=10/5, step=1/5, value=1/5, show_value=True)
+    nu_slider = mo.ui.slider(
+        start=0.0,
+        stop=2.0,
+        step=0.2,
+        value=0.2,
+        show_value=True
+    )
     mo.md(f"$Z=$ {nu_slider}")
     return (nu_slider,)
 
@@ -650,7 +656,8 @@ def _(A, M, N, c, model, np, pyo):
     instance_infeasible = model.create_instance(create_parameters(A,np.array([3200., -2100., -1000.]),c,M,N))
 
     solver_infeasible = pyo.SolverFactory("highs")
-    results_infeasible = solver_infeasible.solve(instance_infeasible, load_solutions=False,)
+    # Solve the model using load_solutions=False not to throw NoFeasibleSolutionError
+    results_infeasible = solver_infeasible.solve(instance_infeasible, load_solutions=False)
     return (results_infeasible,)
 
 
