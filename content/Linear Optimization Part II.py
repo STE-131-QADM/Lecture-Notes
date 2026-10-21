@@ -501,7 +501,6 @@ def _(np, plt):
     fig_optima.tight_layout()
 
     fig_optima
-
     return
 
 
@@ -561,23 +560,32 @@ def _(np):
     )
     b = np.array([3200., -3100., -1000.])
     M, N = np.shape(A)
-    return
+    return A, M, N, b, c
 
 
 @app.cell
-def _(electricity_model, param, pyo):
+def _(A, M, N, b, c, electricity_model, pyo):
     model = electricity_model()
 
-    instance = model.create_instance(param)
+    instance = model.create_instance(create_parameters(A,b,c,M,N))
 
     solver = pyo.SolverFactory("highs")
     results = solver.solve(instance)
-    return (results,)
+    return model, results
 
 
 @app.cell
 def _(results):
     results
+    return
+
+
+@app.cell
+def _(A, M, N, c, model, np, pyo):
+    instance_low = model.create_instance(create_parameters(A,np.array([3200., -2100., -1000.]),c,M,N))
+
+    solver_low = pyo.SolverFactory("highs")
+    results_low = solver_low.solve(instance_low)
     return
 
 
