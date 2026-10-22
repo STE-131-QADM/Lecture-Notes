@@ -41,6 +41,10 @@ dependencies:
 
 precompute:
   enabled: true
+  max_values_per_widget: 50
+  max_combinations_per_page: 500
+  max_seconds_per_page: 600
+  max_bytes_per_page: 50000000
 
 # Anywidget defaults. Keyed by widget class name; merged with literal
 # kwargs parsed from each notebook cell. Fill in when your widgets need
@@ -53,6 +57,7 @@ toc:
   - file: content/Course introduction.md
   - file: content/Linear Optimization Part I.py
   - file: content/Linear Optimization Part II.py
+  - file: content/Food Network.py
 
 bibliography:
   - library.bib

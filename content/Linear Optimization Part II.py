@@ -219,7 +219,7 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(Circle, Polygon, np, plt):
+def _(Circle, Polygon, lambda_slider, np, plt):
     fig, axes = plt.subplots(1, 2, figsize=(11, 5))
 
     set_color = "#A9D8C1"
@@ -254,6 +254,13 @@ def _(Circle, Polygon, np, plt):
     ax.scatter(
         [x[0], y[0]],
         [x[1], y[1]],
+        color=line_color,
+        s=50,
+        zorder=5,
+    )
+    ax.scatter(
+        [(1-lambda_slider.value)*x[0]+lambda_slider.value*y[0]],
+        [(1-lambda_slider.value)*x[1]+lambda_slider.value*y[1]],
         color=line_color,
         s=50,
         zorder=5,
@@ -304,6 +311,13 @@ def _(Circle, Polygon, np, plt):
         s=50,
         zorder=5,
     )
+    ax.scatter(
+        [(1-lambda_slider.value)*x[0]+lambda_slider.value*y[0]],
+        [(1-lambda_slider.value)*x[1]+lambda_slider.value*y[1]],
+        color=line_color,
+        s=50,
+        zorder=5,
+    )
 
     ax.text(x[0] - 0.2, x[1] + 0.12, r"$x$", fontsize=12)
     ax.text(y[0] + 0.1, y[1] - 0.12, r"$y$", fontsize=12)
@@ -339,8 +353,28 @@ def _(mo):
         \lambda x+(1-\lambda)y\in X.
         \]
 
-    Now we can show that the feasible set of the inequality form LP satisfies this definition.
+    Now we can show that the feasible set of the inequality form LP satisfies this definition. This definition is also saying the exact thing that the above figure is showing. You can see that by shifting the lambda parameter.
+    """)
+    return
 
+
+@app.cell(hide_code=True)
+def _(mo):
+    lambda_slider = mo.ui.slider(
+        start=0.0,
+        stop=1.0,
+        step=0.1,
+        value=0.0,
+        show_value=True,
+        label="λ"
+    )
+    lambda_slider
+    return (lambda_slider,)
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     !!! proposition "Convexity of feasible set"
 
         The feasible set of inequality form LP $\mathcal{F}=\{x\in\mathbb{R}^n\mid Ax\leq b\}$ is a convex set.
@@ -534,9 +568,10 @@ def _(mo):
         stop=2.0,
         step=0.2,
         value=0.2,
-        show_value=True
+        show_value=True,
+        label="Objective function value Z"
     )
-    mo.md(f"$Z=$ {nu_slider}")
+    nu_slider
     return (nu_slider,)
 
 
