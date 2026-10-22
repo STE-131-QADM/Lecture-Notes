@@ -12,6 +12,7 @@ dependencies = [
     "marimo>=0.25.1",
     "marimo-book>=0.1.48",
     "matplotlib>=3.11.2",
+    "networkx>=3.7",
     "numpy>=2.5.4",
     "pandas>=3.0.6",
     "pyomo>=6.10.1",

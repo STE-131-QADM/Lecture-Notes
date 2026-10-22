@@ -219,6 +219,20 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
+def _(mo):
+    lambda_slider = mo.ui.slider(
+        start=0.0,
+        stop=1.0,
+        step=0.1,
+        value=0.0,
+        show_value=True,
+        label="λ"
+    )
+    lambda_slider
+    return (lambda_slider,)
+
+
+@app.cell(hide_code=True)
 def _(Circle, Polygon, lambda_slider, np, plt):
     fig, axes = plt.subplots(1, 2, figsize=(11, 5))
 
@@ -353,28 +367,8 @@ def _(mo):
         \lambda x+(1-\lambda)y\in X.
         \]
 
-    Now we can show that the feasible set of the inequality form LP satisfies this definition. This definition is also saying the exact thing that the above figure is showing. You can see that by shifting the lambda parameter.
-    """)
-    return
+    Now we can show that the feasible set of the inequality form LP satisfies this definition. This definition is also saying the exact thing that the above figure is showing. You can see that by shifting the lambda parameter in the figure.
 
-
-@app.cell(hide_code=True)
-def _(mo):
-    lambda_slider = mo.ui.slider(
-        start=0.0,
-        stop=1.0,
-        step=0.1,
-        value=0.0,
-        show_value=True,
-        label="λ"
-    )
-    lambda_slider
-    return (lambda_slider,)
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
     !!! proposition "Convexity of feasible set"
 
         The feasible set of inequality form LP $\mathcal{F}=\{x\in\mathbb{R}^n\mid Ax\leq b\}$ is a convex set.
