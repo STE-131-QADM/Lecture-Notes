@@ -8,6 +8,18 @@ app = marimo.App(width="medium")
 def _(mo):
     mo.md(r"""
     # Food Network Optimization
+
+    <style>
+    .md-typeset a[href^="http://"],
+    .md-typeset a[href^="https://"] {
+        color: #1976D2 !important;
+    }
+
+    .md-typeset a[href^="http://"]:hover,
+    .md-typeset a[href^="https://"]:hover {
+        color: #0D47A1 !important;
+    }
+    </style>
     """)
     return
 
@@ -64,7 +76,7 @@ def _(mo):
 
     ## Related research
 
-    As mentioned, this exercise is inspired by [@bortolini_fresh_2016], *“Fresh food sustainable distribution: Cost, delivery time and carbon footprint three-objective optimization,”*
+    As mentioned, this exercise is inspired by [Bortolini et al. (2016)](https://doi.org/10.1016/j.jfoodeng.2015.11.014), *“Fresh food sustainable distribution: Cost, delivery time and carbon footprint three-objective optimization,”*
 
     Their model addresses multiple foods, distribution routes, costs, delivery time, carbon emissions, and quality loss. Our first version is deliberately smaller: a single homogeneous product, one week, and only two objectives considered in separate runs (cost and emissions). The numerical values below are all synthetic, not data from the publication.
 
