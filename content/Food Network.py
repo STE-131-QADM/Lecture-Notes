@@ -12,59 +12,6 @@ def _(mo):
     return
 
 
-@app.cell(hide_code=True)
-def _():
-    from pathlib import Path
-    from urllib.request import urlretrieve
-    import importlib
-    import importlib.util
-    import sys
-
-    # Determine whether the local plotting module is available
-    local_paths = [
-        Path("utils/plot_lp_2d.py"),
-        Path("content/utils/plot_lp_2d.py"),
-    ]
-
-    local_path = next(
-        (p for p in local_paths if p.is_file()),
-        None,
-    )
-
-    if local_path is not None:
-        # Local notebook or marimo-book build
-        # No static import for marimo's dependency scanner to detect
-        parent_dir = local_path.parent.parent.resolve()
-        if str(parent_dir) not in sys.path:
-            sys.path.insert(0, str(parent_dir))
-
-        plot_lp_2d = importlib.import_module(
-            "utils.plot_lp_2d"
-        ).plot_lp_2d
-
-    else:
-        # Molab: download the source file from GitHub
-        url = (
-            "https://raw.githubusercontent.com/"
-            "STE-131-QADM/Lecture-Notes/"
-            "main/content/utils/plot_lp_2d.py"
-        )
-
-        module_path = Path("/tmp/ste131_plot_lp_2d.py")
-        urlretrieve(url, module_path)
-
-        spec = importlib.util.spec_from_file_location(
-            "ste131_plotting",
-            module_path,
-        )
-        module = importlib.util.module_from_spec(spec)
-        sys.modules[spec.name] = module
-        spec.loader.exec_module(module)
-
-        plot_lp_2d = module.plot_lp_2d
-    return
-
-
 @app.cell
 def _():
     import marimo as mo
@@ -107,7 +54,7 @@ def _(arc_data, pd, pyo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    In this study, we are going to develop a network optimization model for food networks. To begin, please take a look at the [@bortolini_fresh_2016]. This exercise builds on that paper by using similar, but very much simplified model, where we are optimizing on the cost of the network. Additionally, we can set a CO<sub>2</sub>e limit for the logistics network and do the optimization conditional on that.
+    In this study, we are going to develop a network optimization model for food networks. To begin, please take a look at the [Bortolini et al. (2016)](https://doi.org/10.1016/j.jfoodeng.2015.11.014). This exercise builds on that paper by using similar, but very much simplified model, where we are optimizing on the cost of the network. Additionally, we can set a CO<sub>2</sub>e limit for the logistics network and do the optimization conditional on that.
 
     ## Background
 
@@ -169,7 +116,7 @@ def _():
 
 
 @app.cell(hide_code=True)
-def _(arc_data, demand, hub_capacity, mo, pd, supply):
+def _(demand, hub_capacity, mo, pd, supply):
     _nodes = pd.DataFrame(
         [{"Node": n, "Type": "Farm", "Supply / capacity / demand (t/week)": v}
          for n, v in supply.items()]
@@ -178,16 +125,23 @@ def _(arc_data, demand, hub_capacity, mo, pd, supply):
         + [{"Node": n, "Type": "Retailer", "Supply / capacity / demand (t/week)": v}
            for n, v in demand.items()]
     )
+    mo.vstack([
+        mo.md("### Network data: capacities and demands"),
+        _nodes])
+    return
+
+
+@app.cell(hide_code=True)
+def _(arc_data, mo, pd):
     _routes = pd.DataFrame(
         [{"From": a, "To": b, "Cost (€/t)": p["cost"],
           "Emissions (kg CO₂e/t)": p["emissions"]}
          for (a, b), p in arc_data.items()]
     )
+
     mo.vstack([
-        mo.md("### Network data: capacities and demands"),
-        _nodes,
         mo.md("### Route data: unit transportation cost and emissions"),
-        _routes,
+        _routes
     ])
     return
 
@@ -607,6 +561,16 @@ def _(mo, shipment_table, sustainable_model):
 
 
 @app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## Pareto Frontier
+
+    We can now find the best possible cost and emission levels for each level of emissions we are willing to tolerate. The combination of different points in cost-emission space that minimize the cost for the emission level form a Pareto frontier. Pareto frontier is the frontier on which we are not able to improve cost conditional on the level of emissions or vice versa. In other words, it is impossible to move from the blue line towards the origo. It is of course always possible to do worse. It is also important to remember that when we say *it is impossible to do better* we are already making a ton of modeling assumptions. Those are given in the programmed optimization problem, but in reality, the biggest changes to the underlying problem can be made by changing the structure of the problem entirely. This could also be reflected in our analysis. We could for example compute some alternative model where we change the structure of the problem for some part.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
 def _(np, plt, pyo, solve_model):
     # Solve the two extreme optimization problems
     pareto_min_cost = solve_model(objective="cost")
@@ -689,8 +653,50 @@ def _(np, plt, pyo, solve_model):
     return
 
 
-@app.cell
-def _():
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    The Pareto frontier can be constructed by solving
+    \[
+    \begin{aligned}
+    V(\varepsilon)
+    =\min_x \quad & C(x)\\
+    \text{subject to}\quad
+    & E(x)\leq \varepsilon,\\
+    & x\in\mathcal F,
+    \end{aligned}
+    \]
+
+    where \(\mathcal F\) denotes the feasible set of the transportation network.
+
+    We vary
+    \[
+    \varepsilon\in[1420,2745]
+    \]
+
+    and obtain the optimal value \(V(\varepsilon)\) for each emissions budget.
+
+    In particular, when the value function is differentiable, the optimal Lagrange multiplier \(\lambda^*\) associated with the emissions constraint satisfies
+    \[
+    \frac{dV(\varepsilon)}{d\varepsilon}=-\lambda^*.
+    \]
+
+    Thus, the magnitude of the slope of the Pareto frontier measures the marginal cost of tightening the emissions budget, expressed in euros per additional kilogram of CO₂e avoided. In the next chapter, we will be focusing on what all this means and how do we get such result.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## References
+
+    Bortolini, M., Faccio, M., Ferrari, E., Gamberi, M., & Pilati, F.
+    (2016). Fresh food sustainable distribution: Cost, delivery time
+    and carbon footprint three-objective optimization.
+    *Journal of Food Engineering, 174*, 56–67.
+    https://doi.org/10.1016/j.jfoodeng.2015.11.014
+    """)
     return
 
 
