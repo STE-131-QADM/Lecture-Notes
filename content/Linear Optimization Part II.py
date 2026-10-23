@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.25.1"
+__generated_with = "0.25.2"
 app = marimo.App(width="medium")
 
 
@@ -604,6 +604,14 @@ def _(np, nu_slider, plt):
     return
 
 
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    Let's now take another look at the electricity model from the previous part. This time the optimization problem is formulated as an abstrct model in the inequality form. The abstract model is produced by the `electricity_model()` function below.
+    """)
+    return
+
+
 @app.cell
 def _(pyo):
     def electricity_model():
@@ -632,6 +640,14 @@ def _(pyo):
         return model
 
     return (electricity_model,)
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    The `create parameters(A, b, c, M, N)` function is just a helper function that takes the parameters of an inequality form LP problem and turns those into a format that the Pyomo understands.
+    """)
+    return
 
 
 @app.function
@@ -674,6 +690,14 @@ def _(np):
     return A, M, N, b, c
 
 
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    Now we can solve the problem similarly as in the previous part, and the solver returns the same solution as expected.
+    """)
+    return
+
+
 @app.cell
 def _(A, M, N, b, c, electricity_model, pyo):
     # Define the model
@@ -702,6 +726,14 @@ def _(results):
     return
 
 
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    Let's now see what happens when we give the solver an infeasible version of the electricity problem.
+    """)
+    return
+
+
 @app.cell
 def _(A, M, N, c, model, np, pyo):
     # Reinstantiate the model with different constraints
@@ -724,6 +756,14 @@ def _(A, M, N, c, model, np, pyo):
 @app.cell
 def _(results_infeasible):
     results_infeasible.solver.termination_condition
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    The solver would throw an error if we wouldn't use the `load_solution=False` flag. Now we are able to check the termination condition, which confirms the infesibility. We can also take a look at the problem in plane as before.
+    """)
     return
 
 
