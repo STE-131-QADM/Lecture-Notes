@@ -289,6 +289,8 @@ def _(mo):
 
     Parameters are the farm supply \(s_f\), hub throughput capacity \(q_h\), retailer demand \(d_r\), route unit cost \(c_{ij}\), and route emissions intensity \(e_{ij}\).
 
+    Note also how quickly the dimension of the problem starts to grow when we are moving towards more realistic models. In this model we already have Farms$\times$Distribution hubs$\times$Retailers$=3\times2\times3=18$ decision variables, and thus 18 dimensional problem. We are already long past the point where we could visualise the problem.
+
     ### Objective: minimize total transportation cost
 
     \[
