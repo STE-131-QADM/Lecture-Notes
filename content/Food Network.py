@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.25.1"
+__generated_with = "0.25.2"
 app = marimo.App(width="medium")
 
 
@@ -273,7 +273,6 @@ def _(arc_data, demand, farms, hub_capacity, hubs, nx, plt, retailers, supply):
 
     fig.tight_layout()
     fig
-
     return
 
 
@@ -328,6 +327,8 @@ def _(mo):
     This is a linear program: the objective and every constraint are linear in the decision variables. There are no binary decisions or nonlinear relationships.
 
     ## Implementation
+
+    Let's now build a function that defines the LP problem and another that solves the problem. All of the constraints that were listed for the distribution network need to be encoded in the as Python functions.
     """)
     return
 
@@ -661,14 +662,16 @@ def _(np, plt, pyo, solve_model):
     pareto_fig.tight_layout()
 
     pareto_fig
-
-    return
+    return pareto_costs, pareto_emissions
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    The Pareto frontier can be constructed by solving
+    ## The Pareto Frontier and Marginal Abatement Costs
+
+    We can construct the Pareto frontier between transportation costs and emissions using the ε-constraint method. The idea is to minimize transportation costs while imposing an upper bound on the total emissions of the network. Mathematically, we solve
+
     \[
     \begin{aligned}
     V(\varepsilon)
@@ -679,22 +682,170 @@ def _(mo):
     \end{aligned}
     \]
 
-    where \(\mathcal F\) denotes the feasible set of the transportation network.
+    where \(C(x)\) denotes the total transportation cost, \(E(x)\) denotes the total emissions, and \(\mathcal F\) is the feasible set of the transportation network. The parameter \(\varepsilon\) represents the maximum amount of emissions allowed.
 
-    We vary
+    By varying the emissions budget over
+
     \[
-    \varepsilon\in[1420,2745]
+    \varepsilon\in[1420,2745],
     \]
 
-    and obtain the optimal value \(V(\varepsilon)\) for each emissions budget.
+    we obtain the optimal cost \(V(\varepsilon)\) for different levels of allowed emissions. Plotting these optimal costs against the corresponding emissions levels gives us the Pareto frontier.
 
-    In particular, when the value function is differentiable, the optimal Lagrange multiplier \(\lambda^*\) associated with the emissions constraint satisfies
+    An interesting property of this optimization problem is that the slope of the Pareto frontier has an economic interpretation. In particular, when the value function is differentiable and the appropriate regularity conditions hold, the optimal Lagrange multiplier \(\lambda^*\) associated with the emissions constraint satisfies
+
     \[
     \frac{dV(\varepsilon)}{d\varepsilon}=-\lambda^*.
     \]
 
-    Thus, the magnitude of the slope of the Pareto frontier measures the marginal cost of tightening the emissions budget, expressed in euros per additional kilogram of CO₂e avoided. In the next chapter, we will be focusing on what all this means and how do we get such result.
+    Thus, the magnitude of the slope measures the marginal cost of reducing emissions, expressed in euros per kilogram of CO₂e avoided. This is also called the marginal abatement cost (MAC).
+
+    In the next chapter, we will study Lagrange multipliers and examine why this relationship holds and how it can be used to interpret optimization results.
+
+    From the Pareto frontier above, we observe that allowing higher emissions reduces the minimum transportation cost. However, the additional cost savings generally become smaller as the emissions budget increases. Equivalently, reducing emissions becomes increasingly expensive as we move toward the minimum-emissions solution.
+
+    ### Elasticity
+
+    We can examine the relationship between transportation costs and emissions further by calculating their elasticity.
+
+    Elasticity is a widely used concept in economics that measures how sensitive one quantity is to changes in another. For example, the price elasticity of demand is defined approximately as
+
+    \[
+    E_d=\frac{\Delta Q/Q}{\Delta P/P},
+    \]
+
+    where \(Q\) denotes the quantity demanded and \(P\) denotes the price.
+
+    Elasticity measures the percentage change in quantity associated with a 1% change in price. For example, a price elasticity of demand of \(E_d=-1.5\) means that a 1% increase in price is associated with approximately a 1.5% decrease in quantity demanded.
+
+    We can apply the same concept to our transportation problem. Let us define the cost elasticity with respect to emissions as
+
+    \[
+    E_{C,E}
+    =
+    \frac{\Delta C/C}{\Delta E/E}.
+    \]
+
+    Here, \(C\) denotes transportation costs and \(E\) denotes emissions. The elasticity measures the percentage change in the optimal transportation cost associated with a 1% change in emissions.
+
+    Because reducing emissions increases transportation costs along the Pareto frontier, the elasticity is negative. For example, if
+
+    \[
+    E_{C,E}=-0.8,
+    \]
+
+    then a 1% reduction in emissions is associated with approximately a 0.8% increase in transportation costs.
+
+    Consequently, the quantity \(-E_{C,E}\) provides a positive measure of the relative cost of emissions reduction at different emissions levels.
+
+    For a differentiable cost function, we can express this elasticity as
+
+    \[
+    E_{C,E}
+    =
+    \frac{dC}{dE}\frac{E}{C}.
+    \]
+
+    In practice, we approximate the derivative using consecutive points on the Pareto frontier.
+
+    The figure below illustrates how the cost elasticity varies along the frontier. Its magnitude tells us how expensive further emissions reductions are in relative terms. A higher value of \(-E_{C,E}\) indicates that achieving an additional percentage reduction in emissions requires a larger percentage increase in transportation costs.
+
+    Alternatively, the reciprocal elasticity \(1/E_{C,E}\) measures the percentage change in emissions associated with a 1% change in transportation costs.
+
+    ### Marginal Abatement Cost
+
+    Another useful quantity is the marginal abatement cost (MAC), which measures the additional transportation cost associated with reducing emissions by one unit.
+
+    It is defined as
+
+    \[
+    \mathrm{MAC}(E)
+    =
+    -\frac{dC}{dE}.
+    \]
+
+    Using the definition of elasticity, we can also write
+
+    \[
+    \mathrm{MAC}(E)
+    =
+    -\frac{C}{E}E_{C,E}.
+    \]
+
+    In our numerical calculations, we approximate the marginal abatement cost using
+
+    \[
+    \mathrm{MAC}(E)
+    \approx
+    -\frac{\Delta C}{\Delta E}.
+    \]
+
+    The distinction between elasticity and marginal abatement cost is their interpretation and units:
+
+    - **Elasticity** is dimensionless and measures relative changes in costs and emissions.
+    - **Marginal abatement cost** is measured in €/kg CO₂e and expresses the monetary cost of reducing emissions.
+
+    Elasticity is particularly useful when comparing relative trade-offs across different models or situations, whereas marginal abatement cost allows us to express the environmental trade-off directly in monetary terms.
+
+    From the figure, we can see that at an emissions level of approximately 2,000 kg CO₂e/week, the marginal abatement cost is around €0.90/kg CO₂e. In other words, reducing weekly emissions by an additional kilogram at this point increases the optimal weekly transportation cost by approximately €0.90.
+
+    As we move toward lower emissions levels, the marginal abatement cost generally increases. This illustrates an important economic principle: achieving increasingly ambitious emissions reductions tends to become progressively more expensive. This is the law of diminishing returns in action, and something we already saw in the pareto frontier plot.
     """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(np, pareto_costs, pareto_emissions, plt):
+    E = np.asarray(pareto_emissions)
+    C = np.asarray(pareto_costs)
+
+    # Midpoints between consecutive Pareto points
+    E_mid = (E[:-1] + E[1:]) / 2
+    C_mid = (C[:-1] + C[1:]) / 2
+
+    # Elasticity of cost with respect to emissions:
+    # - (dC/dE) * (E/C)
+    elasticity = (np.diff(C) / np.diff(E)) * (E_mid / C_mid)
+
+    # Marginal abatement cost:
+    # - dC/dE
+    mac = -np.diff(C) / np.diff(E)
+
+    elasticity_fig, ax1 = plt.subplots(figsize=(9, 5))
+
+    # elasticity
+    ax1.plot(
+        E_mid,
+        -elasticity,
+        marker="o",
+        linewidth=1.8,
+        label="Elasticity"
+    )
+    ax1.set_xlabel("Emissions (kg CO₂e/week)")
+    ax1.set_ylabel(r"Elasticity of cost with respect to emissions reduction ($-E_{C,E}$)")
+    ax1.grid(alpha=0.25)
+
+    # marginal abatement cost
+    ax2 = ax1.twinx()
+    ax2.step(
+        E_mid,
+        mac,
+        where="mid",
+        linestyle="--",
+        linewidth=1.8,
+        label="Marginal abatement cost"
+    )
+    ax2.set_ylabel("Marginal abatement cost (€/kg CO₂e)")
+
+    # combined legend
+    lines1, labels1 = ax1.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    ax1.legend(lines1 + lines2, labels1 + labels2, loc="upper right")
+
+    ax1.set_title("Elasticity and Marginal Abatement Cost along the Pareto Frontier")
+
+    elasticity_fig.tight_layout()
+    elasticity_fig
     return
 
 
