@@ -684,7 +684,7 @@ def _(mo):
     \end{aligned}
     \]
 
-    where \(C(x)\) denotes the total transportation cost, \(E(x)\) denotes the total emissions, and \(\mathcal F\) is the feasible set of the transportation network. The parameter \(\varepsilon\) represents the maximum amount of emissions allowed.
+    where \(C(x)\) denotes the total transportation cost, \(E(x)\) denotes the total emissions, and \(\mathcal F\) is the feasible set of the transportation network. The parameter \(\varepsilon\) represents the maximum amount of emissions allowed. The \(V(\epsilon)\) is called a value function. Note that the value function is not same as the objective function. Indeed it is not even linear. The value function is shown as the pareto frontier in the above plot. While the objective function gives the value we achieve by using any particular variable values, the value function gives the *optimal* value of the objective function for any given constraint value.
 
     By varying the emissions budget over
 

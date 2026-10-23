@@ -17,7 +17,17 @@ def _(mo):
 
     .md-typeset a[href^="http://"]:hover,
     .md-typeset a[href^="https://"]:hover {
+        color: #0D47A1 !important;<style>
+    .md-typeset a[href^="http://"],
+    .md-typeset a[href^="https://"] {
+        color: #1976D2 !important;
+    }
+
+    .md-typeset a[href^="http://"]:hover,
+    .md-typeset a[href^="https://"]:hover {
         color: #0D47A1 !important;
+    }
+    </style>
     }
     </style>
     """)
@@ -193,7 +203,7 @@ def _(mo):
         x=\sum_{i=1}^n x_i e_i,
         $$
 
-        where \(e_i\) are the standard basis vectors of \(\mathbb{R}^n\) *i.e.* vectors where the $i^{\text{th}}$ element is one and every other element is zero. By linearity,
+        where \(e_i\) are the standard basis vectors of \(\mathbb{R}^n\), *i.e.* vectors whose \(i^{\text{th}}\) component is one and all other components are zero. By linearity,
 
         $$
         f(x)=\sum_{i=1}^n x_i f(e_i).
@@ -201,8 +211,140 @@ def _(mo):
 
         Thus, defining \(c_i=f(e_i)\) gives the desired representation.
 
-        This elementary result from linear algebra is also a finite-dimensional special case of the more general [Riesz representation theorem](https://en.wikipedia.org/wiki/Riesz_representation_theorem) from functional analysis.
+        The main intuition is that a linear function is completely determined by its values on the basis vectors. Once we know the numbers
 
+        $$
+        f(e_1),\dots,f(e_n),
+        $$
+
+        we know the value of \(f(x)\) for every vector \(x\), because every vector can be assembled from the basis vectors and linearity tells us how the function behaves under addition and scalar multiplication.
+
+        For example, in \(\mathbb{R}^2\), if
+
+        $$
+        x=x_1e_1+x_2e_2,
+        $$
+
+        then linearity implies
+
+        $$
+        f(x)=x_1f(e_1)+x_2f(e_2).
+        $$
+
+        If we now define
+
+        $$
+        c=
+        \begin{pmatrix}
+        f(e_1)\\
+        f(e_2)
+        \end{pmatrix},
+        $$
+
+        then this becomes exactly
+
+        $$
+        f(x)=c^\top x.
+        $$
+
+        Geometrically, the vector \(c\) determines how strongly each coordinate direction contributes to the value of the function. In two dimensions, the sets on which \(f(x)=c^\top x\) has a constant value are straight lines, and the vector \(c\) points in the direction in which the function increases.,
+
+        Take a look at the figure below to see how this can be visualised in two dimensions.
+
+        This elementary result from linear algebra is also a finite-dimensional special case of the more general [Riesz representation theorem](https://en.wikipedia.org/wiki/Riesz_representation_theorem) from functional analysis.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(np, plt):
+    # Example vector and functional values
+    x_basis_plot = np.array([2.0, 3.0])
+    e1_basis_plot = np.array([1.0, 0.0])
+    e2_basis_plot = np.array([0.0, 1.0])
+
+    x1_basis_plot = x_basis_plot[0]
+    x2_basis_plot = x_basis_plot[1]
+
+    # Define the linear functional through its values on the basis vectors
+    f_e1_basis_plot = 4.0
+    f_e2_basis_plot = 2.0
+    c_basis_plot = np.array([f_e1_basis_plot, f_e2_basis_plot])
+
+    f_x_basis_plot = c_basis_plot @ x_basis_plot
+
+    fig_basis_plot, ax_basis_plot = plt.subplots(figsize=(5, 5))
+
+    # Axes
+    ax_basis_plot.axhline(0, linewidth=1)
+    ax_basis_plot.axvline(0, linewidth=1)
+
+    # Draw basis vectors
+    ax_basis_plot.arrow(
+        0, 0, e1_basis_plot[0], e1_basis_plot[1],
+        length_includes_head=True, head_width=0.12
+    )
+    ax_basis_plot.arrow(
+        0, 0, e2_basis_plot[0], e2_basis_plot[1],
+        length_includes_head=True, head_width=0.12
+    )
+
+    # Draw components x1 e1 and x2 e2
+    ax_basis_plot.arrow(
+        0, 0, x1_basis_plot, 0,
+        length_includes_head=True, head_width=0.12,
+        linestyle="--"
+    )
+    ax_basis_plot.arrow(
+        x1_basis_plot, 0, 0, x2_basis_plot,
+        length_includes_head=True, head_width=0.12,
+        linestyle="--"
+    )
+
+    # Draw x
+    ax_basis_plot.arrow(
+        0, 0, x_basis_plot[0], x_basis_plot[1],
+        length_includes_head=True, head_width=0.15
+    )
+
+    # Mark the point x
+    ax_basis_plot.scatter(x_basis_plot[0], x_basis_plot[1], s=50)
+
+    # Labels
+    ax_basis_plot.text(1.05, -0.22, r"$e_1$", fontsize=12)
+    ax_basis_plot.text(-0.22, 1.05, r"$e_2$", fontsize=12)
+
+    ax_basis_plot.text(x1_basis_plot / 2, -0.35, r"$x_1 e_1$", ha="center", fontsize=12)
+    ax_basis_plot.text(x1_basis_plot + 0.2, x2_basis_plot / 2, r"$x_2 e_2$", va="center", fontsize=12)
+
+    ax_basis_plot.text(x_basis_plot[0] + 0.1, x_basis_plot[1] + 0.1, r"$x$", fontsize=12)
+
+    ax_basis_plot.text(
+        0.2, 3.7,
+        (
+            r"$x = x_1 e_1 + x_2 e_2$" "\n"
+            r"$f(e_1)=4,\quad f(e_2)=2$" "\n"
+            rf"$f(x)=x_1 f(e_1)+x_2 f(e_2)=2\cdot4+3\cdot2={f_x_basis_plot:.0f}$"
+        ),
+        fontsize=12,
+        bbox=dict(boxstyle="round", alpha=0.1)
+    )
+
+    ax_basis_plot.set_xlim(-0.5, 4.5)
+    ax_basis_plot.set_ylim(-0.5, 4.5)
+    ax_basis_plot.set_aspect("equal")
+    ax_basis_plot.set_xticks(range(0, 5))
+    ax_basis_plot.set_yticks(range(0, 5))
+    ax_basis_plot.set_title("A linear functional is determined by its values on the basis vectors")
+
+    fig_basis_plot.tight_layout()
+    fig_basis_plot
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     ## Feasible Set and Convexity
 
     The feasible set of a linear problem is always of the form
@@ -834,11 +976,6 @@ def _(instance_nonunique, mo, plot_lp_2d):
     )
 
     mo.mpl.interactive(fig_nu)
-    return
-
-
-@app.cell
-def _():
     return
 
 

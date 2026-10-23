@@ -1,5 +1,5 @@
 title: STE-131 Management Science - Quantiative Analysis to Decision Making 
-description: Lecture notes 
+description: Lecture notes
 authors:
   - name: Santeri Väätäjä 
 
@@ -58,6 +58,7 @@ toc:
   - file: content/Linear Optimization Part I.py
   - file: content/Linear Optimization Part II.py
   - file: content/Food Network.py
+  - file: content/Linear Optimization Part III.py
 
 bibliography:
   - library.bib
