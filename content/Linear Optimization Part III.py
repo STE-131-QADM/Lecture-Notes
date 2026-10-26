@@ -129,6 +129,8 @@ def _(mo):
         **Draw the \(\mathcal L \) as a function of \(\lambda\) for constant \(x\).**
 
         **How does this change for \(Ax=b\) or \(Ax\neq b\).**
+
+    The relaxation of constraints is useful and widely
     """)
     return
 

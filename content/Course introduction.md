@@ -48,7 +48,7 @@ $$
     \end{align*}
 $$
 
-Here, the functions $f$ and $h$ encode problem-specific constraints. This formulation also allows us to analyse the problem mathematically when we make additional assumptions about the functional forms and regularity properties of $f$ and $g$.
+Here, the function $g$ encode problem-specific constraints. This formulation also allows us to analyse the problem mathematically when we make additional assumptions about the functional forms and regularity properties of $f$ and $g$.
 
 Optimization is therefore of central importance when analysing the actions available in a decision-making process. It also introduces many interesting questions that can be asked after an optimal action has been identified. For example, we are often interested in how much the result would change if there were a small change in a constraint or in some other specification of the problem. Such questions can be analysed rigorously within the mathematical optimization framework. The same general formulation can be applied in countless different situations.
 
@@ -61,6 +61,16 @@ The tools introduced in data science courses are also often used together with o
 By the end of this course, you should feel comfortable applying this type of analysis to a range of applied problems, particularly in the field of natural resource management. This includes developing a good understanding of how to formulate such problems mathematically, how to solve them using appropriate programming tools, and how to analyse them theoretically in order to determine whether the chosen methods are suitable for the problem at hand.
 
 While these tools are powerful, the person constructing the model ultimately bears responsibility for the assumptions used to represent the phenomenon being studied. It is therefore essential not only to understand how the methods work, but also to recognise situations in which their underlying assumptions are not appropriate.
+
+## Quantitative methods for decision-making
+
+It is, of course, possible to make decisions without having a quantitative model of the process. In many situations, it is even necessary and beneficial to make decisions in this way. So what do we gain from taking the time and effort to formulate our problems quantitatively? After all, aren't all models imperfect in some respect?
+
+While it is true that constructing a perfect model of any complex real-world system is an overwhelming, if not impossible, challenge, this does not mean that modelling is useless. A model can provide useful and even accurate information about certain aspects of a system without capturing every detail of the underlying process. Therefore, the first reason for modelling decision-making quantitatively is the most obvious one: to obtain quantitative information that allows us to compare different choices and their consequences.
+
+However, an equally important reason for constructing a quantitative model is to help structure our thinking about the problem. This requires qualitative knowledge of the decision-making situation, as we must first determine which aspects of the problem are important enough to include in the model. By explicitly writing down the assumptions and mathematical relationships underlying the model, we can clarify our understanding of the problem and potentially uncover insights that would otherwise remain unnoticed.
+
+Furthermore, by taking the model seriously and analysing its mathematical properties, we may also gain new qualitative insights into the situation. For example, we may discover which factors have the greatest influence on the outcome or identify relationships between different aspects of the problem that were not initially obvious. However, this approach requires us to critically examine and test the assumptions and conclusions of the model. After all, a mathematical model is only an approximation of the real-world phenomenon being studied, and its usefulness ultimately depends on how well its assumptions capture the relevant aspects of reality.
 
 ## Running the lecture notes
 
