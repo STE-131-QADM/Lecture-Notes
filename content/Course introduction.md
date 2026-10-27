@@ -32,7 +32,7 @@ A function that assigns a value to a given action may have different names depen
 
 However, the value need not always have a direct measurement scale. In some cases, we may only have ordinal information about the ranking of different solutions. This is the case, for example, in many economic applications of utility functions.
 
-Regardless of the exact form and properties of this function, our goal is usually to find inputs that either maximize or minimize it, although there are also approaches to decision-making that are not formulated directly as optimization problems.[^1] This often leads to problems of the form
+Regardless of the exact form and properties of this function, our goal is usually to find inputs that either maximize or minimize it, although decision-making can also be studied using frameworks other than the standard optimization formulations introduced here.[^1] This often leads to problems of the form
 
 $$
     \max_{x\in\text{dom}f} f(x).

@@ -211,134 +211,8 @@ def _(mo):
 
         Thus, defining \(c_i=f(e_i)\) gives the desired representation.
 
-        The main intuition is that a linear function is completely determined by its values on the basis vectors. Once we know the numbers
-
-        $$
-        f(e_1),\dots,f(e_n),
-        $$
-
-        we know the value of \(f(x)\) for every vector \(x\), because every vector can be assembled from the basis vectors and linearity tells us how the function behaves under addition and scalar multiplication.
-
-        For example, in \(\mathbb{R}^2\), if
-
-        $$
-        x=x_1e_1+x_2e_2,
-        $$
-
-        then linearity implies
-
-        $$
-        f(x)=x_1f(e_1)+x_2f(e_2).
-        $$
-
-        If we now define
-
-        $$
-        c=
-        \begin{pmatrix}
-        f(e_1)\\
-        f(e_2)
-        \end{pmatrix},
-        $$
-
-        then this becomes exactly
-
-        $$
-        f(x)=c^\top x.
-        $$
-
-        Geometrically, the vector \(c\) determines how strongly each coordinate direction contributes to the value of the function. In two dimensions, the sets on which \(f(x)=c^\top x\) has a constant value are straight lines, and the vector \(c\) points in the direction in which the function increases.,
-
-        Take a look at the figure below to see how this can be visualised in two dimensions.
-
         This elementary result from linear algebra is also a finite-dimensional special case of the more general [Riesz representation theorem](https://en.wikipedia.org/wiki/Riesz_representation_theorem) from functional analysis.
     """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(np, plt):
-    # Example vector and functional values
-    x_basis_plot = np.array([2.0, 3.0])
-    e1_basis_plot = np.array([1.0, 0.0])
-    e2_basis_plot = np.array([0.0, 1.0])
-
-    x1_basis_plot = x_basis_plot[0]
-    x2_basis_plot = x_basis_plot[1]
-
-    # Define the linear functional through its values on the basis vectors
-    f_e1_basis_plot = 4.0
-    f_e2_basis_plot = 2.0
-    c_basis_plot = np.array([f_e1_basis_plot, f_e2_basis_plot])
-
-    f_x_basis_plot = c_basis_plot @ x_basis_plot
-
-    fig_basis_plot, ax_basis_plot = plt.subplots(figsize=(5, 5))
-
-    # Axes
-    ax_basis_plot.axhline(0, linewidth=1)
-    ax_basis_plot.axvline(0, linewidth=1)
-
-    # Draw basis vectors
-    ax_basis_plot.arrow(
-        0, 0, e1_basis_plot[0], e1_basis_plot[1],
-        length_includes_head=True, head_width=0.12
-    )
-    ax_basis_plot.arrow(
-        0, 0, e2_basis_plot[0], e2_basis_plot[1],
-        length_includes_head=True, head_width=0.12
-    )
-
-    # Draw components x1 e1 and x2 e2
-    ax_basis_plot.arrow(
-        0, 0, x1_basis_plot, 0,
-        length_includes_head=True, head_width=0.12,
-        linestyle="--"
-    )
-    ax_basis_plot.arrow(
-        x1_basis_plot, 0, 0, x2_basis_plot,
-        length_includes_head=True, head_width=0.12,
-        linestyle="--"
-    )
-
-    # Draw x
-    ax_basis_plot.arrow(
-        0, 0, x_basis_plot[0], x_basis_plot[1],
-        length_includes_head=True, head_width=0.15
-    )
-
-    # Mark the point x
-    ax_basis_plot.scatter(x_basis_plot[0], x_basis_plot[1], s=50)
-
-    # Labels
-    ax_basis_plot.text(1.05, -0.22, r"$e_1$", fontsize=12)
-    ax_basis_plot.text(-0.22, 1.05, r"$e_2$", fontsize=12)
-
-    ax_basis_plot.text(x1_basis_plot / 2, -0.35, r"$x_1 e_1$", ha="center", fontsize=12)
-    ax_basis_plot.text(x1_basis_plot + 0.2, x2_basis_plot / 2, r"$x_2 e_2$", va="center", fontsize=12)
-
-    ax_basis_plot.text(x_basis_plot[0] + 0.1, x_basis_plot[1] + 0.1, r"$x$", fontsize=12)
-
-    ax_basis_plot.text(
-        0.2, 3.7,
-        (
-            r"$x = x_1 e_1 + x_2 e_2$" "\n"
-            r"$f(e_1)=4,\quad f(e_2)=2$" "\n"
-            rf"$f(x)=x_1 f(e_1)+x_2 f(e_2)=2\cdot4+3\cdot2={f_x_basis_plot:.0f}$"
-        ),
-        fontsize=12,
-        bbox=dict(boxstyle="round", alpha=0.1)
-    )
-
-    ax_basis_plot.set_xlim(-0.5, 4.5)
-    ax_basis_plot.set_ylim(-0.5, 4.5)
-    ax_basis_plot.set_aspect("equal")
-    ax_basis_plot.set_xticks(range(0, 5))
-    ax_basis_plot.set_yticks(range(0, 5))
-    ax_basis_plot.set_title("A linear functional is determined by its values on the basis vectors")
-
-    fig_basis_plot.tight_layout()
-    fig_basis_plot
     return
 
 
@@ -610,6 +484,18 @@ def _(np, plt):
         key=lambda idx: g_optima[idx],
     )
 
+    # Local and global maximizer coordinates
+    t_local_optima = t_optima[local_idx_optima]
+    g_local_optima = g_optima[local_idx_optima]
+
+    t_global_optima = t_optima[global_idx_optima]
+    g_global_optima = g_optima[global_idx_optima]
+
+    # Choose an epsilon-neighborhood around the local maximizer
+    epsilon_optima = 0.75
+    left_eps_optima = t_local_optima - epsilon_optima
+    right_eps_optima = t_local_optima + epsilon_optima
+
     # Create the figure
     fig_optima, ax_optima = plt.subplots(figsize=(9, 5))
 
@@ -620,10 +506,43 @@ def _(np, plt):
         linewidth=2,
     )
 
+    # Shade epsilon-neighborhood around the local maximizer
+    ax_optima.axvspan(
+        left_eps_optima,
+        right_eps_optima,
+        alpha=0.075,
+        color="tab:orange",
+    )
+
+    # Vertical dashed lines marking t* - epsilon and t* + epsilon
+    ax_optima.axvline(
+        left_eps_optima,
+        color="tab:orange",
+        linestyle="--",
+        linewidth=1.5,
+        alpha=.5
+    )
+    ax_optima.axvline(
+        right_eps_optima,
+        color="tab:orange",
+        linestyle="--",
+        linewidth=1.5,
+        alpha=.5
+    )
+
+    # Horizontal dotted line at g(t*)
+    ax_optima.axhline(
+        g_local_optima,
+        color="tab:orange",
+        linestyle=":",
+        linewidth=1.5,
+        alpha=.5
+    )
+
     # Local maximizer
     ax_optima.scatter(
-        t_optima[local_idx_optima],
-        g_optima[local_idx_optima],
+        t_local_optima,
+        g_local_optima,
         color="tab:orange",
         s=75,
         zorder=5,
@@ -632,19 +551,17 @@ def _(np, plt):
 
     ax_optima.annotate(
         "Local maximizer",
-        xy=(
-            t_optima[local_idx_optima],
-            g_optima[local_idx_optima],
-        ),
-        xytext=(-90, 35),
+        xy=(t_local_optima, g_local_optima),
+        xytext=(-140, 35),
         textcoords="offset points",
+        zorder=6,
         arrowprops=dict(arrowstyle="->"),
     )
 
     # Global maximizer
     ax_optima.scatter(
-        t_optima[global_idx_optima],
-        g_optima[global_idx_optima],
+        t_global_optima,
+        g_global_optima,
         color="tab:red",
         s=75,
         zorder=5,
@@ -653,20 +570,38 @@ def _(np, plt):
 
     ax_optima.annotate(
         "Global maximizer",
-        xy=(
-            t_optima[global_idx_optima],
-            g_optima[global_idx_optima],
-        ),
+        xy=(t_global_optima, g_global_optima),
         xytext=(25, -40),
         textcoords="offset points",
+        zorder=6,
         arrowprops=dict(arrowstyle="->"),
     )
 
+    # Label epsilon-neighborhood
+    ax_optima.text(
+        t_local_optima,
+        ax_optima.get_ylim()[0] + 0.08 * (ax_optima.get_ylim()[1] - ax_optima.get_ylim()[0]),
+        r"$(x^*-\varepsilon,\; x^*+\varepsilon)$",
+        ha="center",
+        color="tab:orange",
+        fontsize=11,
+    )
+
+    ax_optima.text(
+        t_local_optima - 1.9,
+        g_local_optima - 0.35,
+        r"$f(x)\leq f(x^*)$" "\n" r"for nearby $x$",
+        color="tab:orange",
+        fontsize=11,
+        bbox=dict(boxstyle="round", alpha=0.1),
+    )
+
     # Formatting
-    ax_optima.set_xlabel(r"$t$")
-    ax_optima.set_ylabel(r"$g(t)$")
+    ax_optima.set_xlabel(r"$x$")
+    ax_optima.set_ylabel(r"$f(x)$")
     ax_optima.set_title("Local and global maximizers")
     ax_optima.grid(alpha=0.25)
+    ax_optima.legend()
 
     fig_optima.tight_layout()
 
@@ -787,7 +722,7 @@ def _(pyo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    The `create parameters(A, b, c, M, N)` function is just a helper function that takes the parameters of an inequality form LP problem and turns those into a format that the Pyomo understands.
+    The `create_parameters(A, b, c, M, N)` function is just a helper function that takes the parameters of an inequality form LP problem and turns those into a format that the Pyomo understands.
     """)
     return
 
