@@ -86,16 +86,14 @@ def _():
     import matplotlib.colors as colors
     import matplotlib.cm as cm
     import highspy
-    from matplotlib.patches import Circle, Polygon
+    from matplotlib.patches import Circle, Polygon, Rectangle
 
-    return mo, np, plt, pyo
+    return Rectangle, mo, np, plt, pyo
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    # Linear Optimization Part III: Duality and Shadow Prices
-
     In Part I, we studied how Finland could cover a shortage of electricity by importing it from Sweden and Estonia. We found the least-cost combination of imports. In Part II, we used the same problem to investigate feasibility and the structure of linear optimization models.
 
     But many times we might be interested in questions that go beyond the cheapest import plan. For example:
@@ -104,9 +102,9 @@ def _(mo):
     - How expensive would it be to cover another MWh of electricity demand?
     - Which limits actually prevent the system from operating more cheaply?
 
-    Of course, we could change the problem's numbers and solve it again. Duality provides a more systematic way to understand how an optimal solution responds to changes in requirements and resource limits. The resulting values are called *shadow prices*.
+    Of course, we could change the problem's parameters and solve it again. Duality provides a more systematic way to understand how an optimal solution responds to changes in requirements and resource limits. This theory also provides nice theoretical framework in which models can be developed. The resulting values are called shadow prices.
 
-    This chapter focuses on interpreting those values for management decisions. We will also learn how the primal and dual linear programs are related. A more mathematical derivation using the Lagrangian is provided as a note at the end.
+    This part focuses on explaining how those values arise and interpreting those for management decisions. We will also learn how the primal and dual linear programs are related. A more mathematical derivation using the Lagrangian is provided as a note at the end. It is highly advisable to take a look at that, after you have read through the main sections and examples of this part.
     """)
     return
 
@@ -236,11 +234,7 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(current_imports, np, plt):
-    _fig, (_ax_mix, _ax_cost) = plt.subplots(1, 2, figsize=(11.5, 4.3))
-
-    from matplotlib.patches import Rectangle
-
+def _(Rectangle, current_imports, np, plt):
     _fig, (_ax_mix, _ax_cost) = plt.subplots(1, 2, figsize=(11.5, 4.3))
 
     # Import quantities
@@ -293,7 +287,6 @@ def _(current_imports, np, plt):
     _ax_mix.grid(axis="x", alpha=0.2)
     _ax_mix.set_axisbelow(True)
 
-    # Right panel stays unchanged
     _caps = np.linspace(2200, 3500, 261)
     _sweden = np.minimum(_caps, 3200)
     _estonia = 3200 - _sweden
@@ -320,26 +313,6 @@ def _(current_imports, np, plt):
 
     _fig.tight_layout()
     _fig
-
-    _caps = np.linspace(2200, 3500, 261)
-    _sweden = np.minimum(_caps, 3200)
-    _estonia = 3200 - _sweden
-    _costs = 40 * _sweden + 60 * _estonia
-    _ax_cost.plot(_caps, _costs, linewidth=2.2, label="Minimum import cost")
-    _ax_cost.scatter(
-        [current_imports["swedish_capacity"]], [current_imports["cost"]],
-        s=75, zorder=4, label="Selected capacity",
-    )
-    _ax_cost.axvline(3200, linestyle="--", alpha=0.6,
-                     label="Sweden covers all imports")
-    _ax_cost.set(
-        xlim=(2200, 3500),
-        xlabel="Swedish import capacity (MWh)",
-        ylabel="Minimum total cost (€)",
-        title="Cost of the optimal solution",
-    )
-    _ax_cost.grid(alpha=0.2)
-    _ax_cost.legend(fontsize=8)
 
     _fig.tight_layout()
     _fig
@@ -473,7 +446,7 @@ def _(mo):
 
     \[
        \frac{136\,000-130\,000}{3\,300-3\,200}
-          =\boxed{60\text{ €/MWh}}.
+          =60\text{ €/MWh}.
     \]
 
     This is the shadow price of the import-requirement constraint. It differs from the €20/MWh value of Swedish transmission capacity. An extra MWh of demand must be purchased from Estonia for €60, whereas an extra MWh of Swedish capacity merely replaces one MWh of expensive imports with a cheaper one.
@@ -489,7 +462,7 @@ def _(mo):
     A constraint is binding when it holds with equality at the optimum. Otherwise it has slack. In a linear program, a
     nonbinding inequality constraint has a zero associated dual value. A binding constraint, however, can sometimes also have a zero value.
 
-    ???- question "Exercise 4 — Demand and capacity are not the same ☠️"
+    ???- question "Demand and capacity are not the same ☠️"
         Suppose the import requirement increases by 10 MWh, with capacities unchanged. Predict the increase in the minimum cost.
 
         Now suppose that Swedish import capacity instead increases by 10 MWh, while the requirement stays at 3 200 MWh. How much would that save? Explain why the answers differ.
@@ -559,14 +532,14 @@ def _(mo):
     The primal chooses imports and arrives at the minimum cost
 
     \[
-       40(3\,100)+60(100)=\boxed{130\,000}.
+       40(3\,100)+60(100)=130\,000.
     \]
 
     The dual chooses resource values. At its optimum, its objective is
 
     \[
        3\,200(60)-3\,100(20)-1\,000(0)
-            =\boxed{130\,000}.
+            =130\,000.
     \]
 
     So the two optimization problems have the same optimal objective value, even though their decision variables have very different meanings.
@@ -585,7 +558,7 @@ def _(mo):
     That is exactly what happens above: the cost of our best import plan and the best dual lower bound are both €130,000. This equality can also help us verify that an apparently good decision is truly
     optimal.
 
-    ???- question "Exercise 6 — Verify optimality ☠️☠️"
+    ???- question "Verify optimality ☠️☠️"
         A colleague proposes the import plan \(x_S=3\,100\) MWh and \(x_E=100\) MWh. You already have the
         feasible dual solution \(\lambda=60,\ \mu_S=20,\ \mu_E=0\).
 
@@ -791,329 +764,6 @@ def _(mo):
     return
 
 
-@app.cell
-def _():
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    We have now already seen the dual parameters in action in the food network example. This example already showed some ways that the solution of an optimisation problem is connected to the value of the dual parameter.
-
-    This part of the linear optimization lectures will be all about that. We will be revolving around one main question: **how valuable would additional amount of our scarce resource be?**
-
-    Let's consider the food network example. For example in that a reasonable question you could have as a person responsible for the logistics could be, how much would expanding one of the logistics hubs reduce the cost of the logistics network. This question could of course be analysed by doing for example some *ad hoc* scenario work with the model or other kinds of approaches.
-
-    However, it turns out that there is a pricipled way to approach the question. To understand the approach, that yields a very practial residue *shadow price*, we need some insights into the theory of optimisation.
-
-    ## Lagrangian Function
-
-    We are already familiar with the inequality form of a LP, that turned out to be general enough for it to be sufficient to represent any LP. Let's now consider a *primal problem* of form
-
-    \[
-        \begin{aligned}
-            p^*=\min_x \;&c^\top x \\
-            \text{s.t. }& \\
-            Ax&\leq b \\
-            x&\geq 0.
-        \end{aligned}
-    \]
-
-    This formulation requires that our constraint is satisfied exactly *i.e.* the formulation requires that \(Ax\leq b\) holds without any exceptions. What would it mean for the constraint to be enforced only approximately? Note also that the nonnegativity of \(x\) can be expressed as a less than or equal constraint so it doesn't cause any problems.
-
-    One approach to this problem, that turns out to be important in the analysis and solving optimization problems is to add the constraint into the objective function with a penalisation. We do the following tric, called *relaxation* of the constraint
-
-    \[
-        \begin{aligned}
-            \mathcal{L}(x,\lambda)&=c^\top x+\sum_{i=1}^m \lambda_i(a_ix-b_i)\\
-            &=c^\top x+\lambda^\top (Ax-b)
-        \end{aligned}
-    \]
-
-    where \(a_i\) denotes the \(t^\text{th}\) row of \(A\in\mathbb{R}^{m\times n}\) and \(\lambda\geq 0\) is a parameter of the Lagrangian function .
-
-    ???- question "Lagrangian as a function of \(\lambda\)"
-        Consider what happens to the problem when \(\lambda\) is increased or decreased.
-
-        **Draw the \(\mathcal L \) as a function of \(\lambda\) for constant \(x\).**
-
-        **How does this change for \(Ax=b\) or \(Ax\neq b\).**
-
-    The relaxation of constraints is very useful and widely used technique. We can understand it as augmenting the objective function. In the original problem each constraint needs to hold exactly. Optimizing Lagrangian function with respect to \(x\) is an unconstrained problem and it provides lower bound for the original problem. Since \(\lambda\) is nonnegative \(\lambda^\top(Ax-b)\leq 0\) so from that follows that with any feasible \(x\), the following inequality holds \(c^\top x\geq c^\top x+\lambda^\top(Ax-b)\).
-
-    Let's now think about the following function
-
-    \[
-        \begin{aligned}
-            \theta(\lambda)&=\min_{x\geq 0}{c^\top x+\lambda^\top(Ax-b)} \\
-            &=\min_{x\geq 0}{\mathcal{L}(x,\lambda)}.
-        \end{aligned}
-    \]
-
-    It is called the *Lagrange dual function*.
-
-    !!! note "Definition of $\theta$"
-        The previous statement is slightly incorrect. Actually the dual is defined as
-
-        \[
-            \theta(\lambda)=\inf_{x\geq 0} \mathcal{L}(x,\lambda)
-        \]
-
-        where \(\inf\) denotes the [infimum](https://en.wikipedia.org/wiki/Infimum_and_supremum#Formal_definition). This is the correct definition, because it is possible for the Lagrange dual to take values \(\infty\) and \(-\infty\). However, to make the definition slightly more familiar and easier we can suffice with the \(\min\) for now.
-
-    ### Example: Lagrange dual function
-
-    Now we know that the Lagrangian dual function produces a lower bound for our primal problem. Let's consider the following problem
-
-    \[
-        \begin{aligned}
-            p^*=\min_{x,y\geq0}\; & 2x+3y \\
-            \text{s.t.}& \\
-             x + y &\geq 4\\
-             x &\geq 0 \\
-             y &\geq 0.
-        \end{aligned}
-    \]
-
-    This problem implies the following dual function.
-
-    \[
-        \begin{aligned}
-            \theta(\lambda)&=\min_{x,y\geq0}\;2x+3y+\lambda(4-x-y) \\
-            &=\min_{x,y\geq0}\;(2-\lambda)x+(3-\lambda)y+4\lambda
-        \end{aligned}
-    \]
-
-    We can solve the primal problem easily by noticing the the constraint is symmetric and the objective gives less weight for the \(x\). Therefore we must have \(x=4\) and \(y=0\), yielding objective value of \(p^*=8\). From the dual function we see that for the function to be bounded we must have \(\lambda\leq2\) and it is already required that \(\lambda\geq0\). The minimum inside the dual function is therefore achieved by setting \(x=y=0\). Therefore the dual function is
-
-    \[
-        \theta(\lambda)=\begin{cases}
-            4\lambda & \text{for }0\leq\lambda\leq2 \\
-            -\infty & \text{otherwise}.
-        \end{cases}
-    \]
-
-    Both the primal problem and the Lagrange dual function are showed below in the figure.
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(np, plt):
-    # --------------------------------------------------
-    # Problem:
-    # min 2x + 3y
-    # s.t. x + y >= 4, x >= 0, y >= 0
-    #
-    # Lagrangian:
-    # L(x,y,lambda) = (2-lambda)x + (3-lambda)y + 4lambda
-    # --------------------------------------------------
-
-    z_star = 8.0
-    lambda_star = 2.0
-
-    fig, axes = plt.subplots(1, 2, figsize=(13, 5.5))
-
-    # ==================================================
-    # LEFT: PRIMAL PROBLEM
-    # ==================================================
-
-    ax = axes[0]
-
-    x = np.linspace(0, 7, 400)
-    y = np.linspace(0, 7, 400)
-    X, Y = np.meshgrid(x, y)
-
-    # Objective function
-    Z = 2 * X + 3 * Y
-
-    # Feasible region: x + y >= 4
-    feasible = (X + Y >= 4)
-    ax.contourf(
-        X, Y, feasible.astype(float),
-        levels=[0.5, 1.5],
-        alpha=0.15
-    )
-
-    # Constraint boundary x + y = 4
-    ax.plot(
-        x, 4 - x,
-        linewidth=2,
-        label=r"$x+y=4$"
-    )
-
-    # Contours of objective 2x + 3y
-    levels = [6, 8, 10, 12, 14, 16, 18]
-    cs = ax.contour(X, Y, Z, levels=levels, linewidths=1.5)
-
-    # Put contour values directly on the contour lines
-    ax.clabel(cs, inline=True, fontsize=9, fmt=r"$z=%d$")
-
-    # Optimal point
-    ax.scatter(
-        [4], [0],
-        s=150,
-        zorder=5,
-        marker="*",
-        color="red",
-        label=r"Optimal point $(4,0)$"
-    )
-
-    ax.annotate(
-        r"$z^*=8$",
-        xy=tuple(np.array([4,0])+0.1*(np.array([4.6, 0.8])-np.array([4,0]))),
-        xytext=(4.6, 0.8),
-        arrowprops=dict(arrowstyle="->"),
-        fontsize=11
-    )
-
-    ax.set_xlim(0, 7)
-    ax.set_ylim(0, 7)
-    ax.set_xlabel("x")
-    ax.set_ylabel("y")
-    ax.set_title("Primal problem")
-    ax.grid(alpha=0.2)
-    ax.legend(loc="upper right")
-
-    # ==================================================
-    # RIGHT: LAGRANGIAN DUAL FUNCTION
-    # ==================================================
-
-    ax = axes[1]
-
-    lam = np.linspace(0, 3.5, 400)
-    q = np.where(lam <= 2, 4 * lam, np.nan)
-
-    ax.plot(
-        lam, q,
-        linewidth=3,
-        label=r"$\theta(\lambda)=4\lambda \;\; (0\leq \lambda \leq 2)$"
-    )
-
-    # Primal optimum
-    ax.axhline(
-        z_star,
-        linestyle="--",
-        linewidth=2,
-        label=r"$p^*=8$"
-    )
-
-    # Dual optimum
-    ax.scatter(
-        [lambda_star], [z_star],
-        s=150,
-        zorder=5,
-        marker="*",
-        color="red",
-    )
-
-    ax.annotate(
-        r"$\lambda^*=2,\; \theta(\lambda^*)=8$",
-        xy=tuple(np.array([2,8])+0.05*(np.array([0.8,9.3])-np.array([2,8]))),
-        # xy=(2, 8),
-        xytext=(0.8, 9.3),
-        arrowprops=dict(arrowstyle="->"),
-        fontsize=10
-    )
-
-    # Region where q(lambda) = -infinity
-    ax.axvspan(
-        2, 3.5,
-        alpha=0.12,
-        label=r"$\theta(\lambda)=-\infty$"
-    )
-
-    ax.text(
-        2.7, 3.2,
-        r"$\theta(\lambda)=-\infty$",
-        ha="center",
-        fontsize=10
-    )
-
-    ax.set_xlim(0, 3.5)
-    ax.set_ylim(-1, 11)
-    ax.set_xlabel(r"$\lambda$")
-    ax.set_ylabel(r"$\theta(\lambda)$")
-    ax.set_title("Lagrangian dual")
-    ax.grid(alpha=0.2)
-    ax.legend(loc="upper left", fontsize=9)
-
-    fig.suptitle("Primal and Lagrangian Dual", fontsize=15)
-    plt.tight_layout()
-
-    fig
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    Now, we know that the Lagrange dual function gives us *a* lower bound. What if we would like to find the highest lower bound? Since all values of \(\theta(\lambda)\) are less than \(p^*\), what would happen if we try to maximize the dual function \(d^*=\max_{\lambda\geq0}\theta(\lambda)\)? You probably already guess (and see in the figure), that we can establish a link between the maximum of the dual and primal problem. Since we already know that \(d^*\leq p^*\), which is called weak duality, the best we can hope is that \(d^*=p^*\). We call the case where dual and primal problems agree strong duality. Since the solutions for the minimization of the primal and maximization of the dual yield the same value, the optimization problem depicted above satisfies strong duality.
-
-    ### Consequences of optimising dual function
-
-    The results from the example hold more generally. Let's consider a primal problem
-
-    \[
-        \begin{aligned}
-            (P): p^*=\min_{x}\;& c^\top x \\
-            &\text{s.t.} \\
-            Ax&\leq b\\
-            x\geq 0.
-        \end{aligned}
-    \]
-
-    This has the Lagrangian dual function as discussed. We can further manipulate the dual as
-
-    \[
-        \begin{aligned}
-            \theta(\lambda) &= \min_{x\geq 0}\{c^\top x+\lambda^\top(Ax-b)\} \\
-            &= \min_{x\geq 0}\{c^\top x+\lambda^\top Ax-\lambda^\top b)\} \\
-            &= -\lambda^\top b+\min_{x\geq 0}\{(c^\top+\lambda^\top A)x\}
-        \end{aligned}
-    \]
-
-    Let's think what we have here. Clearly the \(\lambda^\top b\) term is constant in the minimization, since the \(x\) doesn't enter it. In the latter term, if \(-c^\top\leq\lambda^\top A\), then \(\min_{x\geq 0}\{(c^\top+\lambda^\top A)x\}\geq0\) so the minimum must be \(0\) for the \(x\) value of \(0\). Therefore the value of the dual function is
-
-    \[
-        \theta(\lambda)=\begin{cases}
-            -\lambda^\top b & \text{for }0\leq c^\top+\lambda^\top A \\
-            -\infty & \text{otherwise.}
-        \end{cases}
-    \]
-
-    Maximizing the lower bound yields therefore
-
-    \[
-        \begin{aligned}
-            (D): \max_{\lambda\geq0}& -\lambda^\top b \\
-            \text{s.t.}& \\
-            -c^\top&\leq\lambda^\top A
-        \end{aligned}
-    \]
-
-    which is exactly the dual problem. It is just an another LP problem.
-
-    We now have rough understanding what the dual problem is in relation to the primal problem, but what can we actually achieve with it? Next we will see that it is possible to categorise the solutions of the primal problem by computing the dual problem value.
-
-    !!! proposition "Consequence of weak duality"
-        Assume a LP problem satisfies weak duality *i.e.* \(\lambda^\top b\leq c^\top x\).
-
-        1. If the optimal value of the primal problem is \(-\infty\), then the dual problem must be infeasible.
-        2. If the optimal value of the dual problem is \(\infty\), then the primal problem must be infeasible.
-        3. Let \(x\) and \(\lambda\) be feasible for the primal and dual problems. Assume \(\lambda^\top b=c^\top x\), then \(x\) is optimal to the primal and \(\lambda\) to dual problem.
-
-    ???- proof "Proof"
-        1. Assume that the primal problem has the optimum at \(-\infty\) and the dual has a feasible solution. Then by the weak duality holds \(\lambda^\top b\leq c^\top x\=-\infty) contradicting the feasibility.
-        2. Same proof, just change the roles of primal and dual.
-        3. Let \(\hat{x}\) be another feasible solution for the primal problem. Then by assumption \(c^\top\hat{x}\geq\lambda^\top b=c^\top x\), so \(x\) is optimal. Similar argument holds for the dual problem.
-
-    This result has very practical consequences. If we know that the
-    """)
-    return
-
-
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -1140,7 +790,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ???- note "Mathematical treatment of duality"
+    ???- info "Mathematical treatment of duality"
         This note derives the dual for a general LP, rather than starting with the particular electricity example. It is optional; the main text's derivation using weighted constraints already explains how to construct and interpret the dual.
 
         Begin with
@@ -1224,8 +874,190 @@ def _(mo):
     return
 
 
-@app.cell
-def _():
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ???- info "Why is the shadow price the derivative of the value function?"
+
+        We have seen that the dual variables of a linear optimization problem can be interpreted as shadow prices. In particular, they describe how much the optimal objective value changes when we relax a constraint. But why does this relationship hold?
+
+        To understand this, let us return to our electricity-import problem and then examine the result more generally.
+
+        **The value function of our electricity problem**
+
+        Recall that we want to minimize the cost of importing electricity from Sweden and Estonia:
+
+        $$
+            \begin{aligned}
+                \min_{x_S,x_E\geq 0}\quad
+                &40x_S+60x_E\\
+                \text{subject to}\quad
+                &x_S+x_E\geq 3200,\\
+                &x_S\leq 3100,\\
+                &x_E\leq 1000.
+            \end{aligned}
+        $$
+
+        We found that the optimal solution is to import 3100 MWh from Sweden and 100 MWh from Estonia, yielding a minimum cost of €130,000.
+
+        Now, suppose we are interested in how the minimum cost changes when the available transmission capacity from Sweden changes.
+
+        Let $s$ denote the available Swedish transmission capacity, and define
+
+        $$
+            \begin{aligned}
+                V(s)=\min_{x_S,x_E\geq 0}\quad
+                &40x_S+60x_E\\
+                \text{subject to}\quad
+                &x_S+x_E\geq 3200,\\
+                &x_S\leq s,\\
+                &x_E\leq 1000.
+            \end{aligned}
+        $$
+
+        The function $V(s)$ is called the value function. It gives the optimal objective value for each possible Swedish transmission capacity $s$.
+
+        For $2200\leq s\leq 3200$, we know that importing electricity from Sweden is cheaper. Therefore, the optimal solution is
+
+        $$
+        x_S^*=s,\qquad x_E^*=3200-s.
+        $$
+
+        Substituting these into the objective function gives
+
+        $$
+            \begin{aligned}
+                V(s)
+                &=40s+60(3200-s)\\
+                &=192\,000-20s.
+            \end{aligned}
+        $$
+
+        Taking the derivative with respect to $s$, we obtain
+
+        $$
+        \frac{dV(s)}{ds}=-20.
+        $$
+
+        This tells us that increasing Swedish transmission capacity by one MWh decreases the minimum import cost by €20.
+
+        We also found that the shadow price of the Swedish transmission capacity constraint is $\lambda^*=20$ €/MWh. Thus, in our example,
+
+        $$
+        \frac{dV(s)}{ds}=-\lambda^*.
+        $$
+
+        Let us now see why this relationship holds more generally.
+
+        **General derivation**
+
+        Consider a minimization problem where a constraint depends on some parameter $s$:
+
+        $$
+            \begin{aligned}
+                V(s)=\min_z\quad &f(z)\\
+                \text{subject to}\quad &g(z)\leq s.
+            \end{aligned}
+        $$
+
+        Here, $z$ represents the decision variables, while $s$ is a parameter that we can change. Other constraints, if present, are assumed to remain unchanged.
+
+        We can construct the Lagrangian function by introducing a multiplier $\lambda\geq 0$:
+
+        $$
+        \mathcal L(z,\lambda;s)
+        =f(z)+\lambda(g(z)-s).
+        $$
+
+        Notice that the constraint parameter $s$ appears in the Lagrangian only through the term $-\lambda s$.
+
+        The Lagrange dual function is
+
+        $$
+            \begin{aligned}
+                \theta(\lambda;s)
+                &=\inf_z\mathcal L(z,\lambda;s)\\
+                &=\inf_z\left[f(z)+\lambda g(z)\right]
+                  -\lambda s.
+            \end{aligned}
+        $$
+
+        Let us denote the first term by $h(\lambda)$. This gives
+
+        $$
+        \theta(\lambda;s)=h(\lambda)-\lambda s.
+        $$
+
+        The important observation is that for a fixed multiplier $\lambda$, the dual function is linear in the constraint parameter $s$, with slope $-\lambda$.
+
+        Under strong duality, the optimal primal value equals the optimal dual value:
+
+        $$
+        V(s)=\max_{\lambda\geq 0}
+        \left[h(\lambda)-\lambda s\right].
+        $$
+
+        Suppose we consider a particular parameter value $s_0$, with an optimal dual multiplier $\lambda^*$.
+
+        Strong duality gives
+
+        $$
+        V(s_0)=h(\lambda^*)-\lambda^*s_0.
+        $$
+
+        For any other value of $s$, weak duality tells us that
+
+        $$
+        V(s)\geq h(\lambda^*)-\lambda^*s.
+        $$
+
+        Combining these two expressions, we obtain
+
+        $$
+        V(s)\geq V(s_0)-\lambda^*(s-s_0).
+        $$
+
+        In other words, the straight line
+
+        $$
+        V(s_0)-\lambda^*(s-s_0)
+        $$
+
+        touches the value function at $s_0$ and lies below it everywhere else.
+
+        If the value function is differentiable at $s_0$, this line must have the same slope as the value function at that point. Consequently,
+
+        $$
+        \frac{dV(s)}{ds}\bigg|_{s=s_0}
+        =-\lambda^*.
+        $$
+
+        We have therefore established the relationship between the optimal dual multiplier and the marginal value of relaxing a constraint.
+
+        **Consequences for decision making**
+
+        In our electricity example, we found $\lambda^*=20$ €/MWh. Therefore, increasing Swedish transmission capacity by a small amount reduces the minimum electricity-import cost by approximately €20 for each additional MWh.
+
+        The negative sign indicates a cost reduction. This makes sense because increasing the available capacity gives us more flexibility, allowing us to replace relatively expensive Estonian imports with cheaper Swedish imports.
+
+        However, the relationship is local. Once Swedish transmission capacity reaches 3 200 MWh, we no longer need to import electricity from Estonia. Increasing Swedish capacity beyond this point does not provide additional savings.
+
+        At exactly 3 200 MWh, the value function has a corner and is not differentiable. Different optimal dual multipliers may then correspond to different supporting slopes.
+
+    !!! note "The direction of the constraint matters"
+
+        We derived the result for a constraint of the form $g(z)\leq s$, using a nonnegative multiplier $\lambda$.
+
+        If we instead have a minimum requirement $g(z)\geq s$, and write the Lagrangian term as $\lambda(s-g(z))$, the corresponding relationship is
+
+        $$
+            \frac{dV(s)}{ds}=\lambda^*.
+        $$
+
+        For example, increasing the required electricity imports raises the minimum cost. The shadow price of our electricity supply requirement is €60/MWh, so the marginal cost of increasing the requirement is positive.
+
+        The main lesson is that shadow prices measure how sensitive the optimal objective value is to changes in constraints. This allows us to evaluate management decisions without having to resolve the optimization problem separately for every small change in resource availability.
+    """)
     return
 
 
