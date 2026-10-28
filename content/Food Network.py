@@ -103,27 +103,51 @@ def _(mo):
 def _():
     hubs = ("H1", "H2")
     retailers = ("R1", "R2", "R3")
-
     farms = ("F1", "F2", "F3")
-    supply = {"F1": 70, "F2": 60, "F3": 80} # tonnes/week
-    hub_capacity = {"H1": 100, "H2": 100}   # tonnes/week
-    demand = {"R1": 50, "R2": 65, "R3": 55} # tonnes/week
 
-    # The first coefficient is €/tonne, the second is kg CO2e/tonne.
+    supply = {"F1": 70, "F2": 60, "F3": 80}
+    hub_capacity = {"H1": 100, "H2": 100}
+    demand = {"R1": 50, "R2": 65, "R3": 55}
+
     arc_data = {
-        ("F1", "H1"): {"cost": 4, "emissions": 9},
-        ("F1", "H2"): {"cost": 9, "emissions": 4},
-        ("F2", "H1"): {"cost": 7, "emissions": 6},
-        ("F2", "H2"): {"cost": 3, "emissions": 8},
-        ("F3", "H1"): {"cost": 6, "emissions": 4},
-        ("F3", "H2"): {"cost": 5, "emissions": 7},
-        ("H1", "R1"): {"cost": 4, "emissions": 8},
-        ("H1", "R2"): {"cost": 7, "emissions": 5},
-        ("H1", "R3"): {"cost": 9, "emissions": 3},
-        ("H2", "R1"): {"cost": 8, "emissions": 3},
-        ("H2", "R2"): {"cost": 4, "emissions": 8},
-        ("H2", "R3"): {"cost": 3, "emissions": 9},
+        ("F1", "H1"): {
+            "cost": 4, "emissions": 9
+        },
+        ("F1", "H2"): {
+            "cost": 9, "emissions": 4
+        },
+        ("F2", "H1"): {
+            "cost": 7, "emissions": 6
+        },
+        ("F2", "H2"): {
+            "cost": 3, "emissions": 8
+        },
+        ("F3", "H1"): {
+            "cost": 6, "emissions": 4
+        },
+        ("F3", "H2"): {
+            "cost": 5, "emissions": 7
+        },
+        ("H1", "R1"): {
+            "cost": 4, "emissions": 8
+        },
+        ("H1", "R2"): {
+            "cost": 7, "emissions": 5
+        },
+        ("H1", "R3"): {
+            "cost": 9, "emissions": 3
+        },
+        ("H2", "R1"): {
+            "cost": 8, "emissions": 3
+        },
+        ("H2", "R2"): {
+            "cost": 4, "emissions": 8
+        },
+        ("H2", "R3"): {
+            "cost": 3, "emissions": 9
+        },
     }
+
     return arc_data, demand, farms, hub_capacity, hubs, retailers, supply
 
 
@@ -697,7 +721,7 @@ def _(mo):
     An interesting property of this optimization problem is that the slope of the Pareto frontier has an economic interpretation. In particular, when the value function is differentiable and the appropriate regularity conditions hold, the optimal Lagrange multiplier \(\lambda^*\) associated with the emissions constraint satisfies
 
     \[
-    \frac{dV(\varepsilon)}{d\varepsilon}=-\lambda^*.
+    \frac{\text{d}V(\varepsilon)}{\text{d}\varepsilon}=-\lambda^*.
     \]
 
     Thus, the magnitude of the slope measures the marginal cost of reducing emissions, expressed in euros per kilogram of CO₂e avoided. This is also called the marginal abatement cost (MAC).
@@ -745,7 +769,7 @@ def _(mo):
     \[
     E_{C,E}
     =
-    \frac{dC}{dE}\frac{E}{C}.
+    \frac{\text{d}C}{\text{d}E}\frac{E}{C}.
     \]
 
     In practice, we approximate the derivative using consecutive points on the Pareto frontier.
@@ -763,7 +787,7 @@ def _(mo):
     \[
     \mathrm{MAC}(E)
     =
-    -\frac{dC}{dE}.
+    -\frac{\text{d}C}{\text{d}E}.
     \]
 
     Using the definition of elasticity, we can also write
@@ -805,46 +829,42 @@ def _(np, pareto_costs, pareto_emissions, plt):
     E_mid = (E[:-1] + E[1:]) / 2
     C_mid = (C[:-1] + C[1:]) / 2
 
-    # Elasticity of cost with respect to emissions:
-    # - (dC/dE) * (E/C)
+    # Elasticity of cost with respect to emissions
     elasticity = (np.diff(C) / np.diff(E)) * (E_mid / C_mid)
 
-    # Marginal abatement cost:
-    # - dC/dE
+    # Marginal abatement cost
     mac = -np.diff(C) / np.diff(E)
 
-    elasticity_fig, ax1 = plt.subplots(figsize=(9, 5))
+    elasticity_fig, ax_el = plt.subplots(figsize=(9, 5))
 
-    # elasticity
-    ax1.plot(
+    # Elasticity
+    ax_el.plot(
         E_mid,
         -elasticity,
         marker="o",
         linewidth=1.8,
-        label="Elasticity"
+        color="#2563EB",
+        label=r"Elasticity ($-E_{C,E}$)"
     )
-    ax1.set_xlabel("Emissions (kg CO₂e/week)")
-    ax1.set_ylabel(r"Elasticity of cost with respect to emissions reduction ($-E_{C,E}$)")
-    ax1.grid(alpha=0.25)
 
-    # marginal abatement cost
-    ax2 = ax1.twinx()
-    ax2.step(
+    # Marginal abatement cost
+    ax_el.step(
         E_mid,
         mac,
         where="mid",
         linestyle="--",
         linewidth=1.8,
-        label="Marginal abatement cost"
+        color="#DC2626",
+        label="Marginal abatement cost (€/kg CO₂e)"
     )
-    ax2.set_ylabel("Marginal abatement cost (€/kg CO₂e)")
 
-    # combined legend
-    lines1, labels1 = ax1.get_legend_handles_labels()
-    lines2, labels2 = ax2.get_legend_handles_labels()
-    ax1.legend(lines1 + lines2, labels1 + labels2, loc="upper right")
+    ax_el.set_xlabel("Emissions (kg CO₂e/week)")
+    ax_el.set_ylabel("Elasticity / Marginal abatement cost")
+    ax_el.set_title("Elasticity and Marginal Abatement Cost")
 
-    ax1.set_title("Elasticity and Marginal Abatement Cost along the Pareto Frontier")
+    ax_el.axhline(0, color="black", linewidth=0.8)
+    ax_el.grid(alpha=0.25)
+    ax_el.legend(loc="upper right")
 
     elasticity_fig.tight_layout()
     elasticity_fig

@@ -59,6 +59,7 @@ toc:
   - file: content/Linear Optimization Part II.py
   - file: content/Food Network.py
   - file: content/Linear Optimization Part III.py
+  - file: content/Food Network cont'd.py
 
 bibliography:
   - library.bib
