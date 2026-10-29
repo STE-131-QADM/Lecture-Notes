@@ -11,7 +11,7 @@
 
 import marimo
 
-__generated_with = "0.25.1"
+__generated_with = "0.25.2"
 app = marimo.App(width="medium")
 
 
@@ -651,6 +651,26 @@ def _(mo):
     These are called *binding constraints*. The capacity constraint for electricity imports from Estonia, on the other hand, is not binding because only 100 MWh of the available 1,000 MWh is used.
 
     The distinction between binding and nonbinding constraints will become important when we investigate how changes in resource availability affect optimal decisions.
+
+    ## The necessary assumptions
+
+    We have already discussed linearity at the beginning of this chapter. It remains one of the key assumptions of our analysis. In our electricity-import model, linearity implies that the cost of importing an additional MWh of electricity is constant, regardless of how much electricity we have already imported. Furthermore, the costs are additive, so importing electricity from Sweden does not affect the cost of importing electricity from Estonia.
+
+    Is this reasonable? At least as an approximation, it might be. However, in reality, electricity prices can depend on the quantities traded, and transmission losses may increase nonlinearly as the electricity network approaches its capacity limits.
+
+    There are also several other important assumptions underlying our model:
+
+    1. **Certainty**: We assume that electricity demand, domestic production, import prices, and transmission capacities are all known with certainty. In reality, these quantities may be uncertain, particularly when making decisions about future electricity supply.
+
+    2. **Divisibility**: Our decision variables can take any nonnegative real values within their capacity limits. This means that we can import arbitrary fractions of a MWh. Such an assumption is reasonable for electricity quantities, but might not be for problems involving indivisible decisions, such as constructing new power plants.
+
+    3. **Static decision-making**: We consider only a single one-hour period. In reality, electricity consumption, production, and transmission conditions change over time. Decisions made during one period may also affect the possibilities available in subsequent periods.
+
+    4. **Simplified physical system**: We assume that electricity imported from either country contributes directly to meeting the supply requirement, without transmission losses. We also ignore the physical interactions between different parts of the interconnected electricity network.
+
+    These assumptions make our problem considerably easier to formulate and solve. However, they also limit how directly we can apply the results to the actual electricity system. An optimal solution to a mathematical model is not necessarily an optimal solution to the real-world problem. The usefulness of our results ultimately depends on whether the assumptions provide a sufficiently accurate representation of the decision-making situation.
+
+    There is no going around the fact that *every* useful model makes assumptions. We could go as far as to say that it doesn't even make any sense to speak of modeling, whether quantitative or not, without assumptions. Your job as an analyst is to make sure these assumptions are justified and capture the important properties of the system you are modeling.
     """)
     return
 
