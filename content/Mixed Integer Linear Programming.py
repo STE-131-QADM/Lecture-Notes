@@ -309,7 +309,7 @@ def _(mo):
         a^\top x\leq b+M(1-z),\qquad z\in\{0,1\}.
     \]
 
-    If \(z=1\), the original inequality is enforced. If \(z=0\), the constraint must become redundant. This requires a *valid* value of \(M\): for example, a known upper bound on \(a^\top x-b\) over the original variable bounds. A larger number is not automatically better. An excessively large \(M\) weakens the LP relaxation and may cause numerical difficulties. This construction is often called a [Big M method]([https://docs.mosek.com/modeling-cookbook/mio.html#indicator-constraints](https://en.wikipedia.org/wiki/Big_M_method)).
+    If \(z=1\), the original inequality is enforced. If \(z=0\), the constraint must become redundant. This requires a *valid* value of \(M\): for example, a known upper bound on \(a^\top x-b\) over the original variable bounds. A larger number is not automatically better. An excessively large \(M\) weakens the LP relaxation and may cause numerical difficulties. This construction is often called a [Big M method](https://en.wikipedia.org/wiki/Big_M_method).
 
     Similar techniques can represent logical operations such as AND, OR, and NOT, or restrictions on how many projects can be chosen. We will use several of these in the electricity procurement example below.
 
