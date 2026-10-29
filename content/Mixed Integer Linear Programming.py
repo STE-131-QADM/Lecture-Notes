@@ -537,11 +537,13 @@ def _(mo):
 
     In Linear Optimization Part III, we used duality to obtain bounds on an LP's optimal value. LP relaxations also give us a way to judge an MILP solution, even when an integer optimizer has not yet proven optimality.
 
-    For a **minimization** problem, let \(L\) be a valid lower bound, for example the optimum of its LP relaxation. Let \(U\) be the objective value of a feasible integer solution found by the solver. Then
+    For a minimization problem, let \(L\) be a valid lower bound, for example the optimum of its LP relaxation. Let \(U\) be the objective value of a feasible integer solution found by the solver. Then
 
     \[
         L\leq V^*_{\mathrm{MILP}}\leq U.
     \]
+
+    The LP relaxation changes the constraint for the decision variable to take values in \(\{0,1\}\) to taking values from \([0,1]\). Clearly \(\{0,1\}\subseteq [0,1]\) and as we are not modifying the feasible set otherwise we have the following relationship \(\mathcal{F}_{\{0,1\}}\subseteq\mathcal{F}_{[0,1]}\) for the entire feasible sets. Now the result about nested feasible sets that was established in Food Network cont'd holds here and we can know for sure that the LP relaxation always achieves at least as low minimum as the MILP for minimization problem and vice versa for maximization.
 
     The difference \(U-L\) bounds how much the feasible solution could be improved. A commonly used relative measure is \(\frac{U-L}{\max(1,|U|)}\), although solvers can differ in their precise definition of the relative MIP gap. Solvers update both bounds during the search and can stop when the gap is sufficiently small, even without proving the exact optimum.
 
@@ -572,7 +574,7 @@ def _(electricity_fixed, electricity_fixed_lp_relax, mo, pyo):
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(pyo, solve_electricity_case):
     big_m_comparison = []
     for _factor in (1, 10, 100):
@@ -642,7 +644,7 @@ def _(mo):
     Compare the last three integer rows of the table above. In the fixed-fee model the domestic generator is slightly cheaper for the last 100 MWh. Once we require a minimum activation level of 200 MWh, it may be necessary to buy less from the cheapest supplier (Sweden) in order to meet the contractual quantities. The optimal arrangement can therefore switch even though the energy prices have not changed.
 
     ???- question "Rounding the LP solution not enough? ☠️☠️"
-        Suppose the LP relaxation gives \(y_E=0.1\), \(x_E=100\). Why does simply rounding \(y_E\) to one not necessarily produce an optimal MILP solution? What happens if the 200 MWh minimum purchase is enforced? Try to think of an example where rounding goes badly wrong.
+        Suppose the LP relaxation gives \(y_E=0.1\), \(x_E=100\). Why does simply rounding \(y_E\) to one not necessarily produce an optimal MILP solution? What happens if the 200 MWh minimum purchase is enforced? Try to think of another example where rounding goes badly wrong.
     """)
     return
 
