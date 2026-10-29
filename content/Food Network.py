@@ -147,7 +147,6 @@ def _():
             "cost": 3, "emissions": 9
         },
     }
-
     return arc_data, demand, farms, hub_capacity, hubs, retailers, supply
 
 
@@ -777,6 +776,43 @@ def _(mo):
     The figure below illustrates how the cost elasticity varies along the frontier. Its magnitude tells us how expensive further emissions reductions are in relative terms. A higher value of \(-E_{C,E}\) indicates that achieving an additional percentage reduction in emissions requires a larger percentage increase in transportation costs.
 
     Alternatively, the reciprocal elasticity \(1/E_{C,E}\) measures the percentage change in emissions associated with a 1% change in transportation costs.
+
+    !!! note "Why is elasticity important in environmental economics?"
+
+        Elasticity is an important concept in economics because it helps us understand how strongly people and firms respond to changes in prices, income, or other economic conditions. It is especially useful in environmental economics, where policies often attempt to change behaviour through economic incentives.
+
+        Consider a tax on gasoline. Suppose the government introduces a fuel tax that increases the price paid by consumers by 10%. How much would gasoline consumption decrease? The answer depends on the price elasticity of demand, defined as
+
+        \[
+            E_d=\frac{\Delta Q/Q}{\Delta P/P}.
+        \]
+
+        If the price elasticity of gasoline demand is \(E_d=-0.15\), we can approximate the effect as
+
+        \[
+            \frac{\Delta Q}{Q}
+            \approx -0.15\times 10\%=-1.5\%.
+        \]
+
+        Thus, a 10% increase in the consumer price would reduce gasoline consumption by approximately 1.5%. Assuming emissions are proportional to fuel consumption, this would also imply approximately a 1.5% reduction in the corresponding emissions.
+
+        This example illustrates how elasticity can help policymakers estimate the environmental effects of taxes. If demand is highly inelastic, even a relatively large price increase may produce only a small reduction in consumption. If demand is more elastic, the same price increase can produce a larger reduction.
+
+        The time horizon also matters. In the short run, people may have limited opportunities to change their commuting habits or replace their vehicles. Over longer periods, they can purchase more fuel-efficient cars, switch to public transportation, or change where they live. Consequently, long-run demand for energy is often more elastic than short-run demand.
+
+        Elasticity is also useful for studying who bears the economic burden of environmental taxes. The burden does not necessarily fall entirely on the person or company legally responsible for paying the tax. Instead, it depends on how consumers and producers respond to price changes. In a standard competitive market, the less price-responsive side generally bears a larger share of the tax burden.
+
+        These considerations extend to other environmental policies. For example, subsidies can encourage households or firms to adopt cleaner technologies by reducing their relative prices. Cross-price elasticities can help estimate whether consumers substitute toward cleaner alternatives. Similarly, the effectiveness of trade-related environmental tariffs depends partly on how buyers respond to changes in the relative prices of domestic and imported products.
+
+        What about emissions trading? In a cap-and-trade system, policymakers determine the total number of emissions allowances, while trading establishes a market price for them. The responsiveness of firms to that price helps determine the resulting allowance price and how emissions reductions are distributed across firms. By contrast, an emissions tax sets a price on pollution, and the resulting emissions depend on how firms and consumers respond.
+
+        Elasticity therefore provides useful information when evaluating environmental policy instruments. However, it does not by itself tell us which policy is socially optimal. That also requires considering environmental damages, the costs of reducing pollution, and the distribution of costs and benefits.
+
+        Finally, remember that the cost–emissions elasticity calculated in our transportation model differs from the price elasticity of demand. Our elasticity measures the relative increase in optimized transportation costs associated with reducing emissions, whereas demand elasticity measures how the consumption of a good responds to its price.
+
+        For an interesting application outside environmental policy, see [this example of using elasticity to estimate how disruptions in oil supply affect oil prices](https://robinjbrooks.substack.com/p/how-high-will-oil-prices-go) or [more recent post](https://robinjbrooks.substack.com/p/whats-priced-into-brent-at-117).
+
+        If you are more interested in these kinds of topics you can find introductory texts regarding [elasticity and pricing](https://openstax.org/books/principles-economics-3e/pages/5-3-elasticity-and-pricing?utm_source=chatgpt.com), [market oriented tools for environmental applications](https://openstax.org/books/principles-economics-3e/pages/12-3-market-oriented-environmental-tools?utm_source=chatgpt.com), [carbon tax guide](https://documents1.worldbank.org/curated/en/728421535605566659/pdf/129668-V1-WP-PUBLIC-Carbon-Tax-Guide-Main-Report.pdf?utm_source=chatgpt.com), and [cross country analysis of energy subsidies](https://www.imf.org/en/publications/wp/issues/2016/12/31/energy-subsidies-and-energy-consumption-a-cross-country-analysis-40544?utm_source=chatgpt.com).
 
     ### Marginal Abatement Cost
 
