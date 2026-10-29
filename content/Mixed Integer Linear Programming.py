@@ -41,15 +41,17 @@ def _():
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    In this chapter we are going to add one, initially relatively innocent looking, constraint to our optimisation model. The new constraint will reduce a variable to take values inside the set \(\mathbb{Z}=\{\ldots,-2,-1,0,1,2,\ldots\}\). This model has important special cases where the set is \(\mathbb N\) or \(\{0,1\}\).
+    In this chapter we introduce mixed-integer linear programming (MILP). As in linear programming (LP), the objective and constraints are linear in the decision variables. The difference is that some variables must take integer values. For example, a variable may represent a number of trucks, the number of production batches, or a yes/no decision.
 
-    This solves one of our very practical problem. For example, let's think about the food network problem once more. In That example we assumed that we can choose the amount of food we transported from each place in arbitrary precision (or at least machine precision). This may be very sensible assumption. For example, if we are transporting grains, the precision is more than enough for this to be good approximation.
+    In mathematical notation, an MILP can contain continuous variables \(x\in\mathbb{R}^n\) and integer variables \(y\in\mathbb{Z}^m\). Binary variables \(y_i\in\{0,1\}\) are a particularly important special case. A problem with only integer decision variables is often called an *integer linear program* (ILP).
 
-    However, now imagine that the farm already does some kind of processing for the food and packages it on boxes and those boxes are further bundled to for example 150 kg units. All of a sudden it can make quite a big difference whether we are able to add additional 149.5 kg or 150.5 kg to our truck. In this case using continuous variables for the decision can lead to insufficient approximation of the real process and therefore to very inefficient solutions.
+    Think back to our food distribution network. Modeling the shipment of a bulk product, such as grain, with continuous quantities is often reasonable. But suppose a processed product can only be shipped in packages of 150 kg. If \(n\) denotes the number of packages, then the shipped quantity in kilograms is \(x=150n\), where \(n\in\mathbb{Z}_{\geq 0}\). A plan involving 149.5 kg or 150.5 kg may no longer be feasible.
+
+    Integer variables do much more than count indivisible items. They also let us represent whether a plant is activated, which supplier is selected, or when a conditional operating rule must be enforced.
 
     ## Difference between LP and MILP solutions
 
-    We can easily cook up an example where the difference between LP and MILP solutions can be made arbitrarily big. Let's take the following model
+    We can construct a simple example where the difference between an LP relaxation and an MILP becomes arbitrarily large. Let \(M\geq1\) and consider
 
     \[
         \begin{aligned}
@@ -57,11 +59,11 @@ def _(mo):
             \text{s.t.}\quad
             &x\geq 1,\\
             &x\leq My,\\
-            &y\in\{0,1\}.
+            &x\geq0,\quad y\in\{0,1\}.
         \end{aligned}
     \]
 
-    Now the LP chooses \(x^*=1\) and \(y^*=1/M\). The MILP must choose \(x^*=1\) and \(y^*=1\).
+    Its LP relaxation replaces \(y\in\{0,1\}\) with \(0\leq y\leq1\). The relaxation chooses \(x^*=1\) and \(y^*=1/M\), while the MILP must choose \(x^*=1\) and \(y^*=1\).
 
     Consequently,
     \[
@@ -70,7 +72,7 @@ def _(mo):
     V_{\mathrm{MILP}}(M)=M+1
     \]
 
-    Thus absolute integrality gap is
+    The absolute integrality gap in this example is therefore
 
     \[
     V_{\mathrm{MILP}}-V_{\mathrm{LP}}=M-1,
@@ -265,15 +267,9 @@ def _(np, plt, solve_model):
 
 
 @app.cell(hide_code=True)
-def _(mo, np):
+def _(mo):
     mo.md(rf"""
-    At this point things start to look relatively bleak. All of a sudden the model we were using seems to produce very bad results in a very important category of problems.
-
-    If you really think about it, you will quickly notice that many (even most?) useful models include variables that cannot plausibly be assumed to take continuous values.
-
-    And after all, aren't we always playing around with discrete quantities while using computers? With floating-point numbers, there is always some distance between consecutive representable values.
-
-    For example, near 1.0, this spacing is characterized by [machine epsilon](https://en.wikipedia.org/wiki/Machine_epsilon), which on this computer is \(\varepsilon_{{\text{{MACH}}}} =\) {np.finfo(float).eps}. You can find this information by using `np.finfo(float).eps`.
+    The LP relaxation gives a lower bound on the minimum cost, but a fractional activation decision such as \(y=0.1\) may have no practical meaning. This is why replacing an MILP by an LP can produce a plan that is impossible to implement, even if its numerical solution looks reasonable.
     """)
     return
 
@@ -283,54 +279,44 @@ def _(mo):
     mo.md(r"""
     ## MILP problems
 
-    Fortunately, it turns out that machine precision is usually not a problem in practice, and we have good algorithms at our
-    disposal to solve problems involving integer values.
-
-    MILP also unlocks many different modeling techniques. For example, we can implement conditional constraints. Conditional constraints can be used for example to encode affine relationships fo form \(\alpha+\beta x\) where \(\alpha\) and \(\beta\) are parameters and \(x\) is a variable. Note that even though we many times use the word linear to describe this relationship, it is actually not. It is affine since for a function \(f(x)=\alpha+\beta x\) with \(\alpha\neq0\) hold following relationship
-
-    \[
-        \begin{aligned}
-            f(x+y)&=\alpha+\beta x+\beta y \\
-            &\neq 2\alpha+\beta x+\beta y \\
-            &=f(x)+f(y)
-        \end{aligned}
-    \]
-
-    Therefore, to determine for example which production facilities \(i\) with fixed costs \(c^f_i\) and variable costs \(c^v_i\) for quantity \(q_i\) we need to compute the costs that are of form
+    The need for binary variables is not limited to decisions that count whole items. Many management problems involve fixed costs: a facility incurs an additional cost when it operates at all, regardless of how little it produces.
 
     \[
         C_i(q_i)=\begin{cases}
-            c^f_i+c^v_i q_i, & \text{for }q_i>0 \\
-            0, & \text{for }q_i=0
+            c^f_i+c^v_i q_i, & q_i>0,\\
+            0, & q_i=0.
         \end{cases}
     \]
 
-    By using boolean or indicator variables taking a value of 0 or 1 we can encode this relationsip. Consider the following MILP
+    When \(c_i^f>0\), this is a discontinuous, nonconvex cost function. Introduce a binary activation variable \(z_i\in\{0,1\}\) and a valid upper production bound \(U_i\). We can include fixed and variable costs in an MILP as
 
     \[
-        \begin{split}\begin{array}{ll}
-        \min& {c^f}^T z + {c^v}^T q\\
-        \mbox{s.t.}& q_i \leq M_i z_i, \quad i=1,\dots,n\\
-                   & q\geq 0,\\
-                   & z\in \{0,1\}^n
-        \end{array}\end{split}
+        \begin{aligned}
+            \min_{q,z}\quad &\sum_{i=1}^n(c_i^f z_i+c_i^v q_i)\\
+            \text{s.t.}\quad &0\leq q_i\leq U_i z_i,\quad i=1,\ldots,n,\\
+            &z_i\in\{0,1\},\quad i=1,\ldots,n,\\
+            &\text{other demand and production constraints.}
+        \end{aligned}
     \]
 
-    where \(c^f\) and \(c^v\) are the vectors of fixed and variable costs and \(M_i\) is a valid upper bound for the amount produced by facility \(i\). In a full model, production, demand, or other operational constraints would also be included.
+    When \(q_i>0\), the inequality forces \(z_i=1\). If \(q_i=0\), the constraint also permits \(z_i=1\); however, with strictly positive fixed costs and no other incentive to activate a facility, minimization drives it to \(z_i=0\). Thus the modeled costs agree with the intended fixed-charge structure at the optimum. The bound \(U_i\) should come from the physical or contractual limits of the actual problem.
 
-    It turns out that expanding the model to contain integer values gives us much more flexibility than what it initially seems. It is possible to encode logical operations with these variables as well. Let's consider a situation where want to conditinally constrain our problem with some inequality \(a^\top x\leq b\), but on some events we don't want this constrain to apply. We can use the following scheme let \(z\) denote the even so that when \(z=1\) we should enforce the constraint. Then by using the following constraints
+    ### Conditional constraints and Big-M
+
+    Binary variables can also encode logical conditions. Suppose we require \(a^\top x\leq b\) when a binary variable \(z\) is one, but do not want to impose the inequality when \(z=0\). We can write
 
     \[
-        a^\top x\leq b+(1-z)M \\
-        z\in \{0,1\}
-
+        a^\top x\leq b+M(1-z),\qquad z\in\{0,1\}.
     \]
 
-    and by setting \(M\) sufficiently high we can achieve this. When \(z=1\) the constraint reduces to \(a^\top x\leq b\) and otherwise it becomes irrelevant if \(M\) is set large enough. This method is so widely used that it even has a name. It is called, very imaginatively, a [Big M method](https://en.wikipedia.org/wiki/Big_M_method).
+    If \(z=1\), the original inequality is enforced. If \(z=0\), the constraint must become redundant. This requires a *valid* value of \(M\): for example, a known upper bound on \(a^\top x-b\) over the original variable bounds. A larger number is not automatically better. An excessively large \(M\) weakens the LP relaxation and may cause numerical difficulties. This construction is often called a [Big M method]([https://docs.mosek.com/modeling-cookbook/mio.html#indicator-constraints](https://en.wikipedia.org/wiki/Big_M_method)).
 
-    We could craft more this kind of examples and for example express the operators like OR, AND and NOT using MILP. The decision version of integer linear programming is [nondeterministic polynomial-time (NP)-complete](https://en.wikipedia.org/wiki/NP-completeness). In practice, it is one reason why we must be careful about computational effort. The associated optimization problems are in general [NP-hard](https://en.wikipedia.org/wiki/NP-hardness). This means in practice that it may not always be possible to solve the optimization problem you write down. Fortunately the modern solvers are very good at crunching this kinds of problems and in many cases it is feasible to solve many of the practical problems.
+    Similar techniques can represent logical operations such as AND, OR, and NOT, or restrictions on how many projects can be chosen. We will use several of these in the electricity procurement example below.
 
-    What should you take from all of this? Probably not that you are required to get a PhD in theoretical computer science to use these methods (at least I don't 🤷). Instead, even though we are not going to concern ourselves too much with the solver algorithms, it is good to be aware of some of the limitations and possibilities of this kind of models. This being said, you are not expected to learn the deep theory behind this during this course, but you should be able to apply these tools to decision problems. And if you after all would be interested in some of the more theoretical aspects, there is also this added bonus of the possibility to earn million dollars just by solving one [small problem](https://www.claymath.org/millennium/p-vs-np/) in the field.
+    !!! note "Computational difficulty"
+        The decision version of general integer linear programming is [NP-complete](https://en.wikipedia.org/wiki/NP-completeness), while general integer linear optimization is [NP-hard](https://en.wikipedia.org/wiki/NP-hardness). These are worst-case complexity results, not claims that every practical MILP is impossible to solve. Modern MILP solvers handle many real-world instances effectively, but an exact optimum cannot always be proven within the available computing time.
+
+    You are not expected to learn the underlying solver algorithms in detail. The aim is to formulate discrete management decisions correctly, solve them using appropriate tools, and understand the limitations of the resulting plans. If you after all would be interested in some of the more theoretical aspects, there is also this added bonus of the possibility to earn million dollars just by solving one [small problem](https://www.claymath.org/millennium/p-vs-np/) in the field.
     """)
     return
 
@@ -404,7 +390,7 @@ def _(pyo):
         fee_R=5000,
         minimum_batch=0,
         security_rule=False,
-        # single_agreement=False,
+        single_agreement=False,
         relax=False,
         big_m_factor=1.0,
     ):
@@ -446,9 +432,6 @@ def _(pyo):
             m.minimum_E = pyo.Constraint(expr=m.x_E >= minimum_batch * m.y_E)
             m.minimum_R = pyo.Constraint(expr=m.x_R >= minimum_batch * m.y_R)
 
-        # if single_agreement:
-        #     # Either Estonia or domestic reserve can be activated, not both.
-        #     m.single_agreement = pyo.Constraint(expr=m.y_E + m.y_R <= 1)
 
         ### STEP 3 ###
     
@@ -462,6 +445,10 @@ def _(pyo):
             m.required_reserve = pyo.Constraint(
                 expr=m.x_R >= 150 * m.high_sweden
             )
+        
+        if single_agreement:
+            # Either Estonia or domestic reserve can be activated, not both.
+            m.single_agreement = pyo.Constraint(expr=m.y_E + m.y_R <= 1)
 
         m.energy_cost = pyo.Expression(
             expr=40 * m.x_S + 60 * m.x_E + 85 * m.x_R
@@ -539,6 +526,89 @@ def _(
     to take fractional values. This can substantially understate the actual
     cost of an indivisible commitment. In contrast, the MILP chooses a plan
     that respects whole activation decisions.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ### How do we know whether an MILP solution is optimal?
+
+    In Linear Optimization Part III, we used duality to obtain bounds on an LP's optimal value. LP relaxations also give us a way to judge an MILP solution, even when an integer optimizer has not yet proven optimality.
+
+    For a **minimization** problem, let \(L\) be a valid lower bound, for example the optimum of its LP relaxation. Let \(U\) be the objective value of a feasible integer solution found by the solver. Then
+
+    \[
+        L\leq V^*_{\mathrm{MILP}}\leq U.
+    \]
+
+    The difference \(U-L\) bounds how much the feasible solution could be improved. A commonly used relative measure is \(\frac{U-L}{\max(1,|U|)}\), although solvers can differ in their precise definition of the relative MIP gap. Solvers update both bounds during the search and can stop when the gap is sufficiently small, even without proving the exact optimum.
+
+    For the fixed-fee electricity case, compare the LP relaxation with the optimal MILP solution already computed above:
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(electricity_fixed, electricity_fixed_lp_relax, mo, pyo):
+    _lower_bound = pyo.value(electricity_fixed_lp_relax.total_cost)
+    _integer_cost = pyo.value(electricity_fixed.total_cost)
+    _difference = _integer_cost - _lower_bound
+    _relative_difference = 100 * _difference / max(1, abs(_integer_cost))
+
+    mo.md(f"""
+    | Quantity | Cost |
+    |:--|--:|
+    | LP relaxation lower bound | {_lower_bound:,.0f} € |
+    | Optimal feasible integer solution | {_integer_cost:,.0f} € |
+    | Difference between the two bounds | {_difference:,.0f} € ({_relative_difference:.2f}% of integer cost) |
+
+    The MILP optimum has been proved here by the solver. If we only knew these
+    two bounds, the difference would quantify our remaining uncertainty about
+    the true optimum. It is not the solver's final optimality gap after
+    optimality has already been proved.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(pyo, solve_electricity_case):
+    big_m_comparison = []
+    for _factor in (1, 10, 100):
+        _relaxed = solve_electricity_case(relax=True, big_m_factor=_factor)
+        _integer = solve_electricity_case(big_m_factor=_factor)
+        big_m_comparison.append({
+            "factor": _factor,
+            "relaxed_cost": pyo.value(_relaxed.total_cost),
+            "integer_cost": pyo.value(_integer.total_cost),
+            "fractional_E": pyo.value(_relaxed.y_E),
+        })
+    return (big_m_comparison,)
+
+
+@app.cell(hide_code=True)
+def _(big_m_comparison, mo):
+    _rows = "\n".join(
+        f"    | {item['factor']} | {item['fractional_E']:.3f} | "
+        f"{item['relaxed_cost']:,.0f} | {item['integer_cost']:,.0f} |"
+        for item in big_m_comparison
+    )
+    mo.md(rf"""
+    | Big-M multiplier | LP value of \(y_E\) | LP relaxation cost (€) | MILP cost (€) |
+    |--:|--:|--:|--:|
+    {_rows}
+
+    A loose activation inequality can make the LP relaxation look
+    artificially cheap even though the feasible integer solutions have not
+    changed. Therefore it is preferable to use tight, justified bounds
+    rather than an arbitrary huge coefficient.
+
+    ???- question "LP bound getting worse ☠️☠️"
+        With a fixed purchase of 100 MWh from Estonia, determine the
+        smallest LP-relaxation value of \(y_E\) allowed by
+        \(x_E\leq1000k y_E\), for \(k=1,10,100\).
+        What happens to the fraction of the fixed fee paid in the LP relaxation?
     """)
     return
 
@@ -674,7 +744,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ### Step 4: The value of transmission capacity is no longer smooth
+    ### Step 4: Discrete decisions and the value of transmission capacity
 
     In Linear Optimization Part III, we discussed shadow prices and how they can represent the marginal value of relaxing a capacity constraint in an LP. Once activation costs and minimum quantities enter the model, that interpretation needs more care.
 
@@ -685,15 +755,19 @@ def _(mo):
     - **MILP with security rule:** same MILP plus the conditional
       security requirement above.
 
-    An LP's optimal value as a function of the right-hand-side parameter is continuous and piecewise linear on a feasible interval. A MILP's optimal value need not be continuous: activating a new unit or switching contracts may cause a discontinuous change in cost. Consequently, an LP shadow price is not generally a globally valid marginal price
-    for an integer optimization problem. Comparing complete scenarios is often a better management tool.
+    An LP's optimal value as a function of a right-hand-side parameter is typically piecewise linear and continuous on its feasible interval so the slope can change, but there is no jump. For an MILP, the optimal value can also be discontinuous, because a small change in capacity may force another complete contract or generator to be activated. Consequently, an LP shadow price is not generally a globally valid marginal price for an integer optimization problem. Comparing complete scenarios is often a better management tool.
+
+    The experiment below includes capacities of both 2 200 and 2 199 MWh, which differ by just 1 MWh. Watch what happens when an additional arrangement must be activated to cover the shortage.
     """)
     return
 
 
 @app.cell
 def _(np, solve_electricity_case):
-    electricity_capacities = np.arange(2200, 3101, 50)
+    # Include both sides of a 1 MWh capacity change at the threshold.
+    electricity_capacities = np.array(sorted(set(
+        np.arange(1900, 3101, 50).tolist() + [2199]
+    )))
     electricity_lp_cost_curve = np.array([
         float(solve_electricity_case(
             sweden_capacity=int(cap), fee_E=0, fee_R=0, relax=True
@@ -730,18 +804,80 @@ def _(
 ):
     _fig, _ax = plt.subplots(figsize=(8, 4.6))
     _ax.plot(electricity_capacities, electricity_lp_cost_curve,
-             marker="o", markersize=3.5, label="Continuous-cost LP")
-    _ax.plot(electricity_capacities, electricity_milp_cost_curve,
-             marker="s", markersize=3.5, label="MILP: minimum lots")
-    _ax.plot(electricity_capacities, electricity_secure_cost_curve,
-             marker="^", markersize=3.5, label="MILP: security rule")
+             label="Continuous-cost LP", linewidth=2)
+
+    # Do not join points across the 2,199-to-2,200 capacity jump:
+    # a straight line there would misleadingly imply intermediate feasible costs.
+    _left = electricity_capacities <= 2199
+    _right = electricity_capacities >= 2200
+    for _series, _label, _marker in [
+        (electricity_milp_cost_curve, "MILP: minimum lots", "s"),
+        (electricity_secure_cost_curve, "MILP: security rule", "^"),
+    ]:
+        _line, = _ax.plot(
+            electricity_capacities[_left], _series[_left],
+            marker=_marker, markersize=3.5, label=_label,
+        )
+        _ax.plot(
+            electricity_capacities[_right], _series[_right],
+            marker=_marker, markersize=3.5, color=_line.get_color(),
+        )
+
+    _ax.axvline(2200, linewidth=1, linestyle="--", alpha=0.5)
     _ax.set_xlabel("Available Swedish import capacity (MWh)")
     _ax.set_ylabel("Minimum total procurement cost (€)")
-    _ax.set_title("Cost respond to a capacity shock")
+    _ax.set_title("Procurement cost under a capacity shock")
     _ax.grid(alpha=0.2)
     _ax.legend()
     _fig.tight_layout()
     _fig
+    return
+
+
+@app.cell
+def _(pyo, solve_electricity_case):
+    electricity_threshold_scenarios = []
+    for _capacity in (2200, 2199):
+        _m = solve_electricity_case(
+            sweden_capacity=_capacity, minimum_batch=200
+        )
+        electricity_threshold_scenarios.append({
+            "capacity": _capacity,
+            "sweden": pyo.value(_m.x_S),
+            "estonia": pyo.value(_m.x_E),
+            "reserve": pyo.value(_m.x_R),
+            "cost": pyo.value(_m.total_cost),
+        })
+    return (electricity_threshold_scenarios,)
+
+
+@app.cell(hide_code=True)
+def _(electricity_threshold_scenarios, mo):
+    _rows = "\n".join(
+        f"    | {r['capacity']:,.0f} | {r['sweden']:,.0f} | "
+        f"{r['estonia']:,.0f} | {r['reserve']:,.0f} | {r['cost']:,.0f} |"
+        for r in electricity_threshold_scenarios
+    )
+    _difference = (
+        electricity_threshold_scenarios[1]["cost"]
+        - electricity_threshold_scenarios[0]["cost"]
+    )
+    mo.md(f"""
+    | Swedish capacity (MWh) | Sweden (MWh) | Estonia (MWh) | Reserve (MWh) | Cost (€) |
+    |--:|--:|--:|--:|--:|
+    {_rows}
+
+    Decreasing Swedish capacity by only 1 MWh increases the minimum cost
+    by {_difference:,.0f} €. With 2,199 MWh of Swedish capacity, neither
+    Estonia nor domestic reserve can cover the remaining 1,001 MWh alone.
+    The operator must activate both contracts, illustrating a discontinuity
+    that has no direct LP shadow-price analogue.
+
+    ???- question "A marginal capacity change with a large effect ☠️☠️"
+        Explain why the cost change is much greater than the variable cost
+        of 1 MWh. Which previously unused fixed cost is now unavoidable?
+        What would happen if minimum purchase quantities were removed?
+    """)
     return
 
 
@@ -855,7 +991,15 @@ def _(mo):
     | Enforce \(a^Tx\leq b\) when \(y=1\) | \(a^Tx\leq b+M(1-y)\) | Conditional environmental standard |
 
     ???- question "Selecting a piecewise tariff ☠️☠️☠️"
-        Suppose a supplier offers two price bands: the first 400 MWh costs 65 €/MWh and any additional energy (up to 1,000 MWh) costs 45 €/MWh. The lower price only applies to units beyond 400 MWh. Construct a linear model using two nonnegative quantity variables. Why does minimizing a positive total cost not by itself guarantee that the first segment is filled before the cheaper second segment? Add a binary variable to impose that ordering.
+        Suppose a supplier offers an incremental two-band price schedule: the first 400 MWh costs 65 €/MWh and the next 600 MWh costs 45 €/MWh (maximum purchase: 1,000 MWh). The cheaper price applies only to units above the first 400 MWh, unlike the mutually exclusive contracts considered earlier.
+
+        The operator must purchase exactly \(D\) MWh, with \(0\leq D\leq1000\). Let \(x\) and \(y\) be the purchased quantities in the first and second bands.
+
+        (a) Formulate the continuous LP with \(x+y=D\), \(0\leq x\leq400\), and \(0\leq y\leq600\). Why does minimizing the positive cost \(65x+45y\) not force the first band to be filled before the second?
+
+        (b) Introduce a binary variable \(z\) and constraints \(y\leq600z\) and \(x\geq400z\) to impose the ordering. Explain how they work for \(z=0\) and \(z=1\).
+
+        (c) Compare the two model solutions for \(D=500\) MWh. Which formulation represents the actual tariff?
     """)
     return
 

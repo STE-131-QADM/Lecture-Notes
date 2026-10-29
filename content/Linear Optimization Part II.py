@@ -28,8 +28,6 @@ def _(mo):
         color: #0D47A1 !important;
     }
     </style>
-    }
-    </style>
     """)
     return
 
