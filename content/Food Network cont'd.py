@@ -8,6 +8,18 @@ app = marimo.App(width="medium")
 def _(mo):
     mo.md(r"""
     # Food Network: Route Disruptions and Expected Costs
+
+    <style>
+    .md-typeset a[href^="http://"],
+    .md-typeset a[href^="https://"] {
+        color: #1976D2 !important;
+    }
+
+    .md-typeset a[href^="http://"]:hover,
+    .md-typeset a[href^="https://"]:hover {
+        color: #0D47A1 !important;
+    }
+    </style>
     """)
     return
 
@@ -108,7 +120,6 @@ def _():
             # Changed cost_hat: 4 -> 18
         },
     }
-
     return arc_data, demand, farms, hub_capacity, hubs, retailers, supply
 
 
@@ -492,7 +503,7 @@ def _(
 
     ### Comparing the Pareto frontiers
 
-    We can go beyond the two extreme solutions using the ε-constraint method. For an emissions budget \(\varepsilon\), the uncertain model solves
+    We can go beyond the two extreme solutions using the \(\varepsilon\)-constraint method. For an emissions budget \(\varepsilon\), the uncertain model solves
 
     \[
     \begin{{aligned}}
@@ -767,7 +778,6 @@ def _(
 
     comparison_fig.tight_layout()
     comparison_fig
-
     return
 
 
@@ -924,7 +934,6 @@ def _(
 
     cost_comparison_fig.tight_layout()
     cost_comparison_fig
-
     return original_plan_expected_cost, uncertainty_savings
 
 
@@ -1055,7 +1064,6 @@ def _(cost_model, cost_model_certain, farms, hubs, np, plt):
 
     shadow_fig.tight_layout()
     shadow_fig
-
     return
 
 

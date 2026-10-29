@@ -622,7 +622,7 @@ def _(mo):
        y^\top Ax\geq y^\top b.
     \]
 
-    We can read the right-hand side, \(b^\top y\), as a proposed valuation of all the requirements. The key question is: under what conditions can we be sure that this amount is no greater than the cost of any feasible plan?
+    We can read the right-hand side, \(b^\top y\), as how much each \(b_iy_i\) is contributing towards the profit when we can use \(b_i\) units in use for the problem of the primal problem. The key question is: under what conditions can we be sure that this amount is no greater than the cost of any feasible plan?
 
     ### Step 3: Require the weighted activities to cost no more than their actual prices
 

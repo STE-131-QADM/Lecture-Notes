@@ -60,6 +60,7 @@ toc:
   - file: content/Food Network.py
   - file: content/Linear Optimization Part III.py
   - file: content/Food Network cont'd.py
+  - file: content/Mixed Integer Linear Programming.py
 
 bibliography:
   - library.bib
