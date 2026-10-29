@@ -814,6 +814,8 @@ def _(mo):
 
         If you are more interested in these kinds of topics you can find introductory texts regarding [elasticity and pricing](https://openstax.org/books/principles-economics-3e/pages/5-3-elasticity-and-pricing?utm_source=chatgpt.com), [market oriented tools for environmental applications](https://openstax.org/books/principles-economics-3e/pages/12-3-market-oriented-environmental-tools?utm_source=chatgpt.com), [carbon tax guide](https://documents1.worldbank.org/curated/en/728421535605566659/pdf/129668-V1-WP-PUBLIC-Carbon-Tax-Guide-Main-Report.pdf?utm_source=chatgpt.com), and [cross country analysis of energy subsidies](https://www.imf.org/en/publications/wp/issues/2016/12/31/energy-subsidies-and-energy-consumption-a-cross-country-analysis-40544?utm_source=chatgpt.com).
 
+        Lastly, as a word of caution. Estimating the price elasticity itself is highly complex in many cases. The price and quantity are determined by the market equilibrium and therefore the observed relationship between them does not necessarily tell us how demand responds to changes in price. For example, an increase in demand can raise both prices and quantities, whereas a reduction in supply can increase prices while reducing quantities. Consequently, simply observing changes in prices and quantities is not sufficient to identify the price elasticity of demand. Reliable estimation often requires more sophisticated statistical methods to distinguish changes in demand from changes in supply and to identify the causal effect of prices on consumption.
+
     ### Marginal Abatement Cost
 
     Another useful quantity is the marginal abatement cost (MAC), which measures the additional transportation cost associated with reducing emissions by one unit.
