@@ -165,7 +165,7 @@ def _(mo):
         \end{aligned}
     \]
 
-    Because the second derivative is negative,
+    We can check for functions concavity by computing its second derivative. Because the second derivative is negative,
 
     \[
         \frac{d^2}{dq^2}\mathbb{E}[\pi(q,D)]=-\frac{1}{20}<0,
@@ -444,7 +444,6 @@ def _(np, plt):
 
     bern_fig.tight_layout()
     bern_fig
-
     return
 
 
@@ -550,7 +549,6 @@ def _(np, plt):
 
     binom_fig.tight_layout()
     binom_fig
-
     return
 
 
@@ -633,7 +631,6 @@ def _(np, plt):
 
     geom_fig.tight_layout()
     geom_fig
-
     return
 
 
@@ -726,7 +723,6 @@ def _(np, plt):
 
     pois_fig.tight_layout()
     pois_fig
-
     return
 
 
@@ -849,7 +845,6 @@ def _(np, plt):
 
     unif_fig.tight_layout()
     unif_fig
-
     return
 
 
@@ -951,7 +946,6 @@ def _(np, plt):
 
     exp_fig.tight_layout()
     exp_fig
-
     return
 
 
@@ -1059,7 +1053,6 @@ def _(np, plt):
 
     norm_fig.tight_layout()
     norm_fig
-
     return
 
 
@@ -1067,7 +1060,7 @@ def _(np, plt):
 def _(mo):
     mo.md(r"""
     ???- question "Expected value and variance ☠️☠️"
-        Derive the expected value and variance for each or some subset of the random variables. Especially important random variables are Geometric, Poisson, and Exponential. The level of this exercise depends very much which distributions you choose to do and thus can be anythin from ☠️ to ☠️☠️☠️.
+        Derive the expected value and variance for each or some subset of the random variables. Especially important random variables are Geometric, Poisson, and Exponential. The level of this exercise depends very much which distributions you choose to do and thus can be anythin from ☠️ to ☠️☠️☠️. You can find the definitions for the expected value and variance below from "Expected values and higher moments".
     """)
     return
 

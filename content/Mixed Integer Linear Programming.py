@@ -66,6 +66,7 @@ def _(mo):
     Its LP relaxation replaces \(y\in\{0,1\}\) with \(0\leq y\leq1\). The relaxation chooses \(x^*=1\) and \(y^*=1/M\), while the MILP must choose \(x^*=1\) and \(y^*=1\).
 
     Consequently,
+
     \[
     V_{\mathrm{LP}}(M)=2
     \qquad
@@ -426,7 +427,7 @@ def _(pyo):
         )
 
         ### STEP 2 ###
-    
+
         if minimum_batch > 0:
             # If on, a contract must be used for at least 'minimum_batch' MWh.
             m.minimum_E = pyo.Constraint(expr=m.x_E >= minimum_batch * m.y_E)
@@ -434,7 +435,7 @@ def _(pyo):
 
 
         ### STEP 3 ###
-    
+
         if security_rule and sweden_capacity > 2800:
             # If Swedish imports exceed 2 800 MWh, domestic reserve must
             # produce at least 150 MWh. The binary is a logical switch.
@@ -445,7 +446,7 @@ def _(pyo):
             m.required_reserve = pyo.Constraint(
                 expr=m.x_R >= 150 * m.high_sweden
             )
-        
+    
         if single_agreement:
             # Either Estonia or domestic reserve can be activated, not both.
             m.single_agreement = pyo.Constraint(expr=m.y_E + m.y_R <= 1)

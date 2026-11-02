@@ -430,29 +430,62 @@ def _(mo):
 
     Convexity therefore provides particularly strong mathematical guarantees about optimality and is one of the main reasons why convex optimization problems are often easier to analyze and solve than general nonconvex optimization problems. We are not going to work very much with general convex problems, but as shown the linear problems are subset of convex problems and therefore also benefit from the results about globality.
 
-    ## Local and Global Optimizers
+    We have now shown that the feasible set of a linear optimization problem is always convex. As we will see, this property has important consequences for finding optimal solutions.
 
-    !!! definition "Local and global maximizers"
-        Let \(f:\mathbb{R}^n\to\mathbb{R}\) be a function and let \(\mathcal F\subseteq\mathbb{R}^n\) be a nonempty feasible set. Consider a point \(x^*\in\mathcal F\).
+    Convexity is not only a property of sets. We can also define convex and concave functions in a similar way.
 
-        The point \(x^*\) is a local maximizer of \(f\) over \(\mathcal F\) if there exists \(\varepsilon>0\) such that
+    !!! definition "Convex and concave functions"
+
+        Let \(X\subseteq\mathbb R^n\) be a convex set and let \(f:X\to\mathbb R\) be a function.
+
+        The function \(f\) is *convex* if, for every \(x,y\in X\) and \(\lambda\in[0,1]\),
 
         \[
-        f(x^*)\geq f(x)
+            f(\lambda x+(1-\lambda)y)
+            \leq \lambda f(x)+(1-\lambda)f(y).
+        \]
+
+        Similarly, \(f\) is *concave* if
+
+        \[
+            f(\lambda x+(1-\lambda)y)
+            \geq \lambda f(x)+(1-\lambda)f(y).
+        \]
+
+        The function is *strictly convex* or *strictly concave* if the corresponding inequality is strict whenever \(x\neq y\) and \(\lambda\in(0,1)\).
+
+    Geometrically, a convex function lies below or on the straight line segment connecting any two points on its graph. A concave function lies above or on the corresponding line segment.
+
+    Notice also that every linear function is both convex and concave, since the inequalities in the definition hold as equalities.
+
+    ## Local and Global Optimizers
+
+    When solving an optimization problem, an important distinction is whether the solution is only optimal in its immediate surroundings or whether it is optimal over the entire feasible set.
+
+    !!! definition "Local and global maximizers"
+
+        Let \(f:\mathbb R^n\to\mathbb R\) be a function and let \(\mathcal F\subseteq\mathbb R^n\) be a nonempty feasible set. Consider a point \(x^*\in\mathcal F\).
+
+        The point \(x^*\) is a *local maximizer* of \(f\) over \(\mathcal F\) if there exists \(\varepsilon>0\) such that
+
+        \[
+            f(x^*)\geq f(x)
         \]
 
         for all \(x\in\mathcal F\) satisfying \(\|x-x^*\|<\varepsilon\).
 
-        The point \(x^*\) is a global maximizer of \(f\) over \(\mathcal F\) if
+        The point \(x^*\) is a *global maximizer* of \(f\) over \(\mathcal F\) if
 
         \[
-        f(x^*)\geq f(x)
-        \qquad\text{for all }x\in\mathcal F.
+            f(x^*)\geq f(x)
+            \qquad\text{for all }x\in\mathcal F.
         \]
 
         The corresponding definitions of local and global minimizers are obtained by reversing the inequalities.
 
-    The local and global maximizers are also shown in the plot below for one particular function.
+    In other words, a local maximizer gives the highest objective value within some neighborhood of the solution, whereas a global maximizer gives the highest value over the entire feasible set.
+
+    Every global maximizer is also a local maximizer, but the converse is not generally true. The figure below illustrates this difference.
     """)
     return
 
@@ -604,6 +637,60 @@ def _(np, plt):
     fig_optima.tight_layout()
 
     fig_optima
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    !!! proposition "Local and global optimality in convex optimization"
+
+        Let \(\mathcal F\subseteq\mathbb R^n\) be a nonempty convex feasible set.
+
+        - If \(f:\mathcal F\to\mathbb R\) is convex, every local minimizer of \(f\) over \(\mathcal F\) is also a global minimizer.
+        - If \(f:\mathcal F\to\mathbb R\) is concave, every local maximizer of \(f\) over \(\mathcal F\) is also a global maximizer.
+
+        Furthermore, if the objective function is strictly convex in a minimization problem, or strictly concave in a maximization problem, the global optimizer is unique whenever it exists.
+
+    ???- proof "Proof"
+
+        We prove the result for a convex function \(f\). The concave case follows by considering the function \(-f\).
+
+        Let \(x^*\in\mathcal F\) be a local minimizer. Suppose that \(x^*\) is not a global minimizer. Then there must exist some \(y\in\mathcal F\) such that
+
+        \[
+            f(y)<f(x^*).
+        \]
+
+        Since \(\mathcal F\) is convex, the point
+
+        \[
+            z=\lambda y+(1-\lambda)x^*
+        \]
+
+        belongs to \(\mathcal F\) for every \(\lambda\in[0,1]\).
+
+        By the convexity of \(f\),
+
+        \[
+        \begin{aligned}
+            f(z)
+            &\leq\lambda f(y)+(1-\lambda)f(x^*)\\
+            &<\lambda f(x^*)+(1-\lambda)f(x^*)\\
+            &=f(x^*)
+        \end{aligned}
+        \]
+
+        whenever \(0<\lambda<1\).
+
+        However, by choosing \(\lambda\) sufficiently small, we can make \(z\) arbitrarily close to \(x^*\). This contradicts the assumption that \(x^*\) is a local minimizer.
+
+        Therefore, every local minimizer must also be a global minimizer.
+
+    Convexity is therefore particularly important in optimization: if we find a local optimum of a convex optimization problem, we know that no better feasible solution exists elsewhere.
+
+    Since linear functions are both convex and concave, and the feasible sets of linear optimization problems are convex, linear programs also benefit from this guarantee. We will not study general convex optimization in detail, but these results help explain why linear optimization problems have such useful mathematical properties.
+    """)
     return
 
 
