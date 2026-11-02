@@ -499,190 +499,179 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(np, plt):
 
-    # EPQ model parameters
-    _epq_D = 1200  # Annual demand (units/year)
-    _epq_P = 2400  # Production rate (units/year), P > D
-    _epq_K = 50    # Fixed setup cost (€)
-    _epq_h = 2     # Holding cost (€/unit/year)
+    # Model parameters
+    _epq_D = 1200
+    _epq_P = 2400
+    _epq_K = 50
+    _epq_h = 2
 
     # Optimal lot sizes
     _epq_Q_eoq = np.sqrt(2 * _epq_K * _epq_D / _epq_h)
-    _epq_Q_star = np.sqrt(
-        2 * _epq_K * _epq_D / (_epq_h * (1 - _epq_D / _epq_P))
+    _epq_Q_epq = np.sqrt(
+        2 * _epq_K * _epq_D /
+        (_epq_h * (1 - _epq_D / _epq_P))
     )
 
+    # Inventory levels and cycle durations
+    _epq_I_max = _epq_Q_epq * (1 - _epq_D / _epq_P)
+
+    _epq_T_eoq = _epq_Q_eoq / _epq_D
+    _epq_T_epq = _epq_Q_epq / _epq_D
+    _epq_T_prod = _epq_Q_epq / _epq_P
+
     # Create figure
-    epq_comparison_fig, (_epq_ax1, _epq_ax2) = plt.subplots(
+    epq_corrected_fig, (_epq_ax1, _epq_ax2) = plt.subplots(
         1, 2, figsize=(14, 5.5)
     )
 
     # --------------------------------------------------
-    # 1. Inventory dynamics: EOQ vs EPQ
+    # 1. Inventory trajectories at optimal lot sizes
     # --------------------------------------------------
 
-    # Same lot size for both models to isolate the
-    # effect of gradual production.
-    _epq_Q = _epq_Q_star
+    _epq_horizon = 3 * _epq_T_epq
 
-    _epq_T = _epq_Q / _epq_D
-    _epq_T_prod = _epq_Q / _epq_P
-    _epq_I_max = _epq_Q * (1 - _epq_D / _epq_P)
+    # EOQ: instantaneous replenishment
+    for _epq_i in range(5):
+        _epq_start = _epq_i * _epq_T_eoq
+        _epq_end = min(_epq_start + _epq_T_eoq, _epq_horizon)
 
-    for _epq_i in range(3):
-        _epq_start = _epq_i * _epq_T
+        if _epq_start >= _epq_horizon:
+            break
 
-        # EOQ: instantaneous replenishment
+        # Instantaneous delivery
         _epq_ax1.plot(
-            [_epq_start, _epq_start + _epq_T],
-            [_epq_Q, 0],
+            [_epq_start, _epq_start],
+            [0, _epq_Q_eoq],
+            color="tab:blue",
+            linestyle="--",
+            linewidth=1.8,
+        )
+
+        # Inventory depletion
+        _epq_ax1.plot(
+            [_epq_start, _epq_end],
+            [_epq_Q_eoq,
+             _epq_Q_eoq - _epq_D * (_epq_end - _epq_start)],
             color="tab:blue",
             linestyle="--",
             linewidth=2,
-            label="EOQ" if _epq_i == 0 else None,
+            label=(
+                rf"EOQ: $Q^*={_epq_Q_eoq:.1f}$"
+                if _epq_i == 0 else None
+            ),
         )
 
-        _epq_ax1.plot(
-            [_epq_start, _epq_start],
-            [0, _epq_Q],
-            color="tab:blue",
-            linestyle="--",
-            linewidth=1.5,
-        )
+    # EPQ: gradual production and depletion
+    for _epq_i in range(3):
+        _epq_start = _epq_i * _epq_T_epq
 
-        # EPQ: gradual production followed by depletion
         _epq_ax1.plot(
             [
                 _epq_start,
                 _epq_start + _epq_T_prod,
-                _epq_start + _epq_T,
+                _epq_start + _epq_T_epq,
             ],
             [0, _epq_I_max, 0],
             color="tab:green",
             linewidth=2.5,
-            label="EPQ" if _epq_i == 0 else None,
+            label=(
+                rf"EPQ: $Q^*={_epq_Q_epq:.1f}$"
+                if _epq_i == 0 else None
+            ),
         )
 
-    # Average EPQ inventory
-    _epq_ax1.axhline(
-        _epq_I_max / 2,
-        color="tab:green",
-        linestyle=":",
-        alpha=0.8,
-        label=r"Average EPQ inventory",
-    )
-
+    _epq_ax1.set_xlim(0, _epq_horizon)
+    _epq_ax1.set_ylim(bottom=0)
     _epq_ax1.set_xlabel("Time (years)")
     _epq_ax1.set_ylabel("Inventory level (units)")
-    _epq_ax1.set_title("Inventory Dynamics: EOQ vs EPQ")
+    _epq_ax1.set_title("Inventory at Optimal Lot Sizes")
     _epq_ax1.grid(alpha=0.25)
     _epq_ax1.legend()
 
     # --------------------------------------------------
-    # 2. Annual cost functions
+    # 2. Annual cost comparison
     # --------------------------------------------------
 
     _epq_Q_values = np.linspace(
-        0.35 * _epq_Q_star,
-        2.5 * _epq_Q_star,
+        0.4 * _epq_Q_eoq,
+        2.2 * _epq_Q_epq,
         500,
     )
 
-    # EPQ cost components
-    _epq_setup_cost = _epq_K * _epq_D / _epq_Q_values
-    _epq_holding_cost = (
-        _epq_h * _epq_Q_values / 2
-        * (1 - _epq_D / _epq_P)
-    )
-    _epq_total_cost = _epq_setup_cost + _epq_holding_cost
-
-    # EOQ total cost for comparison
-    _epq_eoq_cost = (
+    # EOQ and EPQ total costs
+    _epq_C_eoq = (
         _epq_K * _epq_D / _epq_Q_values
         + _epq_h * _epq_Q_values / 2
     )
 
-    # Minimum costs
-    _epq_C_eoq = (
+    _epq_C_epq = (
+        _epq_K * _epq_D / _epq_Q_values
+        + _epq_h * _epq_Q_values / 2
+        * (1 - _epq_D / _epq_P)
+    )
+
+    # Optimal costs
+    _epq_C_eoq_star = (
         _epq_K * _epq_D / _epq_Q_eoq
         + _epq_h * _epq_Q_eoq / 2
     )
 
-    _epq_C_star = (
-        _epq_K * _epq_D / _epq_Q_star
-        + _epq_h * _epq_Q_star / 2
+    _epq_C_epq_star = (
+        _epq_K * _epq_D / _epq_Q_epq
+        + _epq_h * _epq_Q_epq / 2
         * (1 - _epq_D / _epq_P)
     )
 
     # Cost curves
     _epq_ax2.plot(
-        _epq_Q_values, _epq_setup_cost,
-        label="Setup cost", linewidth=1.8,
-    )
-
-    _epq_ax2.plot(
-        _epq_Q_values, _epq_holding_cost,
-        label="EPQ holding cost", linewidth=1.8,
-    )
-
-    _epq_ax2.plot(
-        _epq_Q_values, _epq_total_cost,
-        label="EPQ total cost", linewidth=2.5,
-    )
-
-    _epq_ax2.plot(
-        _epq_Q_values, _epq_eoq_cost,
-        label="EOQ total cost",
-        linewidth=2,
+        _epq_Q_values, _epq_C_eoq,
+        color="tab:blue",
         linestyle="--",
-        color="tab:gray",
+        linewidth=2,
+        label="EOQ total cost",
     )
 
-    # Mark optimal solutions
-    _epq_ax2.scatter(
-        _epq_Q_eoq, _epq_C_eoq,
-        color="tab:gray", s=75, zorder=5,
+    _epq_ax2.plot(
+        _epq_Q_values, _epq_C_epq,
+        color="tab:green",
+        linewidth=2.5,
+        label="EPQ total cost",
     )
 
-    _epq_ax2.scatter(
-        _epq_Q_star, _epq_C_star,
-        color="tab:red", s=85, zorder=5,
-    )
+    # Mark the two optimal lot sizes
+    for _epq_q, _epq_c, _epq_color, _epq_label in [
+        (_epq_Q_eoq, _epq_C_eoq_star, "tab:blue", "EOQ"),
+        (_epq_Q_epq, _epq_C_epq_star, "tab:green", "EPQ"),
+    ]:
+        _epq_ax2.scatter(
+            _epq_q, _epq_c,
+            color=_epq_color, s=85, zorder=5,
+        )
 
-    _epq_ax2.axvline(
-        _epq_Q_eoq, color="tab:gray",
-        linestyle=":", alpha=0.7,
-    )
+        _epq_ax2.axvline(
+            _epq_q,
+            color=_epq_color,
+            linestyle=":",
+            alpha=0.7,
+        )
 
-    _epq_ax2.axvline(
-        _epq_Q_star, color="tab:red",
-        linestyle=":", alpha=0.7,
-    )
-
-    # Annotations
-    _epq_ax2.annotate(
-        rf"$Q_{{EOQ}}^*={_epq_Q_eoq:.1f}$",
-        xy=(_epq_Q_eoq, _epq_C_eoq),
-        xytext=(25, 45),
-        textcoords="offset points",
-        arrowprops=dict(arrowstyle="->"),
-    )
-
-    _epq_ax2.annotate(
-        rf"$Q_{{EPQ}}^*={_epq_Q_star:.1f}$",
-        xy=(_epq_Q_star, _epq_C_star),
-        xytext=(45, 30),
-        textcoords="offset points",
-        arrowprops=dict(arrowstyle="->"),
-    )
+        _epq_ax2.annotate(
+            rf"{_epq_label}: $Q^*={_epq_q:.1f}$",
+            xy=(_epq_q, _epq_c),
+            xytext=(20, 35),
+            textcoords="offset points",
+            arrowprops=dict(arrowstyle="->", color=_epq_color),
+            color=_epq_color,
+        )
 
     _epq_ax2.set_xlabel("Lot size Q (units)")
     _epq_ax2.set_ylabel("Annual cost (€)")
-    _epq_ax2.set_title("EOQ and EPQ Cost Functions")
+    _epq_ax2.set_title("Optimal Lot Size: EOQ vs EPQ")
     _epq_ax2.grid(alpha=0.25)
     _epq_ax2.legend()
 
-    epq_comparison_fig.tight_layout()
-    epq_comparison_fig
+    epq_corrected_fig.tight_layout()
+    epq_corrected_fig
 
     return
 
