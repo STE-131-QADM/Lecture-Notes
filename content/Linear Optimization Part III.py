@@ -769,7 +769,7 @@ def _(mo):
     mo.md(r"""
     ## Additional Materials
 
-    + If you are interested in learning more about mathematical optimization, the most used book on the intermediate level is [Boyd, S. and Vandenberghe, L. (2004). *Convex Optimization*. Cambridge: Cambridge University Press.](https://web.stanford.edu/~boyd/cvxbook/bv_cvxbook.pdf) It is an exellent book for understanding the mathematics, but it goes far beyond the topics of this course. Body and Vandenberghe write about the audience as follows:
+    + If you are interested in learning more about mathematical optimization, the most used book on the intermediate level is [Boyd, S. and Vandenberghe, L. (2004). *Convex Optimization*. Cambridge: Cambridge University Press.](https://web.stanford.edu/~boyd/cvxbook/bv_cvxbook.pdf) It is an exellent book for understanding the mathematics, but it goes far beyond the topics of this course. Body and Vandenberghe write about the intended audience as follows:
 
     !!! quote "Boyd, S. and Vandenberghe, L. *Convex Optimization*"
         This book is meant for the researcher, scientist, or engineer who uses mathematical optimization, or more generally, computational mathematics.

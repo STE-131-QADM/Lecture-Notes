@@ -62,6 +62,7 @@ toc:
   - file: content/Food Network cont'd.py
   - file: content/Mixed Integer Linear Programming.py
   - file: content/Probability Theory and Mathematical Preliminaries.py
+  - file: content/Inventory Models.py
 
 bibliography:
   - library.bib
