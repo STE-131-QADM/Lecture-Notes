@@ -113,7 +113,7 @@ def _(mo):
     \[
         \begin{aligned}
             \int\frac{\text{d}I(t)}{\text{d}t}\text{d}t &= I(t) \\
-            &= \int-Ddt \\
+            &= \int-D\text{d}t \\
             &= -Dt+C_0
         \end{aligned}
     \]
@@ -372,7 +372,7 @@ def _(mo):
     We can express the inventory dynamics as
 
     $$
-    \frac{dI(t)}{dt}=
+    \frac{\text{d}I(t)}{\text{d}t}=
     \begin{cases}
     P-D, & \text{during production},\\
     -D, & \text{when production stops}.
@@ -1732,10 +1732,10 @@ def _(mo):
 
     Although the articles use more advanced methods than those covered in the lecture, the underlying modelling principles are often similar. After studying the lecture material, you should be able to recognize the main modelling decisions, understand the assumptions behind them, and consider how these choices affect the resulting models and their solutions.
 
-    + Akhtari, S., Sowlati, T., Siller-Benitez, D. G., & Dominik, R. (2019). *Impact of inventory management on demand fulfilment, cost and emission of forest-based biomass supply chains using simulation modelling.* Biosystems Engineering, 178, 184–199. https://doi.org/10.1016/j.biosystemseng.2018.11.015
-    + Hendrix, E. M. T., Pauls-Worm, K. G. J., & de Jong, M. V. (2023). *On order policies for a perishable product in retail.* Informatica, 271–283. https://doi.org/10.15388/23-infor520
-    + Battini, D., Alessandro, P., & Fabio, S. (2014). *A sustainable EOQ model: Theoretical formulation and applications.* The Economics of Industrial Production, 149, 145–153. https://doi.org/10.1016/j.ijpe.2013.06.026
-    + Hua, G., Cheng, T.C.E, & Wang, S. (2011). *Managing carbon footprints in inventory management.* International Journal of Production Economics, 132(2), 178–185. https://doi.org/10.1016/j.ijpe.2011.03.024
+    + Akhtari, S., Sowlati, T., Siller-Benitez, D. G., & Dominik, R. (2019). *Impact of inventory management on demand fulfilment, cost and emission of forest-based biomass supply chains using simulation modelling.* Biosystems Engineering, 178, 184–199. [https://doi.org/10.1016/j.biosystemseng.2018.11.015](https://doi.org/10.1016/j.biosystemseng.2018.11.015)
+    + Hendrix, E. M. T., Pauls-Worm, K. G. J., & de Jong, M. V. (2023). *On order policies for a perishable product in retail.* Informatica, 271–283. [https://doi.org/10.15388/23-infor520](https://doi.org/10.15388/23-infor520)
+    + Battini, D., Alessandro, P., & Fabio, S. (2014). *A sustainable EOQ model: Theoretical formulation and applications.* The Economics of Industrial Production, 149, 145–153. [https://doi.org/10.1016/j.ijpe.2013.06.026](https://doi.org/10.1016/j.ijpe.2013.06.026)
+    + Hua, G., Cheng, T.C.E, & Wang, S. (2011). *Managing carbon footprints in inventory management.* International Journal of Production Economics, 132(2), 178–185. [https://doi.org/10.1016/j.ijpe.2011.03.024](https://doi.org/10.1016/j.ijpe.2011.03.024)
     """)
     return
 
