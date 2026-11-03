@@ -1610,7 +1610,10 @@ def _(np, plt, shared_demand, threshold_simulator):
         s=70,
         marker="*",
         depthshade=False,
-        label="Best grid point",
+        label=(
+            f"Best grid point: "
+            f"Q={_surface_best_Q}, R={_surface_best_R}"
+        ),
         zorder=10
     )
 
@@ -1674,6 +1677,48 @@ def _(mo):
     The figures illustrate how the estimated expected inventory cost changes with the order quantity $Q$ and the reorder threshold $R$. The left figure shows the three-dimensional cost surface, while the right figure presents the same information as a contour plot.
 
     The red marker indicates the lowest cost among the evaluated combinations of $Q$ and $R$. Notice that the cost surface is not necessarily smooth or convex, since small changes in the decision variables can affect the timing and number of orders. This makes finding the optimal ordering policy more challenging than in the classical EOQ model.
+
+    ## Possible extensions to the model
+
+    Our simulation model now captures some important aspects of inventory management. However, it is still a simplified representation of the decision-making problem and does not account for many characteristics that arise in real applications.
+
+    For example, assuming that demand follows the same probability distribution throughout the year may not be realistic. Depending on the application, demand could vary considerably between seasons, months, or even days of the week.
+
+    We could extend the model by allowing the expected demand to depend on time:
+
+    $$
+    D_t\sim\operatorname{Poisson}(\lambda_t),
+    $$
+
+    where $\lambda_t$ is the expected demand in period $t$. We could estimate these expected demand levels from historical data, for example by fitting a statistical model that captures seasonal variation.
+
+    Alternatively, we could allow the demand intensity itself to follow a stochastic process. For example, an autoregressive model could be specified as
+
+    $$
+    \log\lambda_t=\alpha+\beta\log\lambda_{t-1}+\varepsilon_t,
+    $$
+
+    where $\varepsilon_t$ represents a random disturbance. Modelling the logarithm ensures that the expected demand remains positive.
+
+    We could also introduce additional costs and physical characteristics of the inventory. For example, when managing food inventories, some products may deteriorate or spoil before they can be sold.
+
+    One simple way to account for this is to modify the inventory balance equation:
+
+    $$
+    I_{t+1}=\delta I_t+A_t-S_t,
+    $$
+
+    where $0<\delta\leq1$ represents the fraction of the existing inventory that remains usable from one period to the next. Here, deterioration is assumed to occur before new deliveries arrive and demand is satisfied.
+
+    The quantity of inventory lost due to deterioration during period $t$ is then
+
+    $$
+    W_t=(1-\delta)I_t.
+    $$
+
+    We could also include additional costs associated with disposing of spoiled products.
+
+    These examples illustrate how we can gradually extend the simulation model to account for more realistic inventory dynamics. The same basic approach can still be used: define an inventory policy, simulate its consequences, and use numerical optimization to find suitable policy parameters.
     """)
     return
 
