@@ -1332,7 +1332,7 @@ def _(InventorySimulator, np, opt):
     return quantity_demand, quantity_optimum, quantity_simulator
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(np, plt, quantity_demand, quantity_optimum, quantity_simulator):
     # Estimated cost at a range of order quantities, with the same demand paths.
     _quantity_grid = np.arange(5, 151, 5)
@@ -1522,6 +1522,159 @@ def _(threshold_result, threshold_simulator):
     threshold_simulator.plot(
         threshold_result
     )
+    return
+
+
+@app.cell(hide_code=True)
+def _(np, plt, shared_demand, threshold_simulator):
+
+    # Grid of order quantities and reorder thresholds
+    _surface_Q_values = np.arange(10, 131, 6)
+    _surface_R_values = np.arange(0, 101, 5)
+
+    # Use the same demand realizations for every policy.
+    # Use 100 paths to keep plotting reasonably fast.
+    _surface_demand = shared_demand[:, :100]
+    _surface_T, _surface_N = _surface_demand.shape
+
+    # Evaluate the cost function on the grid
+    _surface_costs = np.zeros((
+        len(_surface_R_values),
+        len(_surface_Q_values),
+    ))
+
+    for _surface_i, _surface_R in enumerate(_surface_R_values):
+        for _surface_j, _surface_Q in enumerate(_surface_Q_values):
+
+            _surface_results = threshold_simulator.simulate(
+                I0=63,
+                T=_surface_T,
+                N=_surface_N,
+                demand=_surface_demand,
+                policy=fixed_lot_policy(
+                    Q=int(_surface_Q),
+                    reorder_point=int(_surface_R),
+                ),
+            )
+
+            _surface_costs[_surface_i, _surface_j] = (
+                threshold_simulator.cost(
+                    _surface_results,
+                    per_period=True,
+                )
+            )
+
+    # Meshgrid for plotting
+    _surface_Q_grid, _surface_R_grid = np.meshgrid(
+        _surface_Q_values,
+        _surface_R_values,
+    )
+
+    # Find the best point evaluated on the grid
+    _surface_best_idx = np.unravel_index(
+        np.argmin(_surface_costs),
+        _surface_costs.shape,
+    )
+
+    _surface_best_R = _surface_R_values[_surface_best_idx[0]]
+    _surface_best_Q = _surface_Q_values[_surface_best_idx[1]]
+    _surface_best_cost = _surface_costs[_surface_best_idx]
+
+    # Create figure
+    inventory_cost_surface_fig = plt.figure(figsize=(15, 6))
+
+    # --------------------------------------------------
+    # 1. Three-dimensional cost surface
+    # --------------------------------------------------
+
+    _surface_ax1 = inventory_cost_surface_fig.add_subplot(
+        1, 2, 1, projection="3d",
+        computed_zorder=False,
+    )
+
+    _surface_ax1.plot_surface(
+        _surface_Q_grid,
+        _surface_R_grid,
+        _surface_costs,
+        cmap="viridis",
+        alpha=0.9,
+        edgecolor="none",
+    )
+
+    _surface_ax1.scatter(
+        _surface_best_Q,
+        _surface_best_R,
+        _surface_best_cost,
+        color="red",
+        edgecolor="white",
+        s=70,
+        marker="*",
+        depthshade=False,
+        label="Best grid point",
+        zorder=10
+    )
+
+    _surface_ax1.set_xlabel("Order quantity Q")
+    _surface_ax1.set_ylabel("Reorder threshold R")
+    _surface_ax1.set_zlabel("Expected cost (€/week)")
+    _surface_ax1.set_title("Simulated Inventory Cost Surface")
+    _surface_ax1.view_init(elev=25, azim=-100)
+    _surface_ax1.legend(loc="upper right")
+
+    # --------------------------------------------------
+    # 2. Contour plot
+    # --------------------------------------------------
+
+    _surface_ax2 = inventory_cost_surface_fig.add_subplot(
+        1, 2, 2
+    )
+
+    _surface_contour = _surface_ax2.contourf(
+        _surface_Q_grid,
+        _surface_R_grid,
+        _surface_costs,
+        levels=25,
+        cmap="viridis",
+    )
+
+    _surface_ax2.scatter(
+        _surface_best_Q,
+        _surface_best_R,
+        color="red",
+        marker="*",
+        s=180,
+        edgecolor="white",
+        linewidth=0.8,
+        label=(
+            f"Best grid point: "
+            f"Q={_surface_best_Q}, R={_surface_best_R}"
+        ),
+    )
+
+    _surface_ax2.set_xlabel("Order quantity Q (units)")
+    _surface_ax2.set_ylabel("Reorder threshold R (units)")
+    _surface_ax2.set_title("Cost Contours")
+    _surface_ax2.legend(loc="upper right")
+
+    inventory_cost_surface_fig.colorbar(
+        _surface_contour,
+        ax=_surface_ax2,
+        label="Estimated expected cost (€/week)",
+    )
+
+    inventory_cost_surface_fig.tight_layout()
+    inventory_cost_surface_fig
+
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    The figures illustrate how the estimated expected inventory cost changes with the order quantity $Q$ and the reorder threshold $R$. The left figure shows the three-dimensional cost surface, while the right figure presents the same information as a contour plot.
+
+    The red marker indicates the lowest cost among the evaluated combinations of $Q$ and $R$. Notice that the cost surface is not necessarily smooth or convex, since small changes in the decision variables can affect the timing and number of orders. This makes finding the optimal ordering policy more challenging than in the classical EOQ model.
+    """)
     return
 
 
