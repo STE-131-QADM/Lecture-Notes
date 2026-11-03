@@ -63,6 +63,7 @@ toc:
   - file: content/Mixed Integer Linear Programming.py
   - file: content/Probability Theory and Mathematical Preliminaries.py
   - file: content/Inventory Models.py
+  - file: content/Queue Theory.py
 
 bibliography:
   - library.bib
