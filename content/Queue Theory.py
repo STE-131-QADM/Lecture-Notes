@@ -401,7 +401,7 @@ def _(mo):
 
     grows rapidly as $\lambda$ approaches $\mu$ from below. A facility can therefore have a service rate higher than its average arrival rate and still experience substantial queues.
 
-    The following example uses hypothetical data for a timber-unloading station. Keep the service rate fixed at $\mu=10$ trucks/hour and change the average arrival rate. Observe how congestion increases as the server approaches full utilization.*
+    The following example uses hypothetical data for a timber-unloading station. Keep the service rate fixed at $\mu=10$ trucks/hour and change the average arrival rate. Observe how congestion increases as the server approaches full utilization.
     """)
     return
 
@@ -549,6 +549,843 @@ def _(mo):
 
     ???- question "Expected queue size and congestion probability ☠️"
         Suppose $\lambda=6$ trucks/hour and $\mu=10$ trucks/hour. Calculate $L_Q$, $W_Q$ in minutes, and the stationary probability that at least four trucks are in the system. Interpret each result.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## Limited space \(M/M/1/K\)
+
+    In some sense the most obvious way to make the model more realistic in many circumstances would be to ditch the assumption about infinite space to queue. This can be done by assuing that only \(K\) customers can be in the queue at the same time.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(plt):
+    # Compact transition-rate diagram for an M/M/1/K queue.
+    # This shows only the first few states and the final two states K-1 and K.
+
+    _ctmc_K = 8   # maximum number of customers in the system
+    _ctmc_fig, _ctmc_ax = plt.subplots(figsize=(12.5, 3.2))
+
+    if _ctmc_K < 4:
+        raise ValueError("Use K >= 4 for this compact visualization.")
+
+    _ctmc_spacing = 2.2
+
+    # x-locations of the visible states
+    _ctmc_x0 = 0.0
+    _ctmc_x1 = _ctmc_x0 + _ctmc_spacing
+    _ctmc_x2 = _ctmc_x1 + _ctmc_spacing
+    _ctmc_xK1 = _ctmc_x2 + 2.9 * _ctmc_spacing
+    _ctmc_xK = _ctmc_xK1 + _ctmc_spacing
+
+    _ctmc_positions = [
+        (_ctmc_x0, "0"),
+        (_ctmc_x1, "1"),
+        (_ctmc_x2, "2"),
+        (_ctmc_xK1, r"$K-1$"),
+        (_ctmc_xK, r"$K$"),
+    ]
+
+    # Draw visible states
+    for _ctmc_x, _ctmc_label in _ctmc_positions:
+        _ctmc_circle = plt.Circle(
+            (_ctmc_x, 0),
+            0.35,
+            facecolor="#f8fafc",
+            edgecolor="#334155",
+            linewidth=1.6,
+            zorder=5,
+        )
+        _ctmc_ax.add_patch(_ctmc_circle)
+        _ctmc_ax.text(
+            _ctmc_x,
+            0,
+            _ctmc_label,
+            ha="center",
+            va="center",
+            fontsize=13,
+            zorder=6,
+        )
+
+    # Function for drawing a pair of arrows with lambda and mu labels
+    def _ctmc_draw_pair(_ctmc_left, _ctmc_right):
+        _ctmc_mid = (_ctmc_left + _ctmc_right) / 2
+
+        # Arrival arrow
+        _ctmc_ax.annotate(
+            "",
+            xy=(_ctmc_right - 0.42, 0.15),
+            xytext=(_ctmc_left + 0.42, 0.15),
+            arrowprops=dict(
+                arrowstyle="-|>",
+                color="#2563eb",
+                lw=1.9,
+                mutation_scale=15,
+            ),
+        )
+
+        # Service arrow
+        _ctmc_ax.annotate(
+            "",
+            xy=(_ctmc_left + 0.42, -0.15),
+            xytext=(_ctmc_right - 0.42, -0.15),
+            arrowprops=dict(
+                arrowstyle="-|>",
+                color="#d97706",
+                lw=1.9,
+                mutation_scale=15,
+            ),
+        )
+
+        _ctmc_ax.text(
+            _ctmc_mid,
+            0.42,
+            r"$\lambda$",
+            color="#2563eb",
+            fontsize=13,
+            ha="center",
+            va="bottom",
+        )
+        _ctmc_ax.text(
+            _ctmc_mid,
+            -0.42,
+            r"$\mu$",
+            color="#d97706",
+            fontsize=13,
+            ha="center",
+            va="top",
+        )
+
+    # Draw the visible neighboring transitions
+    _ctmc_draw_pair(_ctmc_x0, _ctmc_x1)
+    _ctmc_draw_pair(_ctmc_x1, _ctmc_x2)
+    _ctmc_draw_pair(_ctmc_xK1, _ctmc_xK)
+
+    # Ellipsis in the middle
+    _ctmc_ellipsis_x = (_ctmc_x2 + _ctmc_xK1) / 2
+    _ctmc_ax.text(
+        _ctmc_ellipsis_x,
+        0,
+        r"$\cdots$",
+        ha="center",
+        va="center",
+        fontsize=24,
+        color="#475569",
+    )
+
+    # Show that arrivals are blocked when the system is full
+    _ctmc_ax.annotate(
+        "",
+        xy=(_ctmc_xK + 1.05, 0.15),
+        xytext=(_ctmc_xK + 0.42, 0.15),
+        arrowprops=dict(
+            arrowstyle="-|>",
+            color="#94a3b8",
+            lw=1.6,
+            mutation_scale=15,
+        ),
+    )
+    _ctmc_ax.text(
+        _ctmc_xK + 0.75,
+        0.42,
+        r"blocked $\lambda$",
+        color="#94a3b8",
+        fontsize=12,
+        ha="center",
+        va="bottom",
+    )
+
+    # Optional note that K is the full-capacity state
+    _ctmc_ax.text(
+        _ctmc_xK,
+        0.78,
+        "full",
+        ha="center",
+        va="center",
+        fontsize=11,
+        color="#475569",
+    )
+
+    # Formatting
+    _ctmc_ax.set_xlim(-0.7, _ctmc_xK + 1.5)
+    _ctmc_ax.set_ylim(-0.95, 1.0)
+    _ctmc_ax.set_aspect("equal", adjustable="box")
+    _ctmc_ax.axis("off")
+    _ctmc_ax.set_title(
+        r"State transitions of an $M/M/1/K$ queue",
+        pad=12,
+    )
+
+    _ctmc_fig.tight_layout()
+    _ctmc_fig
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    We can use the same approach as for the infinite-capacity $M/M/1$ queue to solve for the stationary probabilities. Recall that $K$ denotes the maximum number of customers in the system, including the customer being served. When the system contains $K$ customers, new arrivals are rejected.
+
+    The balance equations no longer continue indefinitely but instead stop at state $K$. We can write them as
+
+    $$
+    \begin{aligned}
+    \lambda P_0 &= \mu P_1,\\
+    \lambda P_0+\mu P_2 &= (\lambda+\mu)P_1,\\
+    \lambda P_1+\mu P_3 &= (\lambda+\mu)P_2,\\
+    &\;\;\vdots\\
+    \lambda P_{K-2}+\mu P_K &= (\lambda+\mu)P_{K-1},\\
+    \lambda P_{K-1} &= \mu P_K.
+    \end{aligned}
+    $$
+
+    Notice that the last equation differs from the equations for the intermediate states. Since the system cannot contain more than $K$ customers, there is no transition from state $K$ to state $K+1$.
+
+    Following the same reasoning as in the infinite-capacity model, the balance equations give
+
+    $$
+    P_n=\left(\frac{\lambda}{\mu}\right)^nP_0
+    =\varrho^nP_0,
+    \qquad n=0,\ldots,K,
+    $$
+
+    where $\varrho=\lambda/\mu$.
+
+    We can now use the normalization condition to determine $P_0$. Since the probabilities of all possible states must sum to one,
+
+    $$
+    \begin{aligned}
+    \sum_{n=0}^K P_n &= 1\\
+    P_0\sum_{n=0}^K\varrho^n &= 1\\
+    P_0 &= \left(\sum_{n=0}^K\varrho^n\right)^{-1}.
+    \end{aligned}
+    $$
+
+    Unlike the infinite-capacity model, we do not require $\varrho<1$ for the sum to converge, since we are now considering a finite number of states.
+
+    Using the formula for a finite geometric series, we obtain
+
+    $$
+    P_0=
+    \begin{cases}
+    \displaystyle\frac{1}{K+1}, & \text{if }\varrho=1,\\[6pt]
+    \displaystyle\frac{1-\varrho}{1-\varrho^{K+1}}, & \text{if }\varrho\neq1.
+    \end{cases}
+    $$
+
+    Consequently, the stationary probabilities are
+
+    $$
+    P_n=
+    \begin{cases}
+    \displaystyle\frac{1}{K+1}, & \text{if }\varrho=1,\\[6pt]
+    \displaystyle\frac{1-\varrho}{1-\varrho^{K+1}}\varrho^n,
+    & \text{if }\varrho\neq1,
+    \end{cases}
+    \qquad n=0,\ldots,K.
+    $$
+
+    Notice that, unlike the infinite-capacity $M/M/1$ queue, the finite-capacity model has a stationary distribution even when $\lambda\geq\mu$. When arrivals occur faster than customers can be served, the system will simply spend more time near its maximum capacity, and a larger proportion of arriving customers will be rejected.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ### Properties of the $M/M/1/K$ queue
+
+    We can now calculate the same performance measures as for the infinite-capacity model.
+
+    First, consider the expected number of customers in the system. For $\varrho\neq1$, we obtain
+
+    $$
+    \begin{aligned}
+    L
+    &= \sum_{k=0}^K kP_k\\
+    &= \sum_{k=0}^K k\varrho^k
+       \frac{1-\varrho}{1-\varrho^{K+1}}\\
+    &= \frac{1-\varrho}{1-\varrho^{K+1}}
+       \sum_{k=0}^K k\varrho^k\\
+    &= \frac{1-\varrho}{1-\varrho^{K+1}}
+       \frac{\varrho(1-\varrho^{K+1})
+       -(K+1)\varrho^{K+1}(1-\varrho)}
+       {(1-\varrho)^2}\\
+    &= \frac{\varrho(1-\varrho^{K+1})
+       -(K+1)\varrho^{K+1}(1-\varrho)}
+       {(1-\varrho^{K+1})(1-\varrho)}\\
+    &= \frac{\varrho}{1-\varrho}
+       -\frac{(K+1)\varrho^{K+1}}{1-\varrho^{K+1}}.
+    \end{aligned}
+    $$
+
+    Here, we used the finite geometric sum identity
+
+    $$
+    \sum_{k=0}^K k\varrho^k
+    =
+    \frac{\varrho(1-\varrho^{K+1})
+    -(K+1)\varrho^{K+1}(1-\varrho)}
+    {(1-\varrho)^2}.
+    $$
+
+    In the special case $\varrho=1$, the stationary probabilities are uniform, so
+
+    $$
+    \begin{aligned}
+    L
+    &=\sum_{k=0}^K kP_k\\
+    &=\frac{1}{K+1}\sum_{k=0}^K k\\
+    &=\frac{1}{K+1}\frac{K(K+1)}{2}\\
+    &=\frac{K}{2}.
+    \end{aligned}
+    $$
+
+    We can also recover the infinite-capacity $M/M/1$ model as a limiting case of the finite-capacity model. When $0\leq\varrho<1$, taking $K\to\infty$ gives
+
+    $$
+    \begin{aligned}
+    \lim_{K\to\infty}L(K)
+    &=\lim_{K\to\infty}
+    \left(
+    \frac{\varrho}{1-\varrho}
+    -\frac{(K+1)\varrho^{K+1}}{1-\varrho^{K+1}}
+    \right)\\
+    &=\frac{\varrho}{1-\varrho}.
+    \end{aligned}
+    $$
+
+    This is exactly the result obtained earlier for the infinite-capacity queue.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ### Interpretation of finite capacity
+
+    Another observation we can make is that, when $0<\varrho<1$,
+
+    $$
+    \frac{(K+1)\varrho^{K+1}}{1-\varrho^{K+1}}>0.
+    $$
+
+    Consequently,
+
+    $$
+    L_{M/M/1}>L_{M/M/1/K}.
+    $$
+
+    Thus, limiting the capacity of the system reduces the expected number of customers in the system. However, this does not necessarily mean that the service process has become more efficient. The difference arises because customers arriving when the system is full are not allowed to enter.
+
+    This also affects how we calculate the expected time customers spend in the system. Recall Little's law,
+
+    $$
+    L=\lambda_a W,
+    $$
+
+    where $\lambda_a$ is the effective arrival rate of customers entering the system.
+
+    In the infinite-capacity $M/M/1$ queue, every arriving customer enters the system, so $\lambda_a=\lambda$. However, in the finite-capacity model, some customers are rejected.
+
+    The stationary probability that the system is full is $P_K$. Since arrivals follow a Poisson process, the probability that an arriving customer finds the system full is also $P_K$. Therefore, the effective arrival rate is
+
+    $$
+    \lambda_a=\lambda(1-P_K).
+    $$
+
+    This means that, on average, only a fraction $1-P_K$ of the arriving customers can enter the system.
+
+    Consequently, the expected time in the system for admitted customers is
+
+    $$
+    W=\frac{L}{\lambda(1-P_K)}.
+    $$
+
+    Similarly, the expected number of customers waiting in the queue is
+
+    $$
+    L_Q=L-(1-P_0).
+    $$
+
+    This follows because there is at most one customer receiving service, and the probability that the server is busy is $1-P_0$.
+
+    Applying Little's law to the waiting queue then gives
+
+    $$
+    W_Q=\frac{L_Q}{\lambda(1-P_K)}.
+    $$
+
+    We can also verify that
+
+    $$
+    W=W_Q+\frac{1}{\mu},
+    $$
+
+    just as in the infinite-capacity model. The total time spent in the system is the sum of waiting time and service time, and the expected service time remains $1/\mu$.
+
+    Notice that reducing the capacity of the system does not make the server work any faster. Instead, it changes which customers are allowed to enter the system. In this model, the expected waiting time of admitted customers is reduced by limiting the number of customers that can accumulate in the queue.
+
+    However, this does not mean that limiting queue capacity necessarily reduces congestion in reality. For example, suppose a timber-processing facility cannot admit additional trucks once its unloading area is full. The rejected trucks might wait outside the facility or travel to another processing location.
+
+    Such behavior is not included in the standard $M/M/1/K$ model. In this model, rejected customers leave the system without receiving service. If they instead wait outside the facility, we would need another model that also accounts for this additional queue.
+
+    Consequently, limiting queue capacity may reduce congestion inside a facility while shifting waiting costs elsewhere. In practical management problems, we may therefore need to consider both the waiting costs of admitted customers and the costs associated with rejecting customers.
+
+    We could introduce various modifications to the $M/M/1$ model, such as limiting the capacity of the system or introducing additional servers. As long as arrivals follow a Poisson process and service times are exponentially distributed, many of these models can still be analyzed using similar methods to those we have already seen. The memoryless property allows us to describe the systems as continuous-time Markov chains and derive their stationary distributions using balance equations. The calculations may become more complicated, but closed-form solutions are available for many common models.
+
+    We can also relax the assumptions about the arrival process or service-time distribution. This often makes the analysis more difficult, since the number of customers in the system may no longer be sufficient to describe its future evolution. In such cases, obtaining closed-form solutions may be difficult or impossible, and we may need to rely on numerical methods, approximations, or simulations.
+
+    ???- question "Derive $L_Q$, $W$, and $W_Q$ ☠️☠️"
+        Derive expressions for the expected number of customers waiting in the queue, $L_Q$, the expected total time in the system, $W$, and the expected waiting time, $W_Q$, for the $M/M/1/K$ model.
+
+        Use the stationary probabilities and the expression for $L$ derived above.
+
+        **Hint:** Recall that the number of customers in the system is the sum of the number waiting and the number receiving service. What is the probability that the server is busy?
+
+        When applying Little's law, remember that the effective arrival rate is $\lambda_a=\lambda(1-P_K)$, rather than $\lambda$.
+
+        Verify that your results satisfy
+
+        $$
+        W=W_Q+\frac{1}{\mu}.
+        $$
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## The $M/G/1$ queue
+
+    So far, we have assumed that service times follow an exponential distribution. This assumption is convenient because the exponential distribution is memoryless, allowing us to describe the number of customers in the system using a continuous-time Markov chain.
+
+    However, the exponential distribution may not always provide a realistic description of service times. For example, consider a facility where trucks arrive to unload materials. Some trucks may take only a few minutes to unload, while others may require considerably more time, depending on their cargo.
+
+    We can relax the assumption about service times by considering an $M/G/1$ queue. In this model:
+
+    - Customers arrive according to a Poisson process with rate $\lambda$.
+    - Service times are independent and identically distributed according to some general distribution.
+    - There is one server, customers are served in their order of arrival, and the waiting queue has unlimited capacity.
+
+    The letter $G$ stands for *general*, meaning that we no longer need to specify a particular service-time distribution.
+
+    Let $S$ denote the service time of a randomly selected customer. We define its expected value and variance as
+
+    $$
+    \mathbb{E}[S]=\frac{1}{\mu},
+    \qquad
+    \operatorname{Var}(S)=\sigma_S^2.
+    $$
+
+    Here, $\mu$ represents the average service rate, as before. The utilization of the server is
+
+    $$
+    \varrho=\lambda\mathbb{E}[S]=\frac{\lambda}{\mu}.
+    $$
+
+    For the system to have a stationary distribution, we require $\varrho<1$.
+
+    Unlike the $M/M/1$ model, the number of customers in the system is generally not sufficient by itself to describe the future evolution of the queue as a Markov chain. This makes the analysis more complicated.
+
+    Fortunately, we can still calculate the expected waiting time using the Pollaczek–Khinchine formula:
+
+    $$
+    W_Q=\frac{\lambda\mathbb{E}[S^2]}{2(1-\varrho)}.
+    $$
+
+    Here, $\mathbb{E}[S^2]$ is the second moment of the service-time distribution. Recall that the variance satisfies
+
+    $$
+    \operatorname{Var}(S)
+    =\mathbb{E}[S^2]-\mathbb{E}[S]^2.
+    $$
+
+    Consequently, we can also write the expected waiting time as
+
+    $$
+    W_Q=
+    \frac{\lambda\left(\sigma_S^2+\mathbb{E}[S]^2\right)}
+    {2(1-\varrho)}.
+    $$
+
+    This result shows that the expected waiting time depends on both the average service time and the variance of service times.
+
+    In particular, if we keep the arrival rate and the average service time fixed, increasing the variance of service times increases the expected waiting time in the queue.
+
+    This is an important observation: even if two facilities have the same average service capacity, their waiting times may differ substantially if one facility has more variable processing times.
+
+    Once we have calculated $W_Q$, we can obtain the remaining performance measures using the same relationships as before:
+
+    $$
+    \begin{aligned}
+    W &= W_Q+\mathbb{E}[S],\\
+    L_Q &= \lambda W_Q,\\
+    L &= \lambda W.
+    \end{aligned}
+    $$
+
+    These expressions follow from the expected service time and Little's law, which also applies to the $M/G/1$ model.
+
+    ### Comparing different service-time distributions
+
+    Suppose trucks arrive at a processing facility at an average rate of $\lambda=8$ trucks per hour. The average service rate is $\mu=10$ trucks per hour, so the average service time is six minutes.
+
+    The server utilization is therefore
+
+    $$
+    \varrho=\frac{8}{10}=0.8.
+    $$
+
+    Consider three possibilities for the service-time distribution:
+
+    1. **Constant service time:** Every truck requires exactly six minutes of service.
+    2. **Exponential service time:** Service times follow an exponential distribution with a mean of six minutes.
+    3. **Highly variable service time:** Service times still average six minutes, but their variance is three times the squared mean service time.
+
+    To make these cases easier to compare, define the squared coefficient of variation
+
+    $$
+    c_S^2=
+    \frac{\operatorname{Var}(S)}{\mathbb{E}[S]^2}.
+    $$
+
+    This quantity measures service-time variability relative to the squared mean service time.
+
+    The Pollaczek–Khinchine formula can now be written as
+
+    $$
+    W_Q=
+    \frac{\varrho}{1-\varrho}
+    \frac{1+c_S^2}{2}\mathbb{E}[S].
+    $$
+
+    For our example, this gives the following results:
+
+    | Service-time distribution | $c_S^2$ | $W_Q$ | $W$ |
+    |---|---:|---:|---:|
+    | Constant | 0 | 12 min | 18 min |
+    | Exponential | 1 | 24 min | 30 min |
+    | Highly variable | 3 | 48 min | 54 min |
+
+    Notice that the arrival rate, average service time, and server utilization are exactly the same in all three cases.
+
+    Nevertheless, the expected waiting time increases from 12 minutes to 48 minutes as service-time variability increases.
+
+    This illustrates that reducing variability in the service process may be just as important as increasing its average capacity. For example, standardizing unloading procedures, preparing materials in advance, or separating unusually complicated tasks from routine ones could help reduce waiting times.
+
+    Of course, whether these changes are economically worthwhile depends on their implementation costs.
+
+    ???- question "How does service-time variability affect waiting times?"
+        Consider two processing facilities with the same arrival rate and average service time. Both have a utilization of $\varrho=0.8$.
+
+        At the first facility, service times are constant, while at the second facility, service times follow an exponential distribution.
+
+        1. Which facility has a larger expected waiting time?
+        2. How much larger is the expected waiting time?
+        3. What practical measures could a facility take to reduce variability in its service times?
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## Case study: Queues at a forestry weighbridge
+
+    We can now apply the formulas from the $M/M/1$ and $M/G/1$ sections to data reported in a real forestry study. [McNickle and Woollons (1990), *Analysis and simulation of a logging weighbridge installation*](https://www.scionresearch.com/__data/assets/pdf_file/0009/59958/NZJFS201111MCNICKLE.pdf), measured the arrival and processing times of trucks at a forestry weighbridge in New Zealand. Their study also used queueing formulas and simulation to evaluate congestion and the possible benefits of additional capacity.
+
+    The authors reported the following pooled observations from two working days:
+
+    | Quantity | Mean | Standard deviation |
+    |---|---:|---:|
+    | Time between truck arrivals | 1.68 min | 1.74 min |
+    | Weighing time | 1.21 min | 0.73 min |
+    | Time for a truck to move onto the scale | 0.33 min | 0.27 min |
+
+    The interarrival times were reasonably consistent with an exponential distribution, which supports using a Poisson arrival process as an approximation. Recall that following random variable \(E\sim\text{Exp}(\lambda)\) has expected value \(1/\lambda\) and variance \(1/\lambda^2\). This gives us easy test to see if the times approximately satisfy this.  The service process requires more care: moving onto the scale takes time mainly when another truck has just left. Thus, service times are not strictly independent of whether the system is busy.
+
+    For a simple classroom model, we make two additional approximations:
+
+    1. Every truck is assigned both the weighing time and the moving-up time, even if the weighbridge was previously empty. This overstates the delay associated with moving onto the scale. The original paper uses a similar construction to obtain an upper approximation for waiting time.
+    2. We treat weighing time and moving-up time as independent when calculating the variance of their sum. This is a simplifying assumption, not a result established by the published summary statistics.
+
+    Let $f$ be the fraction of the original moving-up time that remains after a hypothetical process improvement. For example, $f=1$ represents the original process in our approximation, and $f=0$ represents eliminating this movement delay entirely. This is a hypothetical intervention, not an observed outcome in the paper.
+
+    From the observed means and standard deviations, our simplified model has
+
+    $$
+    \begin{aligned}
+    \lambda &= \frac{1}{1.68}\quad \text{trucks/min},\\
+    \mathbb{E}[S_f] &= 1.21+0.33f\quad \text{min},\\
+    \operatorname{Var}(S_f) &= 0.73^2+(0.27f)^2\quad \text{min}^2.
+    \end{aligned}
+    $$
+
+    The expected queue waiting time is calculated with the Pollaczek–Khinchine formula. Compare it with the $M/M/1$ prediction using the same mean service time, but assuming exponentially distributed service times.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    forest_movement_fraction_slider = mo.ui.slider(
+        start=0.0,
+        stop=1.0,
+        step=0.05,
+        value=1.0,
+        show_value=True,
+        label="Fraction of the original moving-up time remaining",
+    )
+    forest_movement_fraction_slider
+    return (forest_movement_fraction_slider,)
+
+
+@app.cell(hide_code=True)
+def _(forest_movement_fraction_slider, mo):
+    _forest_f = forest_movement_fraction_slider.value
+    _forest_lambda = 1 / 1.68  # trucks per minute
+    _forest_mean_s = 1.21 + 0.33 * _forest_f
+    _forest_var_s = 0.73**2 + (0.27 * _forest_f)**2
+    _forest_rho = _forest_lambda * _forest_mean_s
+    _forest_Wq_mg1 = _forest_lambda * (
+        _forest_mean_s**2 + _forest_var_s
+    ) / (2 * (1 - _forest_rho))
+    _forest_Wq_mm1 = (
+        _forest_lambda * _forest_mean_s**2 / (1 - _forest_rho)
+    )
+    _forest_Lq = _forest_lambda * _forest_Wq_mg1
+    _forest_wait_hours = _forest_Lq * 12
+    _forest_cv2 = _forest_var_s / _forest_mean_s**2
+
+    mo.md(
+        rf"""
+        For $f={_forest_f:.2f}$, the arrival rate is
+        $\lambda={60*_forest_lambda:.2f}$ trucks/hour.
+
+        | Performance measure | $M/G/1$ approximation | $M/M/1$ assumption |
+        |---|---:|---:|
+        | Mean service time | {_forest_mean_s:.2f} min | {_forest_mean_s:.2f} min |
+        | Server utilization $\varrho$ | {_forest_rho:.1%} | {_forest_rho:.1%} |
+        | Squared service-time variation $c_S^2$ | {_forest_cv2:.2f} | 1.00 |
+        | Queue waiting time $W_Q$ | {_forest_Wq_mg1:.2f} min | {_forest_Wq_mm1:.2f} min |
+        | Number waiting $L_Q$ | {_forest_Lq:.2f} trucks | -- |
+        | Total truck-hours waiting in a 12-hour operating day | {_forest_wait_hours:.1f} h | -- |
+
+        The daily total is a steady-state *illustration* assuming 12 hours of operation
+        with the same parameters, not a measured daily result from the study.
+        """
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(forest_movement_fraction_slider, np, plt):
+    _forest_grid = np.linspace(0.0, 1.0, 201)
+    _forest_lambda = 1 / 1.68  # trucks per minute
+    _forest_mean = 1.21 + 0.33 * _forest_grid
+    _forest_variance = 0.73**2 + (0.27 * _forest_grid)**2
+    _forest_rho = _forest_lambda * _forest_mean
+
+    _forest_mg1_wait = (
+        _forest_lambda * (_forest_mean**2 + _forest_variance)
+        / (2 * (1 - _forest_rho))
+    )
+    _forest_mm1_wait = (
+        _forest_lambda * _forest_mean**2 / (1 - _forest_rho)
+    )
+
+    _forest_selected_f = forest_movement_fraction_slider.value
+    _forest_selected_Wq = np.interp(
+        _forest_selected_f, _forest_grid, _forest_mg1_wait
+    )
+    _forest_fig, _forest_ax = plt.subplots(figsize=(8.2, 4.4))
+    _forest_ax.plot(
+        _forest_grid, _forest_mg1_wait,
+        color="#2563eb", lw=2.3, label=r"$M/G/1$ (reported service-time variation)",
+    )
+    _forest_ax.plot(
+        _forest_grid, _forest_mm1_wait,
+        color="#d97706", lw=2.0, ls="--",
+        label=r"$M/M/1$ (exponential service times)",
+    )
+    _forest_ax.scatter(
+        [_forest_selected_f], [_forest_selected_Wq],
+        s=75, color="#2563eb", zorder=5,
+    )
+    _forest_ax.axvline(
+        _forest_selected_f, color="#64748b", ls=":", lw=1.2
+    )
+    _forest_ax.set(
+        xlabel="Fraction of moving-up time remaining",
+        ylabel="Expected queue waiting time (minutes)",
+        title="Forestry weighbridge: a hypothetical process improvement",
+        xlim=(0, 1),
+        ylim=(0, 19),
+    )
+    _forest_ax.grid(alpha=0.2)
+    _forest_ax.legend()
+    _forest_fig.tight_layout()
+    _forest_fig
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ### Interpreting the forestry case
+
+    Under the simplified baseline ($f=1$), the $M/G/1$ formula predicts approximately $10.6$ minutes of queue waiting per truck. Using an exponential service-time distribution with the same mean would instead predict approximately $16.9$ minutes. This difference illustrates why service-time variability matters.
+
+    The published paper reports a waiting-time estimate of $10.72$ minutes for its corresponding upper approximation. Our result is slightly different because the paper reports the input means and standard deviations in rounded form. Its simulation of the actual system, which represents the movement delays more accurately, gives approximately $8.05$ minutes of waiting per truck with one weighbridge.
+
+    Reducing the time trucks spend moving onto the scale lowers the mean service time, which also lowers utilization. This is particularly valuable when utilization is already high. Less truck waiting could also reduce vehicle idling and associated emissions, but quantifying emissions would require additional information about fuel use, engine operation, and emission factors. Queue waiting time alone is not a measured emission quantity.
+
+    ???- question "Exercise: improving the forestry weighbridge ☠️☠️"
+        1. Use the reported means to calculate the arrival rate $\lambda$, average service rate $\mu$, and utilization $\varrho$ at $f=1$.
+        2. Calculate the squared coefficient of variation $c_S^2$ of the service time and use the Pollaczek–Khinchine formula to obtain $W_Q$.
+        3. Set $f=0.5$. How much does the expected queue waiting time change? How much does the expected number of waiting trucks change?
+        4. Use Little's law to calculate the total truck-hours spent waiting during a hypothetical 12-hour operating day.
+        5. Explain why reducing queue waiting time does not necessarily imply that all waiting-related emissions disappear.
+
+    ### Optional extension: finite entrance capacity
+
+    Suppose that, for safety reasons, the weighbridge site can admit only $K$ trucks at a time, including the truck being weighed. We can approximate this alternative as an $M/M/1/K$ queue using the original mean service time. Note that this uses an *exponential service-time assumption* and is a different approximation from the $M/G/1$ analysis above.
+
+    In this model, arrivals that find all $K$ spaces occupied are rejected, rather than waiting outside the entrance. The stationary blocking probability is $P_K$ and the effective throughput is $\lambda_a=\lambda(1-P_K)$.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    forest_capacity_slider = mo.ui.slider(
+        start=1,
+        stop=20,
+        step=1,
+        value=6,
+        show_value=True,
+        label="Maximum trucks admitted to the weighbridge system (K)",
+    )
+    forest_capacity_slider
+    return (forest_capacity_slider,)
+
+
+@app.cell(hide_code=True)
+def _(forest_capacity_slider, mo):
+    _forest_K = forest_capacity_slider.value
+    _forest_lambda = 1 / 1.68  # arrivals/minute
+    _forest_mean_s = 1.21 + 0.33
+    _forest_rho = _forest_lambda * _forest_mean_s
+    _forest_normalizer = sum(_forest_rho**n for n in range(_forest_K + 1))
+    _forest_probs = [
+        _forest_rho**n / _forest_normalizer
+        for n in range(_forest_K + 1)
+    ]
+    _forest_P0 = _forest_probs[0]
+    _forest_PK = _forest_probs[-1]
+    _forest_L = sum(n * p for n, p in enumerate(_forest_probs))
+    _forest_Lq = _forest_L - (1 - _forest_P0)
+    _forest_lambda_a = _forest_lambda * (1 - _forest_PK)
+    _forest_Wq = _forest_Lq / _forest_lambda_a
+
+    mo.md(
+        rf"""
+        For capacity $K={_forest_K}$, with the original arrival rate and an
+        exponential service-time approximation:
+
+        | Quantity | Stationary value |
+        |---|---:|
+        | Blocking probability $P_K$ | {_forest_PK:.1%} |
+        | Effective admitted arrival rate $\lambda_a$ | {60*_forest_lambda_a:.2f} trucks/hour |
+        | Expected customers in the system $L$ | {_forest_L:.2f} trucks |
+        | Queue waiting time $W_Q$ for admitted trucks | {_forest_Wq:.2f} min |
+
+        A smaller capacity reduces waiting for admitted trucks, but it also
+        increases the fraction of arriving trucks that are rejected.
+        """
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(forest_capacity_slider, np, plt):
+    _forest_K_values = np.arange(1, 21)
+    _forest_lambda = 1 / 1.68
+    _forest_rho = _forest_lambda * (1.21 + 0.33)
+    _forest_block = []
+    _forest_wait = []
+
+    for _forest_K in _forest_K_values:
+        _forest_weights = _forest_rho ** np.arange(_forest_K + 1)
+        _forest_p = _forest_weights / _forest_weights.sum()
+        _forest_L = np.sum(np.arange(_forest_K + 1) * _forest_p)
+        _forest_Lq = _forest_L - (1 - _forest_p[0])
+        _forest_accepted_rate = _forest_lambda * (1 - _forest_p[-1])
+        _forest_block.append(_forest_p[-1])
+        _forest_wait.append(_forest_Lq / _forest_accepted_rate)
+
+    _forest_selected_K = forest_capacity_slider.value
+    _forest_fig, (_forest_ax1, _forest_ax2) = plt.subplots(
+        2, 1, figsize=(8.2, 5.7), sharex=True
+    )
+    _forest_ax1.plot(
+        _forest_K_values, np.array(_forest_block) * 100,
+        color="#d97706", lw=2.3,
+    )
+    _forest_ax2.plot(
+        _forest_K_values, _forest_wait,
+        color="#2563eb", lw=2.3,
+    )
+    for _forest_ax in (_forest_ax1, _forest_ax2):
+        _forest_ax.axvline(
+            _forest_selected_K, ls="--", color="#64748b", lw=1.2
+        )
+        _forest_ax.grid(alpha=0.2)
+        _forest_ax.set_xlim(1, 20)
+
+    _forest_ax2.set_xticks(_forest_K_values)
+
+    _forest_ax1.set(
+        ylabel="Blocked arrivals (%)",
+        title="A finite queue trades waiting for rejected arrivals",
+    )
+    _forest_ax2.set(
+        ylabel="Waiting for admitted trucks (min)",
+        xlabel="Maximum number of trucks in the system (K)",
+    )
+    _forest_fig.tight_layout()
+    _forest_fig
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ???- question "Exercise: capacity is not the same as service speed ☠️☠️"
+        1. At $K=6$, calculate the expected number of trucks rejected per operating hour.
+        2. Increase $K$ to 12. What happens to the rejection rate and the waiting time of admitted trucks?
+        3. Would limiting the number of trucks allowed inside the weighbridge site eliminate queues if rejected trucks simply waited outside? Explain which assumption of the $M/M/1/K$ model would no longer hold.
+        4. Which practical response would you recommend: reducing processing time, smoothing the arrival pattern, or restricting site capacity? Explain what additional data would be needed for a defensible decision.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## Additional material
+
+    + McNickle & Woollons (1990) [*Analysis and simulation of a logging weighbridge installation*](https://www.scionresearch.com/__data/assets/pdf_file/0009/59958/NZJFS201111MCNICKLE.pdf), New Zealand Journal of Forestry Science, 20(1), 111–119
+    + Aalto, M., Korpinen, O. J., Loukola, J., & Ranta, T. (2018). Achieving a smooth flow of fuel deliveries by truck to an urban biomass power plant in Helsinki, Finland – an agent-based simulation approach. International Journal of Forest Engineering, 29(1), 21–30. [https://doi.org/10.1080/14942119.2018.1403809](https://doi.org/10.1080/14942119.2018.1403809)
+    + For more queuing theory related material visit [Myron Hlynka's Queueing Theory Page](https://web2.uwindsor.ca/math/hlynka/queue.html).
     """)
     return
 
