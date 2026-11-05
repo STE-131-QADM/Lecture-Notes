@@ -41,7 +41,7 @@ def _():
 
 @app.cell
 def _(np):
-    # set random seed for reproducability
+    # set random seed for reproducibility
     np.random.seed(123)
     return
 
@@ -1667,7 +1667,6 @@ def _(np, plt, shared_demand, threshold_simulator):
 
     inventory_cost_surface_fig.tight_layout()
     inventory_cost_surface_fig
-
     return
 
 
