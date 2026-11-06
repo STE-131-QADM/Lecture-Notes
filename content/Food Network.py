@@ -110,7 +110,7 @@ def _(mo):
     - Each route has a variable cost (€/tonne) and an emissions intensity
       (kg CO₂e/tonne). There are no fixed route-opening costs.
     - All delivered produce is assumed usable; travel time, spoilage, and
-      inventory are not included yet.
+      inventory are not included.
 
     Let's first generate the data.
     """)
@@ -936,6 +936,10 @@ def _(np, pareto_costs, pareto_emissions, plt):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
+    ## Additional material
+
+    + If you are interested to learn more about network science there is lots of good material, for example, Albert-László Barabási [*Network science book*](https://networksciencebook.com/).
+
     ## References
 
     Bortolini, M., Faccio, M., Ferrari, E., Gamberi, M., & Pilati, F.

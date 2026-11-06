@@ -104,16 +104,22 @@ def _():
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    This first part of the course introduces the basic ideas of mathematical optimization. In an optimization problem, we choose between a set of possible alternatives in order to maximize or minimize some quantity of interest. This quantity is described by an *objective function*. For example, a firm might seek to maximize profit, whereas a transportation company might seek to minimize operating costs or emissions.
+    This first part of the course introduces the basic ideas of mathematical optimization. In an optimization problem, we choose between a set of possible alternatives in order to maximize or minimize some quantity of interest. This quantity is described by an *objective function*. For example, a firm might seek to maximize profit, whereas a transportation company might seek to minimize operating costs or emissions. At least the goal would usually be to minimize the emissions for any given level of costs or vice versa.
 
-    We denote the decision variables by \(x\) and the objective function by \(f\). In general, \(x\) may contain several decision variables, in which case we can think of \(x\) as a vector. An optimization problem can then be expressed informally as
+    We denote the decision variables by \(x\) and the objective function by \(f\). In general, \(x\) may contain several decision variables, in which case we can think of \(x\) as a column vector. An optimization problem can then be expressed informally as
 
     \[
     \text{choose }x\text{ so that }f(x)\text{ is as large or as small as possible}.
     \]
 
     You may already have encountered optimization problems in calculus, where conditions such as \(f'(x)=0\) are used to identify candidate points for minima or maxima of simple functions. In most practical decision problems, however, not every possible value of \(x\) is allowed. The decisions must also satisfy various restrictions, which we represent mathematically as *constraints*.
+    """)
+    return
 
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     ## Linearity
 
     We will first concentrate on optimization problems in which the objective function and the constraints are linear.
@@ -143,6 +149,15 @@ def _(mo):
     \]
 
     These properties are called *additivity* and *homogeneity*, respectively. They also have natural interpretations in many applied models.
+
+    !!! note "Homogenous function"
+        Homogeneity is actually a slightly more general property, and homogeneity as described above is said to be first degree homogeneity. In general \(f\) is homogenous of degree \(k\in\mathbb{Z}\) if
+
+        \[
+            f(\alpha x)=\alpha^kf(x)
+        \]
+
+        for every \(x\) and \(\alpha\neq 0\). In these notes homogeneity will refer to the homogeneity of degree one unless otherwise stated. As an example of function that is homogenous (of degree \(k\)) but not linear you can consider the following function \(f(x)=x^k\).
 
     ???- question "Equivalence of the definitions ☠️☠️"
 
@@ -226,9 +241,9 @@ def _(mo):
 
     The revenue function is therefore also homogeneous and we can conclude that it is linear in the amount of electricity sold.
 
-    However, notice that the linearity of \(R(x)=px\) follows from an important modelling assumption: the price \(p\) is treated as constant and independent of the amount sold. Whether this is a reasonable assumption depends on the application. Mathematical optimization does not determine whether an assumption is realistic; rather, it determines the best decision conditional on the mathematical model we have chosen.
+    However, notice that the linearity of \(R(x)=px\) follows from an important modelling assumption: the price \(p\) is treated as constant and independent of the amount sold. Whether this is a reasonable assumption depends on the application. Mathematical optimization does not determine whether an assumption is realistic. Rather, it determines the best decision conditional on the mathematical model we have chosen.
 
-    The field of mathematical optimization is vast and extends far beyond linear models. Many problems involve nonlinear relationships, discrete decisions, uncertainty, or decisions made over time. During this course, we will encounter some of these more complicated models as well. Linear optimization nevertheless provides an important starting point because it introduces many of the central ideas that recur throughout mathematical optimization.
+    The field of mathematical optimization is vast and extends far beyond linear models. Many problems involve nonlinear relationships, discrete decisions, uncertainty, or decisions made over time. During this course, we will encounter some of these more complicated models as well. Linear optimization nevertheless provides an important starting point because it introduces many of the central ideas that recur throughout mathematical optimization. It is also highly useful in many decision making applications despite its assumptions.
     """)
     return
 
@@ -454,7 +469,7 @@ def _(mo):
     x_S+x_E\geq3\,200.
     \]
 
-    Notice that the direction of the inequality differs from the capacity constraint in the previous example. Here, the constraint establishes a *lower bound* rather than an upper bound.
+    Notice that the direction of the inequality differs from the capacity constraint in the previous example. Here, the constraint establishes a lower bound rather than an upper bound.
 
     ### Transmission capacity constraints
 
@@ -572,6 +587,8 @@ def _(mo):
         Our model assumes that the entire available transmission capacity can be used to import electricity at the stated prices. In reality, electricity availability and prices in neighbouring countries depend on market conditions, and the actual Nordic electricity market is more complicated.
 
         Thus, the solution is optimal **within the assumptions of our model**, not necessarily an optimal or achievable outcome in the actual electricity market.
+
+        If you are interested in how electricity prices arise please see [Nord Pool Clearing](https://www.nordpoolgroup.com/en/trading/Clearing/), [Nord Pool Price calculation](https://www.nordpoolgroup.com/en/trading/Day-ahead-trading/Price-calculation/), [Nord Pool Price Coupling](https://www.nordpoolgroup.com/en/the-power-market/Day-ahead-market/Price-coupling-of-regions/), [Nord Pool Single Day-Ahead Coupling](https://www.nordpoolgroup.com/en/the-power-market/Day-ahead-market/Price-coupling-of-regions/), or [NEMO Single Day-Ahead Coupling](https://www.nemo-committee.eu/sdac).
     """)
     return
 

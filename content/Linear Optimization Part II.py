@@ -951,7 +951,7 @@ def _(mo):
     mo.md(f"""
     The model is infeasible because the required import load is not possible due to insufficient transfer capacity. In the above plot we can see that the infeasible set is empty.
 
-    Now, let's imagine that we get a new 700 MW transfer cable built between Finland and Estonia. At the same time the electricity price in Sweden rises to par with Estonia, so that both are now at 60 $/MWh. As a consequence we get a non-unique solution for our electricity optimization problem, analogously to the toy example previously. Below you can see the graphical solution to the electricity problem. Even though the optimizer chooses the optimum allocation to be 1500 MWh from Sweden and 1700 MWh from Estonia, we can clearly see that any point on the vertex would give us the same value and thus be a solution to the optimization problem.
+    Now, let's imagine that we get a new 700 MW transfer cable built between Finland and Estonia. At the same time the electricity price in Sweden rises to par with Estonia, so that both are now at 60 $/MWh. As a consequence we get a non-unique solution for our electricity optimization problem, analogously to the toy example previously. Below you can see the graphical solution to the electricity problem. Even though the optimizer chooses the optimum allocation to be 1500 MWh from Sweden and 1700 MWh from Estonia, we can clearly see that any point on the edge would give us the same value and thus be a solution to the optimization problem.
 
     Problems in higher dimensions are of course not as easy to distinguish to have multiple solutions. We will see in the next lecture how we can still find out if the solution we have found is unique.
     """)
