@@ -46,6 +46,15 @@ def _(mo):
 
     For example, trucks arriving at a timber-processing facility may have to wait if its unloading station is occupied. Even when a station can serve more trucks per hour than arrive *on average*, queues can form because arrivals and service times are uncertain. Here, a *customer* can be a person, a vehicle, or a job waiting to be processed.
 
+    In this chapter we are using *Kendall notation* for the queue processes. This means that we describe the queue by \(I/F/S/N\) where each letter denotes
+
+    + \(I\): Arrival distribution
+    + \(F\): Service distribution
+    + \(S\): Number of servers
+    + \(N\): Number of customers allowed in a system
+
+    This notation could be futher expanded for more complicated queues. In our models \(I\) will take value of \(M\) denoting Poisson processes. \(F\) will take values of \(M\) or \(G\) where \(G\) denotes general processes. \(S\) and \(N\) are numbers. If the number of customers allowed in a system is not limited, it will be dropped from the notation.
+
     ## The $M/M/1$ queue
 
     We begin with one of the simplest queueing models, the $M/M/1$ queue. The first $M$ indicates Markovian (Poisson-process) arrivals, the second $M$ indicates exponentially distributed service times, and $1$ indicates a single server.
@@ -525,7 +534,6 @@ def _(np, plt, queue_mm1_arrival_slider):
     _qperf_fig.tight_layout()
 
     _qperf_fig
-
     return
 
 
@@ -1001,6 +1009,96 @@ def _(mo):
     W_Q=\frac{\lambda\mathbb{E}[S^2]}{2(1-\varrho)}.
     $$
 
+
+    !!! theorem "Pollaczek–Khinchine formula"
+        Consider an $M/G/1$ queue where customers arrive according to a Poisson process with rate $\lambda$ and service times are independent and identically distributed according to a general distribution $S$ with a finite second moment.
+
+        Assume that customers are served in first-come, first-served order, the queue has unlimited capacity, and the stability condition
+
+        $$
+        \varrho=\lambda\mathbb{E}[S]<1
+        $$
+
+        holds.
+
+        Then the expected time a customer spends waiting in the queue is
+
+        $$
+        W_Q=\frac{\lambda\mathbb{E}[S^2]}{2(1-\varrho)}.
+        $$
+
+        Since $\mathbb{E}[S^2]=\operatorname{Var}(S)+\mathbb{E}[S]^2$, we can equivalently write
+
+        $$
+        W_Q=
+        \frac{\lambda\left(\operatorname{Var}(S)+\mathbb{E}[S]^2\right)}
+        {2(1-\varrho)}.
+        $$
+
+    ???- proof "Proof (sketch)"
+        Consider a customer arriving at the queue. If the server is busy, the customer must first wait for the service currently in progress to finish. The customer must also wait for all customers already in the queue to receive their service.
+
+        Therefore, the expected waiting time consists of two parts:
+
+        1. The expected remaining service time of the customer currently being served.
+        2. The expected total service time of customers already waiting in the queue.
+
+        Let $R$ denote the remaining service time of the customer currently being served, where $R=0$ if the server is idle.
+
+        To calculate its expected value, consider a service that lasts $s$ units of time. During this service, the remaining service time decreases linearly from $s$ to zero. The area under this remaining-time curve is
+
+        $$
+        \int_0^s(s-t)\,dt=\frac{s^2}{2}.
+        $$
+
+        Since customers complete service at an average rate of $\lambda$ in a stable system, the long-run time average of the remaining service time is
+
+        $$
+        \mathbb{E}[R]=\frac{\lambda\mathbb{E}[S^2]}{2}.
+        $$
+
+        Here, periods when the server is idle contribute zero to the average.
+
+        Because arrivals follow a Poisson process, an arriving customer observes the same average conditions as a randomly selected point in time. This property is known as *PASTA* (Poisson Arrivals See Time Averages).
+
+        Consequently, an arriving customer finds, on average, $L_Q$ customers already waiting in the queue. Since their service times are independent with mean $\mathbb{E}[S]$, the expected total service time of these customers is $L_Q\mathbb{E}[S]$.
+
+        Combining the two components of waiting time gives
+
+        $$
+        W_Q=\mathbb{E}[R]+L_Q\mathbb{E}[S].
+        $$
+
+        Substituting the expression for $\mathbb{E}[R]$, we obtain
+
+        $$
+        W_Q=
+        \frac{\lambda\mathbb{E}[S^2]}{2}
+        +L_Q\mathbb{E}[S].
+        $$
+
+        Recall from Little's law that $L_Q=\lambda W_Q$. Therefore,
+
+        $$
+        \begin{aligned}
+        W_Q
+        &=\frac{\lambda\mathbb{E}[S^2]}{2}
+        +\lambda W_Q\mathbb{E}[S]\\
+        W_Q-\lambda W_Q\mathbb{E}[S]
+        &=\frac{\lambda\mathbb{E}[S^2]}{2}\\
+        W_Q(1-\lambda\mathbb{E}[S])
+        &=\frac{\lambda\mathbb{E}[S^2]}{2}\\
+        W_Q(1-\varrho)
+        &=\frac{\lambda\mathbb{E}[S^2]}{2}\\
+        W_Q
+        &=\frac{\lambda\mathbb{E}[S^2]}{2(1-\varrho)}.
+        \end{aligned}
+        $$
+
+        This is the Pollaczek–Khinchine formula.
+
+        Notice that the second moment $\mathbb{E}[S^2]$ appears because longer service times contribute disproportionately more to the remaining service time observed by arriving customers. This explains why greater variability in service times increases waiting times, even when the average service time remains unchanged.
+
     Here, $\mathbb{E}[S^2]$ is the second moment of the service-time distribution. Recall that the variance satisfies
 
     $$
@@ -1033,7 +1131,13 @@ def _(mo):
     $$
 
     These expressions follow from the expected service time and Little's law, which also applies to the $M/G/1$ model.
+    """)
+    return
 
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     ### Comparing different service-time distributions
 
     Suppose trucks arrive at a processing facility at an average rate of $\lambda=8$ trucks per hour. The average service rate is $\mu=10$ trucks per hour, so the average service time is six minutes.
@@ -1083,7 +1187,7 @@ def _(mo):
 
     Of course, whether these changes are economically worthwhile depends on their implementation costs.
 
-    ???- question "How does service-time variability affect waiting times?"
+    ???- question "How does service-time variability affect waiting times? ☠️☠️"
         Consider two processing facilities with the same arrival rate and average service time. Both have a utilization of $\varrho=0.8$.
 
         At the first facility, service times are constant, while at the second facility, service times follow an exponential distribution.
@@ -1091,6 +1195,37 @@ def _(mo):
         1. Which facility has a larger expected waiting time?
         2. How much larger is the expected waiting time?
         3. What practical measures could a facility take to reduce variability in its service times?
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ### Remarks about Little's law
+
+    Little's law is a powerful result because it allows us to determine the expected number of customers in a system from their average time in the system, or vice versa, provided we know the effective arrival rate. It also allows us to estimate the effective arrival rate from observations of the number of customers and their waiting times. Importantly, Little's law applies to a wide range of queueing systems, not just the models considered here (Little, 1961).
+
+    For example, suppose we observe a queueing system with an average of $L=5$ customers and an average time in the system of $W=10$ minutes. Using Little's law, we obtain
+
+    $$
+    \begin{aligned}
+    \lambda_a
+    &=\frac{L}{W}\\
+    &=\frac{5\text{ customers}}{10\text{ min}}\\
+    &=0.5\text{ customers/min}.
+    \end{aligned}
+    $$
+
+    Thus, the system processes one customer every two minutes on average. If we also know the average service time $\mathbb{E}[S]$, we can determine the remaining quantities:
+
+    $$
+    W_Q=W-\mathbb{E}[S],
+    \qquad
+    L_Q=\lambda_a W_Q.
+    $$
+
+    Consequently, Little's law is not merely an abstract result from stochastic process theory. It is also a practical tool for analyzing queueing systems using quantities that can be measured directly from observed data.
     """)
     return
 
@@ -1112,7 +1247,7 @@ def _(mo):
 
     The interarrival times were reasonably consistent with an exponential distribution, which supports using a Poisson arrival process as an approximation. Recall that following random variable \(E\sim\text{Exp}(\lambda)\) has expected value \(1/\lambda\) and variance \(1/\lambda^2\). This gives us easy test to see if the times approximately satisfy this.  The service process requires more care: moving onto the scale takes time mainly when another truck has just left. Thus, service times are not strictly independent of whether the system is busy.
 
-    For a simple classroom model, we make two additional approximations:
+    For a simplified model, we make two additional approximations:
 
     1. Every truck is assigned both the weighing time and the moving-up time, even if the weighbridge was previously empty. This overstates the delay associated with moving onto the scale. The original paper uses a similar construction to obtain an upper approximation for waiting time.
     2. We treat weighing time and moving-up time as independent when calculating the variance of their sum. This is a simplifying assumption, not a result established by the published summary statistics.
@@ -1164,6 +1299,8 @@ def _(forest_movement_fraction_slider, mo):
     _forest_Lq = _forest_lambda * _forest_Wq_mg1
     _forest_wait_hours = _forest_Lq * 12
     _forest_cv2 = _forest_var_s / _forest_mean_s**2
+    _forest_Lq_mm1 = _forest_lambda * _forest_Wq_mm1
+    _forest_wait_hours_mm1 = _forest_Lq_mm1 * 12
 
     mo.md(
         rf"""
@@ -1176,8 +1313,8 @@ def _(forest_movement_fraction_slider, mo):
         | Server utilization $\varrho$ | {_forest_rho:.1%} | {_forest_rho:.1%} |
         | Squared service-time variation $c_S^2$ | {_forest_cv2:.2f} | 1.00 |
         | Queue waiting time $W_Q$ | {_forest_Wq_mg1:.2f} min | {_forest_Wq_mm1:.2f} min |
-        | Number waiting $L_Q$ | {_forest_Lq:.2f} trucks | -- |
-        | Total truck-hours waiting in a 12-hour operating day | {_forest_wait_hours:.1f} h | -- |
+        | Number waiting $L_Q$ | {_forest_Lq:.2f} trucks | {_forest_Lq_mm1:.2f} |
+        | Total truck-hours waiting in a 12-hour operating day | {_forest_wait_hours:.1f} h | {_forest_wait_hours_mm1:.2f} |
 
         The daily total is a steady-state *illustration* assuming 12 hours of operation
         with the same parameters, not a measured daily result from the study.
@@ -1203,8 +1340,11 @@ def _(forest_movement_fraction_slider, np, plt):
     )
 
     _forest_selected_f = forest_movement_fraction_slider.value
-    _forest_selected_Wq = np.interp(
+    _forest_selected_Wq_mg1 = np.interp(
         _forest_selected_f, _forest_grid, _forest_mg1_wait
+    )
+    _forest_selected_Wq_mm1 = np.interp(
+        _forest_selected_f, _forest_grid, _forest_mm1_wait
     )
     _forest_fig, _forest_ax = plt.subplots(figsize=(8.2, 4.4))
     _forest_ax.plot(
@@ -1217,8 +1357,12 @@ def _(forest_movement_fraction_slider, np, plt):
         label=r"$M/M/1$ (exponential service times)",
     )
     _forest_ax.scatter(
-        [_forest_selected_f], [_forest_selected_Wq],
+        [_forest_selected_f], [_forest_selected_Wq_mg1],
         s=75, color="#2563eb", zorder=5,
+    )
+    _forest_ax.scatter(
+        [_forest_selected_f], [_forest_selected_Wq_mm1],
+        s=75, color="#d97706", zorder=5,
     )
     _forest_ax.axvline(
         _forest_selected_f, color="#64748b", ls=":", lw=1.2
@@ -1386,6 +1530,9 @@ def _(mo):
     + McNickle & Woollons (1990) [*Analysis and simulation of a logging weighbridge installation*](https://www.scionresearch.com/__data/assets/pdf_file/0009/59958/NZJFS201111MCNICKLE.pdf), New Zealand Journal of Forestry Science, 20(1), 111–119
     + Aalto, M., Korpinen, O. J., Loukola, J., & Ranta, T. (2018). Achieving a smooth flow of fuel deliveries by truck to an urban biomass power plant in Helsinki, Finland – an agent-based simulation approach. International Journal of Forest Engineering, 29(1), 21–30. [https://doi.org/10.1080/14942119.2018.1403809](https://doi.org/10.1080/14942119.2018.1403809)
     + For more queuing theory related material visit [Myron Hlynka's Queueing Theory Page](https://web2.uwindsor.ca/math/hlynka/queue.html).
+
+    ## References
+    +  Little, J. D. C. (1961). *A Proof for the Queuing Formula: L = λW*. Operations Research. 9 (3): 383–387. [doi:10.1287/opre.9.3.383](https://pubsonline.informs.org/doi/10.1287/opre.9.3.383). JSTOR 167570.
     """)
     return
 

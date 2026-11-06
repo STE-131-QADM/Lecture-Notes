@@ -229,8 +229,14 @@ def _(mo):
     However, notice that the linearity of \(R(x)=px\) follows from an important modelling assumption: the price \(p\) is treated as constant and independent of the amount sold. Whether this is a reasonable assumption depends on the application. Mathematical optimization does not determine whether an assumption is realistic; rather, it determines the best decision conditional on the mathematical model we have chosen.
 
     The field of mathematical optimization is vast and extends far beyond linear models. Many problems involve nonlinear relationships, discrete decisions, uncertainty, or decisions made over time. During this course, we will encounter some of these more complicated models as well. Linear optimization nevertheless provides an important starting point because it introduces many of the central ideas that recur throughout mathematical optimization.
+    """)
+    return
 
-    ## Constrained Problems
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## Constrained problems
 
     An electricity producer may want to sell more electricity, but it cannot simply supply an unlimited amount of electricity to the grid. Depending on the generation technology, production may be constrained by the availability of wind or solar energy, or by the technical capacity of a nuclear, hydroelectric, or thermal power plant.
 
@@ -385,8 +391,14 @@ def _(mo):
         $$
 
         changes as \(x_g\) increases.
+    """)
+    return
 
-    ## Example: An Optimization Problem with Two Decision Variables
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## Example: An optimization problem with two decision variables
 
     We rarely consider optimization problems in which there is only one variable we can control. Introducing multiple decision variables allows us to represent more interesting management problems, particularly situations in which we must make trade-offs between different alternatives.
 
@@ -651,7 +663,13 @@ def _(mo):
     These are called *binding constraints*. The capacity constraint for electricity imports from Estonia, on the other hand, is not binding because only 100 MWh of the available 1,000 MWh is used.
 
     The distinction between binding and nonbinding constraints will become important when we investigate how changes in resource availability affect optimal decisions.
+    """)
+    return
 
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     ## The necessary assumptions
 
     We have already discussed linearity at the beginning of this chapter. It remains one of the key assumptions of our analysis. In our electricity-import model, linearity implies that the cost of importing an additional MWh of electricity is constant, regardless of how much electricity we have already imported. Furthermore, the costs are additive, so importing electricity from Sweden does not affect the cost of importing electricity from Estonia.

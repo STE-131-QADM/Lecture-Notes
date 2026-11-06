@@ -1725,7 +1725,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ## Additional reading
+    ## Additional material
 
     For those interested in exploring these topics further, the following research articles present applications of inventory models to problems related to the broader themes of this course.
 

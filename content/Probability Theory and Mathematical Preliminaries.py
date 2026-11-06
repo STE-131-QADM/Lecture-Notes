@@ -48,7 +48,13 @@ def _(mo):
     Most of the content you are facing in this chapter will be something you have probably already met at the earlier stages of your education. Many of the probability theory concepts at least have been already covered during the Data Science Methodology course you have already taken in the first period. Thus the main function of this chapter is to remaind you of the basic concepts and make sure you have easy access to find the results when needed in the exercises. However, we will also cover some new topics. You should make sure you are relatively comfortable working with the basic definitions and can use the basic probabilistic tools and random variables to recognize what assumptions we need to make in our models to use these. As a test of your understanding you could use the first example. If you are confident with the derivation, understand how changing for example the distribution of the demand or some other assumption would affect and how you would solve the new model, you should have quite good understanding of the topics.
 
     If you don't feel comfortable working with the basic tools of probability theory you can use for example [*Introduction to Probability Models*](https://www.sciencedirect.com/book/monograph/9780124079489/introduction-to-probability-models) by Sheldon M. Ross to remaind yourself of the basic results. However, in this course, we will not be needing the knowledge of the whole book.
+    """)
+    return
 
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     ## Decisions under uncertainty
 
     We have already considered optimization problems with several possible decisions, such as choosing transport routes in a food-distribution network. Specifically in Food Netrwork cont'd we had uncertainty over the possible routes. In that case it was still possible to represent the uncertainty within the linear model. Linear models can do many things and certain types of uncertainties can be added to those. A different situation arises when something important is unknown at the time we make our decision. For example, we might have to order products before we know how many customers will want to buy them.

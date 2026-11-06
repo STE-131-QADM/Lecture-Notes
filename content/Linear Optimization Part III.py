@@ -767,7 +767,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ## Additional Materials
+    ## Additional material
 
     + If you are interested in learning more about mathematical optimization, the most used book on the intermediate level is [Boyd, S. and Vandenberghe, L. (2004). *Convex Optimization*. Cambridge: Cambridge University Press.](https://web.stanford.edu/~boyd/cvxbook/bv_cvxbook.pdf) It is an exellent book for understanding the mathematics, but it goes far beyond the topics of this course. Body and Vandenberghe write about the intended audience as follows:
 

@@ -106,7 +106,7 @@ def _(mo):
 
     From a computational perspective, the number of decision variables and constraints, as well as the structure of the problem, can significantly affect how difficult it is to find an optimal solution. Nevertheless, these differences do not change the general mathematical formulation.
 
-    ## General Formulation
+    ## General formulation
 
     Recall that in a linear optimization problem, the objective function and the left-hand sides of the constraints are linear in the decision variables. We can express such problems compactly using vectors and matrices.
 
@@ -217,7 +217,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ## Feasible Set and Convexity
+    ## Feasible set and convexity
 
     The feasible set of a linear problem is always of the form
 
@@ -458,7 +458,7 @@ def _(mo):
 
     Notice also that every linear function is both convex and concave, since the inequalities in the definition hold as equalities.
 
-    ## Local and Global Optimizers
+    ## Local and global optimizers
 
     When solving an optimization problem, an important distinction is whether the solution is only optimal in its immediate surroundings or whether it is optimal over the entire feasible set.
 
@@ -697,7 +697,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ## Feasibility and Uniqueness
+    ## Feasibility and uniqueness
 
     We have already seen a problem that doesn't have a solution. In part I, the electricity example doen't have a solution when the transfer of energy from sweden was set to be 2100 MWh. In that case we get that \( 2100\text{ MWh}+1000\text{ MWh}=3100\text{ MWh}\ngeq 3200\text{MWh}\). In this case it was straight forward to see that the problem cannot have a solution.
 

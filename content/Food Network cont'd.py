@@ -47,7 +47,13 @@ def _(mo):
     Our goal is to investigate how uncertain transportation conditions affect optimal routing and the value of scarce resources. We will compare the original (certain) model with an *expected-value model*, examine their cost–emissions trade-offs, and use dual variables to interpret resource constraints.
 
     We will see that incorporating uncertainty does not necessarily require nonlinear optimization. Under the assumptions made here, the problem remains a linear program.
+    """)
+    return
 
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     ## Network and route data
 
     We retain the same network as in the previous exercise: three farms (F1–F3), two distribution hubs (H1–H2), and three retailers (R1–R3). Farms have limited weekly supply, hubs have throughput capacities, and retailers have fixed weekly demand. The network structure and these constraints remain unchanged.
@@ -219,7 +225,7 @@ def _(demand, hub_capacity, mo, pd, supply):
            for n, v in demand.items()]
     )
     mo.vstack([
-        mo.md("### Network data: capacities and demands"),
+        mo.md("### Network data: Capacities and demands"),
         _nodes])
     return
 
@@ -236,7 +242,7 @@ def _(arc_data, mo, pd):
     )
 
     mo.vstack([
-        mo.md("### Route data: unit transportation cost and emissions"),
+        mo.md("### Route data: Unit transportation cost and emissions"),
         _routes
     ])
     return
@@ -283,7 +289,13 @@ def _(mo):
     \]
 
     Thus, taking expectations changes the objective coefficients but does not change its linearity. The expected-emissions expression is linear for the same reason.
+    """)
+    return
 
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     ## Reformulating the optimization problem
 
     As before, let \(F\) denote the farms, \(H\) the distribution hubs, \(R\) the retailers, and \(A\) the set of available directed arcs. Our decision variable is
@@ -339,7 +351,13 @@ def _(mo):
     The shipments \(x_{ij}\) are planned before we learn whether a particular route is blocked. If a disruption occurs, we assume that the corresponding alternative is available and can carry the planned shipment. Its consequences are represented by the altered unit cost and emissions; the detour is not modeled as a new network arc with its own capacity constraints.
 
     This is an expected-value formulation rather than a two-stage stochastic program: there are no explicit decisions that can be revised after observing disruptions. Moreover, \(\mathbb E[E(x)]\le\varepsilon\) is a restriction on average emissions, not a guarantee that realized emissions will always remain below \(\varepsilon\). We do not need to assume that disruptions on different arcs are independent to calculate these expectations, because expectation is linear.
+    """)
+    return
 
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     ## Implementation
 
     The implementation mirrors the original Pyomo model. Its supply, capacity, flow-conservation, and demand constraints are unchanged. The two expressions `model.total_cost` and `model.total_emissions` now use the expected unit coefficients \(\bar c_{ij}\) and \(\bar e_{ij}\). An optional emissions constraint uses expected emissions, not realized emissions.

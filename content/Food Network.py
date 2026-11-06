@@ -67,19 +67,37 @@ def _(arc_data, pd, pyo):
 def _(mo):
     mo.md(r"""
     In this study, we are going to develop a network optimization model for food networks. To begin, please take a look at the [Bortolini et al. (2016)](https://doi.org/10.1016/j.jfoodeng.2015.11.014). This exercise builds on that paper by using similar, but very much simplified model, where we are optimizing on the cost of the network. Additionally, we can set a CO<sub>2</sub>e limit for the logistics network and do the optimization conditional on that.
+    """)
+    return
 
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     ## Background
 
     Our problem is the following. A food distributor purchases fresh vegetables from farms, transports them to distribution centers, and delivers them to supermarkets. The distributor needs to decide how many tonnes of vegetables to transport along each possible route. Farms cannot supply unlimited quantities, distribution centers have limited throughput, and every supermarket's demand must be met.
 
     The simplest business objective is to minimize the total cost of transportation. However, the cheapest set of routes need not be the one with the lowest greenhouse gas emissions. This raises a second question: How much would a reduction in transportation emissions cost?
+    """)
+    return
 
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     ## Related research
 
     As mentioned, this exercise is inspired by [Bortolini et al. (2016)](https://doi.org/10.1016/j.jfoodeng.2015.11.014), *“Fresh food sustainable distribution: Cost, delivery time and carbon footprint three-objective optimization,”*
 
     Their model addresses multiple foods, distribution routes, costs, delivery time, carbon emissions, and quality loss. Our first version is deliberately smaller: a single homogeneous product, one week, and only two objectives considered in separate runs (cost and emissions). The numerical values below are all synthetic, not data from the publication.
+    """)
+    return
 
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     ## Distribution network
 
     The distributor has three farms (**F1–F3**), two distribution centers (**H1–H2**) and three supermarkets (**R1–R3**).
@@ -161,7 +179,7 @@ def _(demand, hub_capacity, mo, pd, supply):
            for n, v in demand.items()]
     )
     mo.vstack([
-        mo.md("### Network data: capacities and demands"),
+        mo.md("### Network data: Capacities and demands"),
         _nodes])
     return
 
@@ -175,7 +193,7 @@ def _(arc_data, mo, pd):
     )
 
     mo.vstack([
-        mo.md("### Route data: unit transportation cost and emissions"),
+        mo.md("### Route data: Unit transportation cost and emissions"),
         _routes
     ])
     return
@@ -314,7 +332,7 @@ def _(mo):
 
     Note also how quickly the dimension of the problem starts to grow when we are moving towards more realistic models. In this model we already have Farms$\times$Distribution hubs$\times$Retailers$=3\times2\times3=18$ decision variables, and thus 18 dimensional problem. We are already long past the point where we could visualise the problem.
 
-    ### Objective: minimize total transportation cost
+    ### Objective: Minimize total transportation cost
 
     \[
     \min_{x}\; C(x)=\sum_{(i,j)\in A} c_{ij}x_{ij}.
@@ -350,7 +368,13 @@ def _(mo):
     **Nonnegativity:** \(x_{ij}\ge 0\) for all \((i,j)\in A\).
 
     This is a linear program: the objective and every constraint are linear in the decision variables. There are no binary decisions or nonlinear relationships.
+    """)
+    return
 
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     ## Implementation
 
     Let's now build a function that defines the LP problem and another that solves the problem. All of the constraints that were listed for the distribution network need to be encoded in the as Python functions.
@@ -693,7 +717,7 @@ def _(np, plt, pyo, solve_model):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ## The Pareto Frontier and Marginal Abatement Costs
+    ## The pareto frontier and marginal abatement costs
 
     We can construct the Pareto frontier between transportation costs and emissions using the ε-constraint method. The idea is to minimize transportation costs while imposing an upper bound on the total emissions of the network. Mathematically, we solve
 
