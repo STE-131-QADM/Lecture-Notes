@@ -57,10 +57,9 @@ def _(mo):
     mo.md(r"""
     ## Decisions under uncertainty
 
-    We have already considered optimization problems with several possible decisions, such as choosing transport routes in a food-distribution network. Specifically in Food Netrwork cont'd we had uncertainty over the possible routes. In that case it was still possible to represent the uncertainty within the linear model. Linear models can do many things and certain types of uncertainties can be added to those. A different situation arises when something important is unknown at the time we make our decision. For example, we might have to order products before we know how many customers will want to buy them.
+    We have already considered optimization problems with several possible decisions, such as choosing transport routes in a food-distribution network. Specifically in Food Netrwork cont'd we had uncertainty over the availability of possible routes. In that case, it was still possible to represent the uncertainty within the linear model. Linear models can do many things and certain types of uncertainties can be added to those. However, not everything can be formulated as a linear problem.
 
-
-    ### Newsvendor problem
+    ### Example: Newsvendor problem
 
     Consider a shop that sells newspapers. You need to decide how many newspapers to order before you know tomorrow's demand. Based on past experience, you believe demand can be anywhere between 0 and 100 newspapers. For simplicity, we assume that all values in this interval are equally likely. In other words, demand follows a uniform distribution:
 
@@ -1136,7 +1135,13 @@ def _(mo):
     This concept is particularly important for the distributions we introduced earlier. For example, the binomial distribution assumes that the individual Bernoulli trials are independent. Similarly, the Poisson process assumes that the numbers of arrivals occurring in disjoint time intervals are independent.
 
     However, independence is not something we can automatically assume. In many real-world applications, events and random variables influence each other. For example, the number of customers arriving at a shop during consecutive hours might depend on the time of day or other common factors. Whether independence is a reasonable assumption depends on the process we are modelling.
+    """)
+    return
 
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     ### Conditional probabilities
 
     So far, we have mostly considered probabilities without taking any additional information into account. However, in many decision-making situations, we obtain information that changes how likely we consider different events to be.
@@ -1230,7 +1235,13 @@ def _(mo):
     \]
 
     Thus, when \(A\) and \(B\) are independent, learning that \(B\) has occurred does not change the probability of \(A\). This agrees with our earlier intuition about independence.
+    """)
+    return
 
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     ### Bayes' theorem
 
     Conditional probabilities are especially useful when we are trying to make decisions based on incomplete information. We might, for example, observe some data and want to use this information to determine how likely a particular event or situation is.
@@ -1337,7 +1348,13 @@ def _(mo):
     An important distinction is that \(\mathbb P(A\mid B)\) and \(\mathbb P(B\mid A)\) are generally not the same. In this example, the probability that the system issues a warning on a high-demand day is 85%, but the probability that tomorrow is a high-demand day given a warning is only 68%.
 
     This type of reasoning is particularly useful when we combine statistical inference with decision-making. In many applications, we first obtain information about an uncertain quantity and then need to determine what decision to make based on that information. Bayes' theorem provides one way to update our understanding of uncertainty before making such decisions.
+    """)
+    return
 
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     ### Law of total probability
 
     The next result will be very useful for evaluating many probabilities. It allows you to evaluate a probability of an event by splitting it to multiple mutually exclusive conditional probabilities. We have already seen this multiple times in action and it has helped us to compute otherwise hard or impossible to evaluate probabilities.
@@ -1417,13 +1434,14 @@ def _(mo):
     ???- question "Identifying fields with high phosphorus runoff risk ☠️☠️"
         A municipality wants to identify agricultural fields with a high risk of phosphorus runoff so that it can target conservation measures effectively.
 
-        Based on historical data, 20% of fields are considered high-risk. The municipality uses an environmental assessment that correctly identifies high-risk fields 80% of the time. However, the assessment also incorrectly identifies 10% of low-risk fields as high-risk.
+        Based on historical data, 10% of fields are considered high-risk. The municipality uses an environmental assessment that correctly identifies high-risk fields 90% of the time. However, the assessment also incorrectly identifies 5% of low-risk fields as high-risk.
 
         Suppose a field receives a positive assessment, indicating high runoff risk.
 
         1. What is the probability that the assessment gives a positive result for a randomly selected field?
         2. Use Bayes' theorem to calculate the probability that the field actually has high runoff risk, given the positive assessment.
-        3. Compare your result with the original 20% probability. What does this tell us about the usefulness of the assessment for targeting conservation measures?
+        3. Compare your result with the original probability. What does this tell us about the usefulness of the assessment for targeting conservation measures?
+        4. Compute what the false positive rate would need to be to achieve 95% probability of high runoff risk given positive assesment.
 
         *Hint:* Let \(H\) denote the event that a field has high runoff risk and \(+\) the event that the assessment is positive. You can calculate \(\mathbb P(+)\) using the law of total probability.
 
@@ -1439,9 +1457,9 @@ def _(mo):
 
         **Answer the following questions:**
 
-        1. **Decision without the assessment:** Should the municipality install the filter based only on the original 20% probability of high runoff risk? Calculate the expected net benefit.
+        1. **Decision without the assessment:** Should the municipality install the filter based only on the original probability of high runoff risk? Calculate the expected net benefit.
         2. **Decision after the assessment:** Suppose the municipality conducts the assessment. Should it install the filter if the result is positive? What if the result is negative? Use Bayes' theorem to update the probabilities and calculate the expected net benefits.
-        3. **Value of information:** Calculate the expected net benefit of conducting the assessment and then making the optimal decision based on its result. Remember to account for the €200 assessment cost. Is conducting the assessment worthwhile? Then compute the threshold cost where it is beneficial to treat each field and separately fields that receive positive result from the test.
+        3. **Value of information:** Calculate the expected net benefit of conducting the assessment and then making the optimal decision based on its result. Remember to correctly account for the €200 assessment cost. Is conducting the assessment worthwhile? Then compute the threshold cost where it is beneficial to treat each field and separately fields that receive positive result from the test. Compute also the threshold price for the assesment after which it becomes beneficial.
     """)
     return
 
@@ -1451,7 +1469,7 @@ def _(mo):
     mo.md(r"""
     ### Expected values and higher moments
 
-    You should be familiar with the concepts of expected value and variance as well as computing these for certain distributions. For some distributions it is very easy to compute the expected values. For example, let \(B\) be a Bernoulli random with probability of success \(p\). Then the expected value is computed as
+    For some distributions it is very easy to compute the expected values. For example, let \(B\) be a Bernoulli random with probability of success \(p\). Then the expected value is computed as
 
     \[
         \mathbb{E}[B]=0\cdot(1-p)+1\cdot p=p
@@ -1492,7 +1510,7 @@ def _(mo):
 
         We assume that the corresponding sum or integral is absolutely convergent, so that the expected value is finite.
 
-    One particularly useful property of expected values is that they are *linear*. This allows us to calculate the expected value of a sum without first determining the probability distribution of the sum.
+    One particularly useful property of expected values is that they are linear. This allows us to calculate the expected value of a sum without first determining the probability distribution of the sum.
 
     !!! proposition "Linearity of expectation"
 
@@ -1529,7 +1547,7 @@ def _(mo):
 
     This property is useful when the quantity we are interested in consists of several components. For example, if the total cost of maintaining an inventory consists of purchasing, holding, and shortage costs, we can calculate the expected total cost by adding the expected values of these individual costs.
 
-    We have also already encountered *conditional expectations* in the newsvendor example. The following proposition formalizes how we can calculate an expected value by dividing the possible outcomes into different situations.
+    We have also already encountered conditional expectations in the newsvendor example. The following proposition formalizes how we can calculate an expected value by dividing the possible outcomes into different situations.
 
     !!! proposition "Law of total expectation"
 
@@ -1599,7 +1617,7 @@ def _(mo):
     Notice the similarity to the law of total probability. We consider all possible situations, calculate the conditional expected value in each situation, and weight these values by the probabilities of the situations.
 
 
-    Similarly variance and standard defiation are defined in the box below.
+    Similarly variance and standard deviation are defined in the box below.
 
     !!! definition "Variance and standard deviation"
 
@@ -1728,9 +1746,9 @@ def _(mo):
     mo.md(r"""
     ## Dynamical systems
 
-    So far, we have mainly considered decisions where we choose some quantity and evaluate the resulting costs or benefits. However, many management problems involve systems that evolve over time. For example, the amount of inventory in a warehouse changes when new products arrive and existing products are sold. Similarly, the amount of water in a reservoir changes as water flows in and out.
+    So far, we have mainly considered decisions where we choose some quantity and evaluate the resulting costs or benefits. However, many management problems involve systems that evolve over time. For example, the amount of inventory in a warehouse changes when new products arrive and existing products are sold.
 
-    These are examples of *dynamical systems*.
+    These are examples of dynamical systems.
 
     ### Discrete-time dynamical systems
 
@@ -1766,15 +1784,19 @@ def _(mo):
 
     Some systems evolve continuously rather than in discrete periods. In these situations, the rate of change can be described using a differential equation.
 
-    For example, consider a reservoir with water volume \(V(t)\), inflow rate \(r(t)\), and outflow rate \(d(t)\). Its volume changes according to
+    For example, consider a manufacturing company that continuously produces goods and stores them in a warehouse before shipping them to customers. Let \(I(t)\) denote the amount of inventory at time \(t\), \(p(t)\) the production rate, and \(d(t)\) the rate at which goods are shipped to customers.
+
+    Assuming that production and shipments can be represented as continuous flows, the inventory evolves according to
 
     \[
-        \frac{dV(t)}{dt}=r(t)-d(t).
+        \frac{dI(t)}{dt}=p(t)-d(t).
     \]
 
-    This describes essentially the same balance relationship as our inventory equation, but in continuous time.
+    For example, if the company produces 100 units per hour and ships 80 units per hour, its inventory increases at a rate of 20 units per hour.
 
-    We will not develop the general theory of dynamical systems or methods for solving differential equations. For our purposes, the important idea is that we can describe how a system changes over time using relatively simple mathematical equations.
+    Notice that this is essentially the same balance equation we used for discrete-time inventory models. The difference is that we now describe the instantaneous rate of change rather than changes between individual periods.
+
+    We will not develop the general theory of dynamical systems or methods for solving differential equations. For our purposes, the important idea is that we can describe how systems evolve over time using relatively simple mathematical equations. Later, we will use similar ideas when studying production and inventory management.
     """)
     return
 

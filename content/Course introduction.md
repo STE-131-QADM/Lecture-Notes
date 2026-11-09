@@ -72,6 +72,11 @@ However, an equally important reason for constructing a quantitative model is to
 
 Furthermore, by taking the model seriously and analysing its mathematical properties, we may also gain new qualitative insights into the situation. For example, we may discover which factors have the greatest influence on the outcome or identify relationships between different aspects of the problem that were not initially obvious. However, this approach requires us to critically examine and test the assumptions and conclusions of the model. After all, a mathematical model is only an approximation of the real-world phenomenon being studied, and its usefulness ultimately depends on how well its assumptions capture the relevant aspects of reality.
 
+## Purpose of the lecture notes
+
+These lecture notes are intended to give more rigorous treatment of the course topics compared to the textbook. Additionally, the goal is to give more context in problems connected to natural resource use. These notes assume some preliminary knowledge on mathematics. You should have basic calculus skills, some knowledge on statistics and probability, and knowledge of linear algebra at least at the level of matrix and vector notation. If you feel unsure about this you can find brilliant resources for reviewing your linear algebra skills. For example, [Introduction to Linear Algebra for Applied Machine Learning with Python](https://pabloinsente.github.io/intro-linear-algebra) and [Mathematics for Machine Learning](https://mml-book.github.io/) give more applied treatment and
+[Introduction to linear algebra](https://helka.helsinki.fi/permalink/358UOH_INST/1ohdnot/alma9931769133506253) gives good introduction with more mathematical take.
+
 ## Running the lecture notes
 
 In the upper-right corner of this page, next to the search button, you will find options to download the notebooks or open them in [Molab](https://molab.marimo.io/notebooks), an online environment for running and editing marimo notebooks.

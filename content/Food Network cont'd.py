@@ -274,7 +274,7 @@ def _(mo):
 
     The corresponding expected emissions intensity is \(0.60(8)+0.40(12)=9.6\) kg CO₂e/tonne. This example illustrates why a route that looks attractive under normal conditions may become less attractive once disruptions are taken into account.
 
-    ### Why is the new objective still linear?
+    ### Linearity of the objective
 
     The values \(p_{ij}\), \(c_{ij}\), and \(\hat c_{ij}\) are parameters, not decision variables. Consequently, \(\bar c_{ij}\) is a fixed coefficient. For any shipment plans \(x,y\) and scalars \(\alpha,\beta\), the expected-cost function satisfies
 
@@ -346,9 +346,9 @@ def _(mo):
     \bar E(x)\le\varepsilon.
     \]
 
-    ### What does the model assume?
+    ### Model assumptions
 
-    The shipments \(x_{ij}\) are planned before we learn whether a particular route is blocked. If a disruption occurs, we assume that the corresponding alternative is available and can carry the planned shipment. Its consequences are represented by the altered unit cost and emissions; the detour is not modeled as a new network arc with its own capacity constraints.
+    The shipments \(x_{ij}\) are planned before we learn whether a particular route is blocked. If a disruption occurs, we assume that the corresponding alternative is available and can carry the planned shipment. Its consequences are represented by the altered unit cost and emissions and the detour is not modeled as a new network arc with its own capacity constraints.
 
     This is an expected-value formulation rather than a two-stage stochastic program: there are no explicit decisions that can be revised after observing disruptions. Moreover, \(\mathbb E[E(x)]\le\varepsilon\) is a restriction on average emissions, not a guarantee that realized emissions will always remain below \(\varepsilon\). We do not need to assume that disruptions on different arcs are independent to calculate these expectations, because expectation is linear.
     """)
@@ -829,51 +829,6 @@ def _(mo):
 
     The inequality follows because the two plans satisfy the same network constraints and \(x_u^*\) minimizes expected costs over that feasible set. If the original routing also minimizes expected costs, the difference is zero. Introducing uncertainty does not necessarily change an optimal decision.
 
-
-    !!! note "Optimization over nested feasible sets"
-
-        Consider two nonempty sets \(A\subseteq B\) and a function \(f:B\rightarrow\mathbb{R}\). Assume that the maximum and minimum of \(f\) exist on both sets. Then
-
-        \[
-        \max_{x\in A}f(x)\leq\max_{x\in B}f(x)
-        \]
-
-        and
-
-        \[
-        \min_{x\in A}f(x)\geq\min_{x\in B}f(x).
-        \]
-
-        In other words, enlarging the feasible set cannot decrease the maximum or increase the minimum of an optimization problem.
-
-        To see why, consider the maximization problem. Let \(x_A^*\in A\) be a maximizer of \(f\) over \(A\), so that
-
-        \[
-        f(x_A^*)=\max_{x\in A}f(x).
-        \]
-
-        Since \(A\subseteq B\), we also have \(x_A^*\in B\). By the definition of the maximum over \(B\),
-
-        \[
-        f(x_A^*)\leq\max_{x\in B}f(x).
-        \]
-
-        Combining these two expressions gives
-
-        \[
-        \max_{x\in A}f(x)\leq\max_{x\in B}f(x).
-        \]
-
-        The argument for minimization is analogous. If \(x_A^*\) minimizes \(f\) over \(A\), then \(x_A^*\in B\), and hence
-
-        \[
-        \min_{x\in B}f(x)
-        \leq f(x_A^*)
-        =\min_{x\in A}f(x).
-        \]
-
-        Notice that the inequalities need not be strict. Enlarging the feasible set does not necessarily improve the optimal objective value.
-
     This quantity is also interesting from a point of view that it would be possible to measure it in some situations. This would allow you to put a quite accurate value on the improved model, and the solutions it can generate.
     """)
     return
@@ -967,6 +922,56 @@ def _(
     With the current illustrative data, the original cost-minimizing plan costs €{baseline_cost_certain:,.2f}/week under normal conditions. When evaluated using expected disruption costs, the same routing plan costs € {original_plan_expected_cost:,.2f}/week. Reoptimizing the shipments reduces that expected cost to € {baseline_cost:,.2f}/week. A saving of €{uncertainty_savings:,.2f}/week ({100 * uncertainty_savings / original_plan_expected_cost:.1f}% relative to keeping the original plan).
 
     This comparison separates the adverse change in operating conditions from the beneficial change in the decision. It does not describe the realized cost of any one week. Actual disruptions may differ from their expected frequencies.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    !!! note "Optimization over nested feasible sets"
+
+        Consider two nonempty sets \(A\subseteq B\) and a function \(f:B\rightarrow\mathbb{R}\). Assume that the maximum and minimum of \(f\) exist on both sets. Then
+
+        \[
+        \max_{x\in A}f(x)\leq\max_{x\in B}f(x)
+        \]
+
+        and
+
+        \[
+        \min_{x\in A}f(x)\geq\min_{x\in B}f(x).
+        \]
+
+        In other words, enlarging the feasible set cannot decrease the maximum or increase the minimum of an optimization problem.
+
+        To see why, consider the maximization problem. Let \(x_A^*\in A\) be a maximizer of \(f\) over \(A\), so that
+
+        \[
+        f(x_A^*)=\max_{x\in A}f(x).
+        \]
+
+        Since \(A\subseteq B\), we also have \(x_A^*\in B\). By the definition of the maximum over \(B\),
+
+        \[
+        f(x_A^*)\leq\max_{x\in B}f(x).
+        \]
+
+        Combining these two expressions gives
+
+        \[
+        \max_{x\in A}f(x)\leq\max_{x\in B}f(x).
+        \]
+
+        The argument for minimization is analogous. If \(x_A^*\) minimizes \(f\) over \(A\), then \(x_A^*\in B\), and hence
+
+        \[
+        \min_{x\in B}f(x)
+        \leq f(x_A^*)
+        =\min_{x\in A}f(x).
+        \]
+
+        Notice that the inequalities need not be strict. Enlarging the feasible set does not necessarily improve the optimal objective value.
     """)
     return
 
@@ -1082,6 +1087,94 @@ def _(cost_model, cost_model_certain, farms, hubs, np, plt):
 
     shadow_fig.tight_layout()
     shadow_fig
+    return capacity_value, resources, y
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    We can repeat this for the emission minimization problem. The emission shadow prices are shown below. Here too the certain and uncertain models disagree to some extent. However, the uncertain model seems to achieve biggest benefits for both costs and emissions by investments to same targets.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(
+    capacity_value,
+    farms,
+    hubs,
+    min_emissions_model,
+    min_emissions_model_certain,
+    np,
+    plt,
+    resources,
+    y,
+):
+    certain_prices_e = np.array(
+        [
+            capacity_value(
+                min_emissions_model_certain,
+                min_emissions_model_certain.supply_limit[f]
+            )
+            for f in farms
+        ]
+        + [
+            capacity_value(
+                min_emissions_model_certain,
+                min_emissions_model_certain.hub_limit[h]
+            )
+            for h in hubs
+        ]
+    )
+
+    uncertain_prices_e = np.array(
+        [
+            capacity_value(
+                min_emissions_model,
+                min_emissions_model.supply_limit[f]
+            )
+            for f in farms
+        ]
+        + [
+            capacity_value(
+                min_emissions_model,
+                min_emissions_model.hub_limit[h]
+            )
+            for h in hubs
+        ]
+    )
+
+    shadow_e_fig, shadow_e_ax = plt.subplots(figsize=(9, 5))
+
+    shadow_e_ax.barh(
+        y - 0.2,
+        certain_prices_e,
+        height=0.4,
+        color="lightblue",
+        label="Original model"
+    )
+
+    shadow_e_ax.barh(
+        y + 0.2,
+        uncertain_prices_e,
+        height=0.4,
+        color="navy",
+        label="Uncertain model"
+    )
+
+    shadow_e_ax.set_yticks(y, resources)
+    shadow_e_ax.invert_yaxis()
+
+    shadow_e_ax.set_xlabel(
+        "Marginal emissions saving "
+        "(kg CO₂e/additional tonne of weekly capacity)"
+    )
+    shadow_e_ax.set_title("Shadow Emission Prices of Network Capacities")
+    shadow_e_ax.grid(axis="x", alpha=0.25)
+    shadow_e_ax.legend()
+
+    shadow_e_fig.tight_layout()
+    shadow_e_fig
     return
 
 
@@ -1117,7 +1210,7 @@ def _(mo):
 
     For this minimization problem, Pyomo/HiGHS returns a nonpositive dual value for the `<=` emissions constraint. The plot therefore uses `-model.dual[model.emissions_limit]` to display a nonnegative marginal abatement cost in €/kg CO₂e. We repeat the calculation for the original model and compare the resulting curves over the emissions-budget range feasible for both.
 
-    Because the problem is linear, the value function is piecewise linear, and its marginal abatement cost is typically piecewise constant. At a breakpoint, the value function may not be differentiable and several optimal dual multipliers may be possible. Therefore, the step changes in the graph are meaningful features of LP sensitivity analysis, rather than numerical artifacts.
+    Because the problem is linear, the value function is piecewise linear, and its marginal abatement cost is typically piecewise constant. At a breakpoint, the value function may not be differentiable and several optimal dual multipliers may be possible. Therefore, the step changes in the graph are meaningful features of LP sensitivity analysis.
 
     The two MAC curves are not measured under identical assumptions. One uses normal-route costs and emissions, while the other uses expected costs and emissions. A common numerical emissions budget therefore represents a different modeled operating environment in each problem.
     """)

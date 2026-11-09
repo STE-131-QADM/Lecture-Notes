@@ -59,7 +59,7 @@ def _(mo):
             \text{s.t.}\quad
             &x\geq 1,\\
             &x\leq My,\\
-            &x\geq0,\quad y\in\{0,1\}.
+            &y\in\{0,1\}.
         \end{aligned}
     \]
 
@@ -325,7 +325,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ## Application: Electricity procurement when decisions have fixed costs
+    ## Example: Electricity procurement when decisions have fixed costs
 
     In Linear Optimization Part I and II, we investigated a one-hour shortage of 3 200 MWh of electricity in Finland. Our simplified least-cost LP purchased 3 100 MWh from Sweden at 40 €/MWh and 100 MWh from Estonia at 60 €/MWh, for a total of 130 000 €. We will now return to exactly this decision.
 
@@ -375,7 +375,7 @@ def _(mo):
 
     The inequalities \(x_E\leq1000y_E\) and \(x_R\leq700y_R\) are activation constraints. If the contract is not activated, the corresponding quantity must equal zero. Conversely, using even a small positive quantity forces the binary variable to one, so the fixed cost is paid.
 
-    We have used the physical capacity bounds (1 000 and 700 MWh) as the Big-M coefficients, rather than an arbitrary large number. The demand is expressed as an equality because we assume that surplus energy cannot be stored or sold in this simplified one-hour decision.
+    We have used the physical capacity bounds (1 000 and 700 MWh) as the Big-M coefficients, rather than an arbitrary large number as the constraints have clear physical meaning in this example. The demand is expressed as an equality because we assume that surplus energy cannot be stored or sold in this simplified one-hour decision.
 
     ???- question "Which option would you activate? ☠️"
         If the operator purchases 3 100 MWh from Sweden, the remaining shortage is just 100 MWh. Compute the total cost of meeting it from (i) Estonia and (ii) domestic flexible generation, including the activation costs. Which supplier do you expect to be chosen?
@@ -446,7 +446,7 @@ def _(pyo):
             m.required_reserve = pyo.Constraint(
                 expr=m.x_R >= 150 * m.high_sweden
             )
-    
+
         if single_agreement:
             # Either Estonia or domestic reserve can be activated, not both.
             m.single_agreement = pyo.Constraint(expr=m.y_E + m.y_R <= 1)
@@ -544,7 +544,7 @@ def _(mo):
         L\leq V^*_{\mathrm{MILP}}\leq U.
     \]
 
-    The LP relaxation changes the constraint for the decision variable to take values in \(\{0,1\}\) to taking values from \([0,1]\). Clearly \(\{0,1\}\subseteq [0,1]\) and as we are not modifying the feasible set otherwise we have the following relationship \(\mathcal{F}_{\{0,1\}}\subseteq\mathcal{F}_{[0,1]}\) for the entire feasible sets. Now the result about nested feasible sets that was established in Food Network cont'd holds here and we can know for sure that the LP relaxation always achieves at least as low minimum as the MILP for minimization problem and vice versa for maximization.
+    The LP relaxation changes the constraint for the decision variable to take values from \(\{0,1\}\) to taking values from \([0,1]\). Clearly \(\{0,1\}\subseteq [0,1]\) and as we are not modifying the feasible set otherwise we have the following relationship \(\mathcal{F}_{\{0,1\}}\subseteq\mathcal{F}_{[0,1]}\) for the entire feasible sets. Now the result about nested feasible sets that was established in [Food Network cont'd](https://ste-131-qadm.github.io/Lecture-Notes/Food%20Network%20cont%27d/#how-valuable-is-it-to-account-for-uncertainty) holds here and we can know for sure that the LP relaxation always achieves at least as low minimum as the MILP for minimization problem and vice versa for maximization.
 
     The difference \(U-L\) bounds how much the feasible solution could be improved. A commonly used relative measure is \(\frac{U-L}{\max(1,|U|)}\), although solvers can differ in their precise definition of the relative MIP gap. Solvers update both bounds during the search and can stop when the gap is sufficiently small, even without proving the exact optimum.
 
@@ -705,7 +705,7 @@ def _(
 
     **With 200 MWh minimum quantity:** {_description(electricity_with_min_by_fee)}
 
-    An activation fee is a lumpy cost: at the point where a contract is
+    An activation fee is a lump cost: at the point where a contract is
     first used, the total cost jumps by the fixed payment. This is why
     marginal reasoning based on €/MWh alone can give the wrong decision.
     """)
@@ -719,7 +719,7 @@ def _(mo):
 
     Suppose the system operator introduces an security rule:
 
-    > If imports from Sweden exceed 2 800 MWh during the hour, the domestic reserve must actually produce at least 150 MWh.
+    > If imports from Sweden exceed 2 800 MWh during the hour, the domestic reserve must produce at least 150 MWh.
 
     This is a conditional constraint. Let \(h\in\{0,1\}\) be a binary indicator that permits Swedish imports above the threshold. We can write
 
@@ -735,11 +735,11 @@ def _(mo):
 
     The number 300 is not arbitrary: it is the difference between the maximum Swedish imports (3 100 MWh) and the security threshold (2 800 MWh). This is another example of using the smallest valid Big-M rather than a huge coefficient.
 
-    ???- question "Check the logic ☠️☠️"
-        Can the solution have \(x_S=3000\) and \(h=0\)? Can it have \(x_S=2700\) and \(h=1\)? Explain which direction of the logical implication the model enforces.
-
     ???- question "Model a choice between contracts ☠️"
         Suppose company policy permits activating at most one of the two contingency arrangements. Express that rule using \(y_E\) and \(y_R\). How would the rule change if the manager must activate exactly one or at least one of them?
+
+    ???- question "Check the logic ☠️☠️"
+        Can the solution have \(x_S=3000\) and \(h=0\)? Can it have \(x_S=2700\) and \(h=1\)? Explain which direction of the logical implication the model enforces.
     """)
     return
 
@@ -840,7 +840,7 @@ def _(
 @app.cell
 def _(pyo, solve_electricity_case):
     electricity_threshold_scenarios = []
-    for _capacity in (2200, 2199):
+    for _capacity in (2199, 2200):
         _m = solve_electricity_case(
             sweden_capacity=_capacity, minimum_batch=200
         )
@@ -887,7 +887,7 @@ def _(electricity_threshold_scenarios, mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ## Application: Choosing between electricity contract tariffs
+    ## Example: Choosing between electricity contract tariffs
 
     Binary variables are also useful when a decision must be chosen from a finite menu of alternatives. Suppose the operator must procure electricity from Estonia but can select one of two mutually exclusive illustrative contracts:
 

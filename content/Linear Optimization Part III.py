@@ -96,13 +96,13 @@ def _(mo):
     mo.md(r"""
     In Part I, we studied how Finland could cover a shortage of electricity by importing it from Sweden and Estonia. We found the least-cost combination of imports. In Part II, we used the same problem to investigate feasibility and the structure of linear optimization models.
 
-    But many times we might be interested in questions that go beyond the cheapest import plan. For example:
+    Many times we might be interested in questions that go beyond the cheapest import plan. For example:
 
     - How much would a larger transmission connection from Sweden save?
     - How expensive would it be to cover another MWh of electricity demand?
     - Which limits actually prevent the system from operating more cheaply?
 
-    Of course, we could change the problem's parameters and solve it again. Duality provides a more systematic way to understand how an optimal solution responds to changes in requirements and resource limits. This theory also provides nice theoretical framework in which models can be developed. The resulting values are called shadow prices.
+    Of course, we could change the problem's parameters and solve it again. Duality provides a more systematic way to understand how an optimal solution responds to changes in requirements and resource limits. This theory also provides nice theoretical framework in which models can be developed. From this analysis arises so called shadow prices, giving us a tool to investigate the previously stated questions.
 
     This part focuses on explaining how those values arise and interpreting those for management decisions. We will also learn how the primal and dual linear programs are related. A more mathematical derivation using the Lagrangian is provided as a note at the end. It is highly advisable to take a look at that, after you have read through the main sections and examples of this part.
     """)
@@ -112,7 +112,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ## Returning to the electricity-import problem
+    ## Example: Electricity-import problem cont'd
 
     Recall the example from Part I and II. Fingrid's assessment of electricity adequacy for winter 2026–2027 motivated a simplified scenario in which Finnish electricity consumption could exceed domestic production by 3 200 MW. We modelled imports over one hour, so this corresponds to a requirement of 3 200 MWh.
 
@@ -212,11 +212,78 @@ def _(mo):
 
     The value of additional transmission capacity cannot remain €20/MWh forever. Once Sweden can supply all 3 200 MWh, there is no further need to import electricity from Estonia in our simplified model.
 
-    Use the slider to change the maximum quantity that can be imported from Sweden. The demand requirement (3 200 MWh), Estonian capacity (1 000 MWh), and the two import prices remain unchanged.
+    You can use the slider below to change the maximum quantity that can be imported from Sweden. The demand requirement (3 200 MWh), Estonian capacity (1 000 MWh), and the two import prices remain unchanged.
 
-    The first plot shows the chosen imports. The second shows the minimum achievable cost at different Swedish capacity limits.
+    In the cell below you can see first the primal problem solved as before and after that the dual problem. We will shortly see how the dual problem was derived from the primal problem. The first plot shows the chosen imports. The second shows the minimum achievable cost at different Swedish capacity limits.
     """)
     return
+
+
+@app.cell
+def _(pyo):
+    def solve_imports(swedish_capacity, demand=3200.0, estonian_capacity=1000.0):
+        """Solve both the primal import LP and its explicit dual with HiGHS."""
+        solver = pyo.SolverFactory("highs")
+        if not solver.available():
+            raise RuntimeError("HiGHS is unavailable; install highspy and pyomo.")
+
+        primal = pyo.ConcreteModel()
+        primal.sweden = pyo.Var(domain=pyo.NonNegativeReals)
+        primal.estonia = pyo.Var(domain=pyo.NonNegativeReals)
+        primal.cost = pyo.Objective(
+            expr=40 * primal.sweden + 60 * primal.estonia,
+            sense=pyo.minimize,
+        )
+        primal.requirement = pyo.Constraint(
+            expr=primal.sweden + primal.estonia >= demand,
+        )
+        primal.sweden_limit = pyo.Constraint(
+            expr=primal.sweden <= swedish_capacity,
+        )
+        primal.estonia_limit = pyo.Constraint(
+            expr=primal.estonia <= estonian_capacity,
+        )
+        pyo.assert_optimal_termination(solver.solve(primal))
+
+        # Nonnegative dual variables represent the demand cost and the
+        # cost-saving magnitudes of relaxing the two capacity limits.
+        dual = pyo.ConcreteModel()
+        dual.requirement_value = pyo.Var(domain=pyo.NonNegativeReals)
+        dual.sweden_value = pyo.Var(domain=pyo.NonNegativeReals)
+        dual.estonia_value = pyo.Var(domain=pyo.NonNegativeReals)
+        dual.objective = pyo.Objective(
+            expr=(
+                demand * dual.requirement_value
+                - swedish_capacity * dual.sweden_value
+                - estonian_capacity * dual.estonia_value
+            ),
+            sense=pyo.maximize,
+        )
+        dual.sweden_condition = pyo.Constraint(
+            expr=dual.requirement_value - dual.sweden_value <= 40,
+        )
+        dual.estonia_condition = pyo.Constraint(
+            expr=dual.requirement_value - dual.estonia_value <= 60,
+        )
+        pyo.assert_optimal_termination(solver.solve(dual))
+
+        cost = pyo.value(primal.cost)
+        dual_bound = pyo.value(dual.objective)
+        if abs(cost - dual_bound) > 1e-5:
+            raise RuntimeError("Unexpected primal–dual objective mismatch.")
+
+        return {
+            "sweden": pyo.value(primal.sweden),
+            "estonia": pyo.value(primal.estonia),
+            "cost": cost,
+            "swedish_capacity": float(swedish_capacity),
+            "demand_value": pyo.value(dual.requirement_value),
+            "swedish_capacity_value": pyo.value(dual.sweden_value),
+            "estonian_capacity_value": pyo.value(dual.estonia_value),
+            "dual_bound": dual_bound,
+        }
+
+    return (solve_imports,)
 
 
 @app.cell(hide_code=True)
@@ -354,73 +421,6 @@ def _(current_imports, mo):
     return
 
 
-@app.cell
-def _(pyo):
-    def solve_imports(swedish_capacity, demand=3200.0, estonian_capacity=1000.0):
-        """Solve both the primal import LP and its explicit dual with HiGHS."""
-        solver = pyo.SolverFactory("highs")
-        if not solver.available():
-            raise RuntimeError("HiGHS is unavailable; install highspy and pyomo.")
-
-        primal = pyo.ConcreteModel()
-        primal.sweden = pyo.Var(domain=pyo.NonNegativeReals)
-        primal.estonia = pyo.Var(domain=pyo.NonNegativeReals)
-        primal.cost = pyo.Objective(
-            expr=40 * primal.sweden + 60 * primal.estonia,
-            sense=pyo.minimize,
-        )
-        primal.requirement = pyo.Constraint(
-            expr=primal.sweden + primal.estonia >= demand,
-        )
-        primal.sweden_limit = pyo.Constraint(
-            expr=primal.sweden <= swedish_capacity,
-        )
-        primal.estonia_limit = pyo.Constraint(
-            expr=primal.estonia <= estonian_capacity,
-        )
-        pyo.assert_optimal_termination(solver.solve(primal))
-
-        # Nonnegative dual variables represent the demand cost and the
-        # cost-saving magnitudes of relaxing the two capacity limits.
-        dual = pyo.ConcreteModel()
-        dual.requirement_value = pyo.Var(domain=pyo.NonNegativeReals)
-        dual.sweden_value = pyo.Var(domain=pyo.NonNegativeReals)
-        dual.estonia_value = pyo.Var(domain=pyo.NonNegativeReals)
-        dual.objective = pyo.Objective(
-            expr=(
-                demand * dual.requirement_value
-                - swedish_capacity * dual.sweden_value
-                - estonian_capacity * dual.estonia_value
-            ),
-            sense=pyo.maximize,
-        )
-        dual.sweden_condition = pyo.Constraint(
-            expr=dual.requirement_value - dual.sweden_value <= 40,
-        )
-        dual.estonia_condition = pyo.Constraint(
-            expr=dual.requirement_value - dual.estonia_value <= 60,
-        )
-        pyo.assert_optimal_termination(solver.solve(dual))
-
-        cost = pyo.value(primal.cost)
-        dual_bound = pyo.value(dual.objective)
-        if abs(cost - dual_bound) > 1e-5:
-            raise RuntimeError("Unexpected primal–dual objective mismatch.")
-
-        return {
-            "sweden": pyo.value(primal.sweden),
-            "estonia": pyo.value(primal.estonia),
-            "cost": cost,
-            "swedish_capacity": float(swedish_capacity),
-            "demand_value": pyo.value(dual.requirement_value),
-            "swedish_capacity_value": pyo.value(dual.sweden_value),
-            "estonian_capacity_value": pyo.value(dual.estonia_value),
-            "dual_bound": dual_bound,
-        }
-
-    return (solve_imports,)
-
-
 @app.cell(hide_code=True)
 def _(solve_imports, swedish_capacity_slider):
     current_imports = solve_imports(float(swedish_capacity_slider.value))
@@ -460,7 +460,7 @@ def _(mo):
     | Estonia: at most 1 000 MWh | Nonbinding | 0 € per additional available MWh |
 
     A constraint is binding when it holds with equality at the optimum. Otherwise it has slack. In a linear program, a
-    nonbinding inequality constraint has a zero associated dual value. A binding constraint, however, can sometimes also have a zero value.
+    nonbinding inequality constraint has a zero associated dual value. A binding constraint, however, can sometimes also have a zero value. You can see such situation arising in our example by setting the Swedish export capacity at 3 200 MWh. In this case all 3 200 MWh of electricity is imported from Sweden which has the capacity of 3 200 MWh, so the constraint is binding. However, since we have satisfied the demain, additional Swedish capacity would be worth zero in our model.
 
     ???- question "Demand and capacity are not the same ☠️"
         Suppose the import requirement increases by 10 MWh, with capacities unchanged. Predict the increase in the minimum cost.
@@ -756,7 +756,7 @@ def _(mo):
     Remember also that the shadow prices describe this simplified optimization model. They are not observed market prices or
     necessarily what a transmission operator should charge. The model omits many relevant features of electricity systems, including other production sources, simultaneous exports, losses, congestion within countries, and the responses of market participants.
 
-    ???- question "A capacity investment decision ☠️☠️"
+    ???- question "A capacity investment decision ☠️"
         An operator offers 50 additional MWh of Swedish import capacity during the hour for a fixed payment of €1 200. Using the original optimization model, would purchasing the additional capacity reduce the total expenditure including that payment? Explain your calculation.
 
         What further information would you need before recommending a long-term transmission investment?
@@ -769,7 +769,7 @@ def _(mo):
     mo.md(r"""
     ## Additional material
 
-    + If you are interested in learning more about mathematical optimization, the most used book on the intermediate level is [Boyd, S. and Vandenberghe, L. (2004). *Convex Optimization*. Cambridge: Cambridge University Press.](https://web.stanford.edu/~boyd/cvxbook/bv_cvxbook.pdf) It is an exellent book for understanding the mathematics, but it goes far beyond the topics of this course. Body and Vandenberghe write about the intended audience as follows:
+    + If you are interested in learning more about mathematical optimization, the most common book at the intermediate level is [Boyd, S. and Vandenberghe, L. (2004). *Convex Optimization*. Cambridge: Cambridge University Press.](https://web.stanford.edu/~boyd/cvxbook/bv_cvxbook.pdf) It is an exellent book for understanding the mathematics, but it goes far beyond the topics of this course. Body and Vandenberghe write about the intended audience as follows:
 
     !!! quote "Boyd, S. and Vandenberghe, L. *Convex Optimization*"
         This book is meant for the researcher, scientist, or engineer who uses mathematical optimization, or more generally, computational mathematics.
@@ -790,86 +790,82 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ???- info "Mathematical treatment of duality"
-        This note derives the dual for a general LP, rather than starting with the particular electricity example. It is optional; the main text's derivation using weighted constraints already explains how to construct and interpret the dual.
+    ???- info "Mathematical derivation of the dual problem"
 
-        Begin with
+        We can derive the dual of a linear programming problem using *Lagrangian relaxation*. The idea is to construct a lower bound for the optimal objective value and then find the largest possible lower bound.
 
-        \[
+        Consider the primal problem
+
+        $$
         \begin{aligned}
         \min_{x\geq0}\quad &c^\top x\\
         \text{subject to}\quad &Ax\geq b.
         \end{aligned}
-        \]
+        $$
 
-        Rewrite the constraints as \(b-Ax\leq0\), multiply each by a nonnegative parameter \(y_i\), and add the result to the objective. This gives the Lagrangian
+        We rewrite the constraints as $b-Ax\leq0$ and associate a nonnegative multiplier $y_i$ with each constraint. This gives the *Lagrangian function*
 
-        \[
+        $$
         \begin{aligned}
         \mathcal L(x,y)
         &=c^\top x+y^\top(b-Ax)\\
         &=b^\top y+(c-A^\top y)^\top x,
         \qquad y\geq0.
         \end{aligned}
-        \]
+        $$
 
-        For a feasible \(x\), we have \(b-Ax\leq0\). Thus \(\mathcal L(x,y)\leq c^\top x\): adding the weighted constraints produces a lower bound on the cost.
+        For every feasible $x$, we have $b-Ax\leq0$. Since $y\geq0$, it follows that
 
-        To obtain a bound that depends only on \(y\), minimize the Lagrangian over \(x\geq0\):
+        $$
+        \mathcal L(x,y)\leq c^\top x.
+        $$
 
-        \[
+        We can therefore obtain a lower bound for the optimal primal value by minimizing the Lagrangian over $x\geq0$. This defines the *Lagrange dual function*
+
+        $$
+        \begin{aligned}
         \theta(y)
-        =\inf_{x\geq0}\mathcal L(x,y)
-        =b^\top y+\inf_{x\geq0}(c-A^\top y)^\top x.
-        \]
+        &=\inf_{x\geq0}\mathcal L(x,y)\\
+        &=b^\top y+\inf_{x\geq0}\{(c-A^\top y)^\top x\}.
+        \end{aligned}
+        $$
 
-        If every component of \(c-A^\top y\) is nonnegative, the last term has minimum zero (take \(x=0\)). Otherwise, increasing an activity with a negative coefficient without bound sends the Lagrangian to \(-\infty\). Therefore
+        Because $x\geq0$, the last term equals zero if every component of $c-A^\top y$ is nonnegative. Otherwise, the expression is unbounded below, since a variable with a negative coefficient can increase without bound.
 
-        \[
-            \theta(y)=
-            \begin{cases}
-            b^\top y,&A^\top y\leq c,\\
-            -\infty,&\text{otherwise}.
-            \end{cases}
-            \qquad y\geq0.
-        \]
+        Consequently,
 
-        Maximizing \(\theta(y)\) gives precisely
+        $$
+        \theta(y)=
+        \begin{cases}
+        b^\top y, & A^\top y\leq c,\\
+        -\infty, & \text{otherwise}.
+        \end{cases}
+        $$
 
-        \[
-            \begin{aligned}
-                \max_{y\geq0}\quad &b^\top y\\
-                \text{subject to}\quad &A^\top y\leq c.
-            \end{aligned}
-        \]
+        The dual function provides a lower bound for the optimal primal value $p^*$:
 
-        The inequality form from Part II. Earlier we also considered the more general representation
+        $$
+        \theta(y)\leq p^*.
+        $$
 
-        \[
-            \min_{x\in\mathbb R^n}c^\top x
-            \quad\text{subject to}\quad Ax\leq b,
-        \]
+        We obtain the best lower bound by maximizing $\theta(y)$ over $y\geq0$. Since only multipliers satisfying $A^\top y\leq c$ give a finite value, the resulting *dual problem* is
 
-        where the decision variables have no sign restrictions. For \(\lambda\geq0\), the Lagrangian is
+        $$
+        \begin{aligned}
+        \max_{y\geq0}\quad &b^\top y\\
+        \text{subject to}\quad &A^\top y\leq c.
+        \end{aligned}
+        $$
 
-        \[
-        \mathcal L(x,\lambda)
-        =c^\top x+\lambda^\top(Ax-b)
-        =-b^\top\lambda+(c+A^\top\lambda)^\top x.
-        \]
+        This establishes the dual formulation and the weak duality relationship $d^*\leq p^*$.
 
-        Because \(x\) is unrestricted, minimizing a nonzero linear coefficient over all real values gives \(-\infty\). A finite lower bound is possible only when \(c+A^\top\lambda=0\). The dual is therefore
+        Finally, the *strong duality theorem* states that if a linear program has a finite optimal solution, its dual also has an optimal solution and their optimal objective values agree:
 
-        \[
-            \begin{aligned}
-                \max_{\lambda\geq0}\quad &-b^\top\lambda\\
-                \text{subject to}\quad &A^\top\lambda=-c.
-            \end{aligned}
-        \]
+        $$
+        d^*=p^*.
+        $$
 
-        If we instead require \(x\geq0\) in this last primal, the equality changes to \(A^\top\lambda\geq-c\). This is why it matters to check both the direction of the inequalities and the sign restrictions on the decision variables when writing down a dual problem.
-
-        The electricity model is a concrete application of the first derivation. Its dual variables have the useful interpretation of the marginal cost of required imports and the saving from relaxing transmission-capacity limits.
+        The equality of the optimal objective values explains why the dual problem provides an exact alternative characterization of the primal optimum.
     """)
     return
 
@@ -977,7 +973,7 @@ def _(mo):
             \begin{aligned}
                 \theta(\lambda;s)
                 &=\inf_z\mathcal L(z,\lambda;s)\\
-                &=\inf_z\left[f(z)+\lambda g(z)\right]
+                &=\inf_z\left\{f(z)+\lambda g(z)\right\}
                   -\lambda s.
             \end{aligned}
         $$
@@ -994,7 +990,7 @@ def _(mo):
 
         $$
         V(s)=\max_{\lambda\geq 0}
-        \left[h(\lambda)-\lambda s\right].
+        \left\{h(\lambda)-\lambda s\right\}.
         $$
 
         Suppose we consider a particular parameter value $s_0$, with an optimal dual multiplier $\lambda^*$.
@@ -1043,7 +1039,13 @@ def _(mo):
         However, the relationship is local. Once Swedish transmission capacity reaches 3 200 MWh, we no longer need to import electricity from Estonia. Increasing Swedish capacity beyond this point does not provide additional savings.
 
         At exactly 3 200 MWh, the value function has a corner and is not differentiable. Different optimal dual multipliers may then correspond to different supporting slopes.
+    """)
+    return
 
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     !!! note "The direction of the constraint matters"
 
         We derived the result for a constraint of the form $g(z)\leq s$, using a nonnegative multiplier $\lambda$.
