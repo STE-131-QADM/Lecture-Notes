@@ -937,7 +937,7 @@ def _(mo):
     L_{M/M/1}>L_{M/M/1/K}.
     $$
 
-    Thus, limiting the capacity of the system reduces the expected number of customers in the system. However, this does not necessarily mean that the service process has become more efficient. The difference arises because customers arriving when the system is full are not allowed to enter.
+    Thus, limiting the capacity of the system reduces the expected number of customers in the system. However, this does not of course mean that the service process has become more efficient. The difference arises because customers arriving when the system is full are not allowed to enter.
 
     This also affects how we calculate the expected time customers spend in the system. Recall Little's law,
 
@@ -1292,7 +1292,7 @@ def _(mo):
     | Weighing time | 1.21 min | 0.73 min |
     | Time for a truck to move onto the scale | 0.33 min | 0.27 min |
 
-    The interarrival times were reasonably consistent with an exponential distribution, which supports using a Poisson arrival process as an approximation. Recall that following random variable \(E\sim\text{Exp}(\lambda)\) has expected value \(1/\lambda\) and variance \(1/\lambda^2\). This gives us easy test to see if the times approximately satisfy this.  The service process requires more care: moving onto the scale takes time mainly when another truck has just left. Thus, service times are not strictly independent of whether the system is busy.
+    The interarrival times were reasonably consistent with an exponential distribution, which supports using a Poisson arrival process as an approximation. Recall that following random variable \(E\sim\text{Exp}(\lambda)\) has expected value \(1/\lambda\) and variance \(1/\lambda^2\). This gives us easy test to see if the times approximately satisfy the relationship.  The service process requires more care: moving onto the scale takes time mainly when another truck has just left. Thus, service times are not strictly independent of whether the system is busy.
 
     For a simplified model, we make two additional approximations:
 
