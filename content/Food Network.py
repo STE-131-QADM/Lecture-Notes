@@ -744,7 +744,7 @@ def _(mo):
     An interesting property of this optimization problem is that the slope of the Pareto frontier has an economic interpretation. In particular, when the value function is differentiable and the appropriate regularity conditions hold, the optimal Lagrange multiplier \(\lambda^*\) associated with the emissions constraint satisfies
 
     \[
-    \frac{\text{d}V(\varepsilon)}{\text{d}\varepsilon}=-\lambda^*.
+    \frac{dV(\varepsilon)}{d\varepsilon}=-\lambda^*.
     \]
 
     Thus, the magnitude of the slope measures the marginal cost of reducing emissions, expressed in euros per kilogram of CO₂e avoided. This is also called the marginal abatement cost (MAC).
@@ -752,7 +752,13 @@ def _(mo):
     In the next chapter, we will study Lagrange multipliers and examine why this relationship holds and how it can be used to interpret optimization results.
 
     From the Pareto frontier above, we observe that allowing higher emissions reduces the minimum transportation cost. However, the additional cost savings generally become smaller as the emissions budget increases. Equivalently, reducing emissions becomes increasingly expensive as we move toward the minimum-emissions solution.
+    """)
+    return
 
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     ### Elasticity
 
     We can examine the relationship between transportation costs and emissions further by calculating their elasticity.
@@ -792,7 +798,7 @@ def _(mo):
     \[
     E_{C,E}
     =
-    \frac{\text{d}C}{\text{d}E}\frac{E}{C}.
+    \frac{dC}{dE}\frac{E}{C}.
     \]
 
     In practice, we approximate the derivative using consecutive points on the Pareto frontier.
@@ -800,7 +806,13 @@ def _(mo):
     The figure below illustrates how the cost elasticity varies along the frontier. Its magnitude tells us how expensive further emissions reductions are in relative terms. A higher value of \(-E_{C,E}\) indicates that achieving an additional percentage reduction in emissions requires a larger percentage increase in transportation costs.
 
     Alternatively, the reciprocal elasticity \(1/E_{C,E}\) measures the percentage change in emissions associated with a 1% change in transportation costs.
+    """)
+    return
 
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     !!! note "Why is elasticity important in environmental economics?"
 
         Elasticity is an important concept in economics because it helps us understand how strongly people and firms respond to changes in prices, income, or other economic conditions. It is especially useful in environmental economics, where policies often attempt to change behaviour through economic incentives.
@@ -839,7 +851,13 @@ def _(mo):
         If you are more interested in these kinds of topics you can find introductory texts regarding [elasticity and pricing](https://openstax.org/books/principles-economics-3e/pages/5-3-elasticity-and-pricing?utm_source=chatgpt.com), [market oriented tools for environmental applications](https://openstax.org/books/principles-economics-3e/pages/12-3-market-oriented-environmental-tools?utm_source=chatgpt.com), [carbon tax guide](https://documents1.worldbank.org/curated/en/728421535605566659/pdf/129668-V1-WP-PUBLIC-Carbon-Tax-Guide-Main-Report.pdf?utm_source=chatgpt.com), and [cross country analysis of energy subsidies](https://www.imf.org/en/publications/wp/issues/2016/12/31/energy-subsidies-and-energy-consumption-a-cross-country-analysis-40544?utm_source=chatgpt.com).
 
         Lastly, as a word of caution. Estimating the price elasticity itself is highly complex in many cases. The price and quantity are determined by the market equilibrium and therefore the observed relationship between them does not necessarily tell us how demand responds to changes in price. For example, an increase in demand can raise both prices and quantities, whereas a reduction in supply can increase prices while reducing quantities. Consequently, simply observing changes in prices and quantities is not sufficient to identify the price elasticity of demand. Reliable estimation often requires more sophisticated statistical methods to distinguish changes in demand from changes in supply and to identify the causal effect of prices on consumption.
+    """)
+    return
 
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     ### Marginal Abatement Cost
 
     Another useful quantity is the marginal abatement cost (MAC), which measures the additional transportation cost associated with reducing emissions by one unit.
@@ -849,7 +867,7 @@ def _(mo):
     \[
     \mathrm{MAC}(E)
     =
-    -\frac{\text{d}C}{\text{d}E}.
+    -\frac{dC}{dE}.
     \]
 
     Using the definition of elasticity, we can also write

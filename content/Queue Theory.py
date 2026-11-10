@@ -297,8 +297,14 @@ def _(mo):
     $$
 
     We can now derive the corresponding times from *Little's law*.
+    """)
+    return
 
-    !!! theorem "Little's law"
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    !!! theorem "Little's law (Little, J. D. C.)"
         For a stable system in the long run, the average number of customers in the system $L$, the average time spent in the system $W$, and the effective throughput (arrival) rate $\lambda_a$ satisfy
 
         $$
@@ -359,8 +365,13 @@ def _(mo):
         $$
 
         Notice that this argument does not require arrivals to follow a Poisson process or service times to be exponentially distributed. Little's law holds much more generally, provided the required long-run averages exist and the appropriate stability conditions are satisfied.
+    """)
+    return
 
 
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     In the $M/M/1$ model with unlimited waiting space, every arrival is eventually served, and the effective throughput rate is $\lambda_a=\lambda$. Thus,
 
     $$
@@ -876,6 +887,42 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
+    !!! note "Geometric sum"
+        We can compute the geometric sum by noticing that
+
+        \[
+            \begin{aligned}
+                \frac{d}{d\varrho}\left(\sum_{k=0}^K \varrho^k\right) &=
+                    \sum_{k=0}^K \frac{d\varrho^k}{d\varrho} \\
+                    &= \sum_{k=0}^K k\varrho^{k-1}
+            \end{aligned}
+        \]
+
+        and
+
+        \[
+            \begin{aligned}
+                \frac{d}{d\varrho}\left(\sum_{k=0}^K \varrho^k\right) &=
+                    \frac{d}{d\varrho}\left(\frac{1-\varrho^{K+1}}{1-\varrho} \right) \\
+                &= \frac{1-\varrho^{K+1}-(K+1)\varrho^K(1-\varrho)}{(1-\varrho)^2}.
+            \end{aligned}
+        \]
+
+        Therefore, the original sum can be written as
+
+        \[
+            \begin{aligned}
+                \sum_{k=0}^K k\varrho^k &= \varrho\sum_{k=0}^K k\varrho^{k-1} \\
+                &= \frac{\varrho(1-\varrho^{K+1})-(K+1)\varrho^{K+1}(1-\varrho)}{(1-\varrho)^2}.
+            \end{aligned}
+        \]
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     ### Interpretation of finite capacity
 
     Another observation we can make is that, when $0<\varrho<1$,
@@ -1233,7 +1280,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ## Case study: Queues at a forestry weighbridge
+    ## Example: Queues at a forestry weighbridge
 
     We can now apply the formulas from the $M/M/1$ and $M/G/1$ sections to data reported in a real forestry study. [McNickle and Woollons (1990), *Analysis and simulation of a logging weighbridge installation*](https://www.scionresearch.com/__data/assets/pdf_file/0009/59958/NZJFS201111MCNICKLE.pdf), measured the arrival and processing times of trucks at a forestry weighbridge in New Zealand. Their study also used queueing formulas and simulation to evaluate congestion and the possible benefits of additional capacity.
 

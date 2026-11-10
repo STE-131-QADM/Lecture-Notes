@@ -57,6 +57,8 @@ def _(mo):
 
     Here, \(I_t\) is the inventory at the beginning of period \(t\), \(Q_t\) is the quantity received during that period, and \(D_t\) is the quantity demanded during the period. The equation states that the inventory remaining for the next period equals the current inventory plus deliveries minus demand. In this discrete-time equation, \(Q_t\) and \(D_t\) are quantities per period, not rates.
 
+    Inventory models can be also used or extended for more abstract inventories. For example, natural resources like forest could be described in similar framework. However, in that case the model would need to be more complicated since the forest growth and exogenous effects would be needed to accounted.
+
     We assume for now that there are no inventory losses or other inflows and outflows. The same idea can later be extended to more complicated inventories, including stocks of natural resources.
 
     Our models will build on this basic description of how inventory changes over time.
@@ -73,12 +75,12 @@ def _(mo):
 
     | Symbol | Description | Unit | Assumptions |
     |---|---|---|---|
-    | $D$ | Demand rate | Units/year | Demand is constant, known, and continuous over time. $D>0$. |
+    | $D$ | Demand rate | Units/time | Demand is constant, known, and continuous over time. $D>0$. |
     | $Q$ | Order quantity | Units/order | Every order contains the same quantity $Q>0$. This is the decision variable. |
     | $I(t)$ | Inventory level at time $t$ | Units | Inventory decreases at rate $D$ between deliveries. Shortages are not allowed, so $I(t)\geq 0$. |
     | $K$ | Fixed ordering cost | €/order | Each order incurs the same fixed cost $K>0$, independent of the order quantity. |
-    | $h$ | Inventory holding cost | €/(unit·year) | Holding costs are constant and proportional to the inventory level and the time held. $h>0$. |
-    | $T$ | Length of an ordering cycle | Years | Each cycle has the same length, which we will show is $T=Q/D$. |
+    | $h$ | Inventory holding cost | €/(unit·time) | Holding costs are constant and proportional to the inventory level and the time held. $h>0$. |
+    | $T$ | Length of an ordering cycle | Units of time | Each cycle has the same length, which we will show is $T=Q/D$. |
 
     We also make the following assumptions, which are reflected in the formulation of the model:
 
@@ -91,7 +93,13 @@ def _(mo):
     | No capacity constraints | There are no restrictions on storage capacity or maximum order quantity. |
 
     It goes without saying that these assumptions restrict our model more than is realistic to assume in most scenarios. In this formulation we can acquire a nice closed form solution that can be used as a benchmark for more complex models.
+    """)
+    return
 
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     ### Inventory dynamics
 
     How do we move from the discrete-time balance equation to a continuous-time model? Suppose that demand occurs at the constant rate \(D\), and consider a short time interval \(\Delta t\) during which no delivery arrives. Inventory falls by \(D\Delta t\), so
@@ -103,7 +111,7 @@ def _(mo):
     Dividing by \(\Delta t\) and taking the limit as \(\Delta t\) approaches zero gives the differential equation
 
     \[
-        \frac{\mathrm{d}I(t)}{\mathrm{d}t}=-D.
+        \frac{dI(t)}{dt}=-D.
     \]
 
     This equation holds *between deliveries*. When a new order arrives, inventory instead increases instantaneously by \(Q\).
@@ -112,8 +120,8 @@ def _(mo):
 
     \[
         \begin{aligned}
-            \int\frac{\text{d}I(t)}{\text{d}t}\text{d}t &= I(t) \\
-            &= \int-D\text{d}t \\
+            \int\frac{dI(t)}{dt}dt &= I(t) \\
+            &= \int-Ddt \\
             &= -Dt+C_0
         \end{aligned}
     \]
@@ -194,8 +202,8 @@ def _(mo):
     \[
         \begin{aligned}
             \overline{I}
-            &=\frac{1}{T}\int_0^T I(t)\,\mathrm{d}t\\
-            &=\frac{1}{T}\int_0^T(Q-Dt)\,\mathrm{d}t\\
+            &=\frac{1}{T}\int_0^T I(t)dt\\
+            &=\frac{1}{T}\int_0^T(Q-Dt)dt\\
             &=\frac{1}{T}\left[Qt-\frac{Dt^2}{2}\right]_0^T\\
             &=\frac{1}{T}\left(QT-\frac{DT^2}{2}\right)\\
             &=Q-\frac{DT}{2}.
@@ -280,9 +288,9 @@ def _(np, plt):
     # Plot
     fig, ax = plt.subplots(figsize=(9, 5.5))
 
-    ax.plot(Q, ordering_cost, label=r"Ordering cost $C_K(Q)$", linewidth=2)
-    ax.plot(Q, holding_cost, label="rHolding cost $C_h(Q)$", linewidth=2)
-    ax.plot(Q, total_cost, label=r"Total cost $C(Q)$", linewidth=2.5)
+    ax.plot(Q, ordering_cost, label="Ordering cost $C_K(Q)$", linewidth=2)
+    ax.plot(Q, holding_cost, label="Holding cost $C_h(Q)$", linewidth=2)
+    ax.plot(Q, total_cost, label="Total cost $C(Q)$", linewidth=2.5)
 
     # Mark the optimal order quantity
     ax.scatter(Q_star, C_star, color="red", s=75, zorder=5, marker="*")
@@ -808,7 +816,7 @@ def _(mo):
 
     where $\mathbf{1}_{\{q_t>0\}}$ equals one if an order is placed and zero otherwise.
 
-    Purchasing and fixed ordering costs are incurred when orders are placed, even if delivery occurs after the simulation ends. Holding costs are approximated using inventory remaining at the end of each period. The model assigns no remaining value to inventory at the end of the simulation horizon; these conventions can affect comparisons over short horizons.
+    Purchasing and fixed ordering costs are incurred when orders are placed, even if delivery occurs after the simulation ends. Holding costs are approximated using inventory remaining at the end of each period. The model assigns no remaining value to inventory at the end of the simulation horizon. Note that these conventions can affect comparisons over short horizons so the simulation should be sufficiently long to find long term average optimum.
 
     Our objective is to find an ordering policy that minimizes the expected total cost:
 
@@ -840,6 +848,8 @@ def _(mo):
     The following Python class defines the simulation model. We specify the cost parameters, delivery lead time, and an ordering policy. The ordering policy is a function that receives a dictionary called `state`, containing the information supplied by the model when the ordering decision is made. It returns the quantity to order. We can change the policy without rewriting the simulation.
 
     For simplicity, the model assumes that even unmet demand is observed. In practice, demand is often only partly observable during stockouts, because we may only see completed sales.
+
+    If you take a look at the `simulate()` function, there is quite a lot of it there. However, the simulation part itself is quite succint and most of the code in the function is just accounting for all of the quantities that are recorded.
     """)
     return
 
@@ -1115,23 +1125,9 @@ def fixed_lot_policy(Q, reorder_point=0):
 
 
 @app.cell(hide_code=True)
-def _(baseline_results, mo, np):
-    _mean_sales = np.asarray(baseline_results["sold"]).sum(axis=0).mean()
-    _mean_lost = np.asarray(baseline_results["lost_sales"]).sum(axis=0).mean()
-    mo.md(rf"""
-    ### Comparing simulation with the classical EOQ benchmark
-
-    Let us simulate a simple inventory system for 52 weeks, using an expected weekly demand of $\lambda=50$ units, an ordering cost of €50 per order, and a holding cost of €1.25 per unit per week. We begin with an order quantity of 63 units and an initial inventory of 63 units. The classical EOQ formula gives
-
-    \[
-        Q_{{\mathrm{{EOQ}}}}^*=\sqrt{{\frac{{2(50)(50)}}{{1.25}}}}\approx63.25.
-    \]
-
-    However, our simulation differs from EOQ in two important ways. First, demand is random and inventory is reviewed only at the beginning of each week, whereas classical EOQ replenishes inventory as soon as it reaches zero. Second, we initially set the lost-sales penalty to zero, meaning that demand left unsatisfied is not counted as a cost.
-
-    In the classical EOQ model, all annual demand is satisfied, giving $50\cdot52=2600$ units sold. With the simple periodic-review policy $Q=63$ and $R=0$, our simulation sells on average {_mean_sales:.1f} units and loses {_mean_lost:.1f} units of demand over 52 weeks.
-
-    We should therefore not interpret a lower simulated cost as evidence that the stochastic policy is more efficient: it may simply be serving fewer customers.
+def _(mo):
+    mo.md(r"""
+    Then we can create a fixed lot policy with \(Q\) and \(R\) specified and define an instance of `InventorySimulator`. After that we call the simulation method to simulate 500 different inventory paths over a year, at a weekly frequence.
     """)
     return
 
@@ -1158,26 +1154,25 @@ def _(baseline_simulator):
     return (baseline_results,)
 
 
-@app.cell
-def _(InventorySimulator):
-    # Create a policy with 150 units order threshold
-    threshold_policy = fixed_lot_policy(63)
-    # Pass the policy for our simulation class
-    EOQ = InventorySimulator(threshold_policy, setup_cost=50, holding_cost=1.25)
-    return
-
-
 @app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    The simulation's mean ordering and holding cost over 52 weeks, excluding any penalty for unmet demand, is:
-    """)
-    return
+def _(baseline_results, mo, np):
+    _mean_sales = np.asarray(baseline_results["sold"]).sum(axis=0).mean()
+    _mean_lost = np.asarray(baseline_results["lost_sales"]).sum(axis=0).mean()
+    mo.md(rf"""
+    ### Comparing simulation with the classical EOQ benchmark
 
+    Let us simulate a simple inventory system for 52 weeks, using an expected weekly demand of $\lambda=50$ units, an ordering cost of €50 per order, and a holding cost of €1.25 per unit per week. We begin with an order quantity of 63 units and an initial inventory of 63 units. The classical EOQ formula gives
 
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
+    \[
+        Q_{{\mathrm{{EOQ}}}}^*=\sqrt{{\frac{{2(50)(50)}}{{1.25}}}}\approx63.25.
+    \]
+
+    However, our simulation differs from EOQ in two important ways. First, demand is random and inventory is reviewed only at the beginning of each week, whereas classical EOQ replenishes inventory as soon as it reaches zero. Second, we initially set the lost-sales penalty to zero, meaning that demand left unsatisfied is not counted as a cost.
+
+    In the classical EOQ model, all annual demand is satisfied, giving $50\cdot52=2600$ units sold. With the simple periodic-review policy $Q=63$ and $R=0$, our simulation sells on average {_mean_sales:.1f} units and loses {_mean_lost:.1f} units of demand over 52 weeks.
+
+    We should therefore not interpret a lower simulated cost as evidence that the stochastic policy is more efficient: it may simply be serving fewer customers.
+
     In the simulation model, our total cost with order size of 63 items is on average:
     """)
     return
@@ -1190,20 +1185,16 @@ def _(baseline_results, baseline_simulator):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
+def _(mo, np):
+    mo.md(f"""
     We can compare this with the classical EOQ long-run cost benchmark, calculated from the same weekly demand and holding cost. We multiply weekly costs by 52 to obtain annual costs.
-    """)
-    return
 
-
-@app.cell(hide_code=True)
-def _(np):
-    print(f"""
-    EOQ optimum: {np.sqrt((2*50*50)/1.25):.1f}
-    EOQ annual order cost: {(52*50*50/np.sqrt((2*50*50)/1.25)):.1f}
-    EOQ annual holding cost: {(52*1.25*np.sqrt((2*50*50)/1.25)/2):.1f}
-    EOQ annual total cost: {(52*50*50/np.sqrt((2*50*50)/1.25)+52*1.25*np.sqrt((2*50*50)/1.25)/2):.1f}
+    |||
+    |---|---|
+    | EOQ optimum | {np.sqrt((2*50*50)/1.25):.1f} |
+    |EOQ annual order cost | {(52*50*50/np.sqrt((2*50*50)/1.25)):.1f} |
+    | EOQ annual holding cost | {(52*1.25*np.sqrt((2*50*50)/1.25)/2):.1f} |
+    | EOQ annual total cost | {(52*50*50/np.sqrt((2*50*50)/1.25)+52*1.25*np.sqrt((2*50*50)/1.25)/2):.1f} |
     """)
     return
 
@@ -1275,7 +1266,7 @@ def _(mo):
 
     We can compare the numerical solution with the classical EOQ quantity of approximately $63$ units. However, the initial optimization includes no lost-sales penalty. Therefore, a low-cost solution may achieve its lower cost by not serving much of the demand. We should examine the fill rate in addition to the cost.
 
-    Below, `quantity_objective` defines the simulated objective function for SciPy. We keep the initial stock and the demand scenarios fixed so that the order quantity is the only changing input.
+    Below, `quantity_objective` defines the simulated objective function for [SciPy](https://scipy.org/). We keep the initial stock and the demand scenarios fixed so that the order quantity is the only changing input.
     """)
     return
 
@@ -1409,7 +1400,7 @@ def _(mo):
 
     The missing sale cost is a bit unsatisfactory quantity. It is clearly not equal to the selling price or profit of the product. If we would set it that level we would be essentially assuming that the sale is lost for good. Instead we would need to somehow estimate what losing that particular sales action costs us. The customer may be coming back later, but this is not certain.
 
-    This is further complicated by the fact that scarcity can be also used as a sales tactic, *e.g.* luxury goods. In this case the assumption is that losing some sales is actually beneficial.
+    This is further complicated by the fact that scarcity can be also used as a sales tactic, *e.g.* luxury goods. In this case the assumption is that losing some sales is actually beneficial through some other mechanism.
 
     We will however set the `lost_sale_cost` to 1.5€ per item that would be demanded but cant be sold due to shortage.
 
@@ -1423,7 +1414,7 @@ def _(mo):
         \frac{1}{N}\sum_{j=1}^{N}C_j(Q,R).
     $$
 
-    Implementation for this follows the implementation of only quantity optimization closely. Instead of having only the quantity as an optimization parameter in the objective, we instead now also include the threshold \(R\).
+    Implementation for this follows the implementation of only quantity optimization closely. Instead of having only the quantity as an optimization variable in the objective, we instead now also include the threshold \(R\).
     """)
     return
 
