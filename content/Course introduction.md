@@ -20,7 +20,7 @@ As the title of the course suggests, this course is about analysing data and pro
 
 1. **Numerical optimization:** linear and mixed-integer optimization
 2. **Operations modeling:** queue and inventory models
-3. **Statistical inference:** forecasting and embedding statistical inference into decision-making
+3. **Statistical inference and forecasting:** forecasting and embedding statistical inference into decision-making
 
 The first part will take a significant amount of time. In the second part, we will use optimization techniques to derive key properties of queue and inventory models using tools from mathematical optimization. The last part will also build on the tools acquired earlier in the course. We will use statistical methods indirectly to estimate and interpret model parameters, but also directly by using forecasting results to parameterize optimization problems.
 
@@ -28,7 +28,7 @@ The first part will take a significant amount of time. In the second part, we wi
 
 Decision-making can be studied from many different perspectives. In quantitative applications of decision-making we are required to somehow rank the different actions available in a given situation.
 
-A function that assigns a value to a given action may have different names depending on the context, such as a *utility function* or an *objective function*. Its values can have a straightforward interpretation. For example, a profit function could measure the amount of money obtained from a particular combination of inputs in euros; an objective could measure the time required for a particular logistics network to operate in minutes; or it could measure the amount of land conserved in square metres.
+A function that assigns a value to a given action may have different names depending on the context, such as a *utility function* or an *objective function*. Its values can have a straightforward interpretation. For example, a profit function could measure the amount of money obtained from a particular combination of inputs in euros. Similarly the objective could measure the time required for a particular logistics network to operate in minutes or it could measure the amount of land conserved in square metres.
 
 However, the value need not always have a direct measurement scale. In some cases, we may only have ordinal information about the ranking of different solutions. This is the case, for example, in many economic applications of utility functions.
 
@@ -79,11 +79,11 @@ These lecture notes are intended to give more rigorous treatment of the course t
 
 ## Running the lecture notes
 
-In the upper-right corner of this page, next to the search button, you will find options to download the notebooks or open them in [Molab](https://molab.marimo.io/notebooks), an online environment for running and editing marimo notebooks.
+In the upper-right corner of the forthcoming chapters, next to the search button, you will find options to download the notebooks or open them in [Molab](https://molab.marimo.io/notebooks), an online environment for running and editing marimo notebooks.
 
-This introductory chapter does not contain executable code, so there is nothing to run in Molab. However, subsequent chapters, such as Linear Optimization: Part I, contain executable Python code that you can explore and modify. You can experiment with the examples, change model parameters, and observe how these changes affect the results.
+This introductory chapter does not contain executable code, so there is nothing to run in Molab. However, subsequent chapters contain executable Python code that you can explore and modify. You can experiment with the examples, change model parameters, and observe how these changes affect the results.
 
-Some parts of these lecture notes use formatting and features that are supported by marimo-book but not by standard marimo notebooks. Consequently, certain elements may not render correctly when you open a chapter in Molab. For the complete lecture notes, including all explanations and formatting, I recommend using the marimo-book website. Use Molab when you want to experiment with the code.
+Some parts of these lecture notes use formatting and features that are supported by marimo-book but not by standard marimo notebooks. Consequently, certain elements may not render correctly when you open a chapter in Molab. For the complete lecture notes, including all explanations and formatting, I recommend using the marimo-book website *i.e.* the website you are currently reading. Use Molab when you want to experiment with the code.
 
 !!! warning "Not displayed correctly in Molab"
     Boxes like this one, which are used for exercises and notes, will not render correctly in Molab.
