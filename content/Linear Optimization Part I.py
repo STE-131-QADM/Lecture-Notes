@@ -126,7 +126,7 @@ def _(mo):
 
     !!! definition "Linearity"
 
-        A function \(f:\mathbb{R}^n\rightarrow\mathbb{R}\) is linear if
+        A function \(f:\mathbb{R}^n\to\mathbb{R}\) is linear if
 
         \[
         f(\alpha x+\beta y)

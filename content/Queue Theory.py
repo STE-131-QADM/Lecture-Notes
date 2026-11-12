@@ -916,6 +916,8 @@ def _(mo):
                 &= \frac{\varrho(1-\varrho^{K+1})-(K+1)\varrho^{K+1}(1-\varrho)}{(1-\varrho)^2}.
             \end{aligned}
         \]
+
+        For more information about geometric sums as well as the general formulations see the [Wikipedia article](https://en.wikipedia.org/wiki/Geometric_series).
     """)
     return
 
